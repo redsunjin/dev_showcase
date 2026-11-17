@@ -19,20 +19,20 @@
 <body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col selection:bg-blue-500 selection:text-white">
 
     <!-- Header -->
-    <header class="border-b border-slate-800/80 bg-slate-900/80 sticky top-0 z-40 backdrop-blur-md">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3.5">
-            <div class="flex items-center justify-between gap-3">
-                <div class="flex items-center gap-3">
-                    <div class="bg-gradient-to-tr from-blue-600 to-indigo-500 p-2.5 rounded-xl shadow-lg shadow-blue-500/20 shrink-0">
-                        <i class="fa-solid fa-layer-group text-white text-xl" aria-hidden="true"></i>
+    <header class="border-b border-slate-800/80 bg-slate-900/80 md:sticky md:top-0 z-40 backdrop-blur-md">
+        <div class="max-w-7xl mx-auto px-3.5 sm:px-6 lg:px-8 py-3 sm:py-3.5 flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-2.5 sm:gap-3.5">
+            <div class="flex items-center justify-between gap-2.5">
+                <div class="flex items-center gap-2.5 sm:gap-3 min-w-0">
+                    <div class="bg-gradient-to-tr from-blue-600 to-indigo-500 p-2 sm:p-2.5 rounded-xl shadow-lg shadow-blue-500/20 shrink-0">
+                        <i class="fa-solid fa-layer-group text-white text-lg sm:text-xl" aria-hidden="true"></i>
                     </div>
-                    <div>
+                    <div class="min-w-0">
                         <div class="flex flex-wrap items-center gap-1.5">
-                            <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-blue-500/20 text-blue-300 border border-blue-500/30">3초 개발지식 · 핵심 기본기</span>
+                            <span class="hidden sm:inline-block text-[10px] font-bold px-2 py-0.5 rounded bg-blue-500/20 text-blue-300 border border-blue-500/30">3초 개발지식 · 핵심 기본기</span>
                             <span id="progressBadge" class="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">학습 0/152 (0%)</span>
                             <span id="bookmarkBadge" class="text-[10px] font-bold px-2 py-0.5 rounded bg-amber-500/15 text-amber-300 border border-amber-500/30">북마크 0</span>
                         </div>
-                        <h1 class="text-lg sm:text-xl font-bold bg-gradient-to-r from-white via-slate-200 to-slate-400 bg-clip-text text-transparent mt-0.5">
+                        <h1 class="text-base sm:text-xl font-bold bg-gradient-to-r from-white via-slate-200 to-slate-400 bg-clip-text text-transparent mt-0.5 truncate">
                             개발자 핵심 기본소양 152선
                         </h1>
                     </div>
@@ -40,8 +40,8 @@
             </div>
 
             <!-- Search & App Controls -->
-            <div class="flex flex-wrap items-center gap-2">
-                <div class="relative flex-1 min-w-[200px] sm:w-64">
+            <div class="flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-2">
+                <div class="relative flex-1 min-w-0 sm:min-w-[200px] sm:w-64">
                     <i class="fa-solid fa-search absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm pointer-events-none" aria-hidden="true"></i>
                     <input type="search" id="searchInput" aria-label="개념 및 키워드 검색"
                         placeholder="개념·키워드 검색 (/ 단축키)"
@@ -52,28 +52,30 @@
                     </button>
                 </div>
 
-                <button type="button" id="startQuizBtn"
-                    class="bg-blue-600 hover:bg-blue-500 text-white px-3.5 py-2 rounded-xl text-sm font-semibold transition flex items-center gap-1.5 shadow-lg shadow-blue-600/20 cursor-pointer">
-                    <i class="fa-solid fa-bolt" aria-hidden="true"></i>
-                    <span>집중 퀴즈</span>
-                </button>
+                <div class="grid grid-cols-[1fr_1fr_auto_auto] sm:flex items-center gap-1.5 sm:gap-2">
+                    <button type="button" id="startQuizBtn"
+                        class="bg-blue-600 hover:bg-blue-500 text-white px-2.5 sm:px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold transition flex items-center justify-center gap-1.5 shadow-lg shadow-blue-600/20 cursor-pointer whitespace-nowrap">
+                        <i class="fa-solid fa-bolt" aria-hidden="true"></i>
+                        <span>집중 퀴즈</span>
+                    </button>
 
-                <button type="button" id="toggleModeBtn" aria-pressed="false"
-                    class="bg-slate-900 border border-slate-700 hover:bg-slate-800 px-3.5 py-2 rounded-xl text-sm font-medium transition flex items-center gap-2 text-slate-200 cursor-pointer">
-                    <i class="fa-solid fa-clone text-amber-400" aria-hidden="true"></i>
-                    <span id="modeText">암기 모드 OFF</span>
-                </button>
+                    <button type="button" id="toggleModeBtn" aria-pressed="false"
+                        class="bg-slate-900 border border-slate-700 hover:bg-slate-800 px-2.5 sm:px-3.5 py-2 rounded-xl text-xs sm:text-sm font-medium transition flex items-center justify-center gap-1.5 sm:gap-2 text-slate-200 cursor-pointer whitespace-nowrap">
+                        <i class="fa-solid fa-clone text-amber-400" aria-hidden="true"></i>
+                        <span id="modeText">암기 모드 OFF</span>
+                    </button>
 
-                <button type="button" id="studyGuideBtn" aria-expanded="false" aria-controls="studyGuidePanel"
-                    class="bg-indigo-600/20 border border-indigo-500/40 hover:bg-indigo-600/30 text-indigo-300 px-3 py-2 rounded-xl text-sm font-medium transition flex items-center gap-1.5 cursor-pointer">
-                    <i class="fa-solid fa-lightbulb" aria-hidden="true"></i>
-                    <span>정리방법</span>
-                </button>
+                    <button type="button" id="studyGuideBtn" aria-expanded="false" aria-controls="studyGuidePanel" title="정리방법 가이드"
+                        class="bg-indigo-600/20 border border-indigo-500/40 hover:bg-indigo-600/30 text-indigo-300 px-2.5 sm:px-3 py-2 rounded-xl text-xs sm:text-sm font-medium transition flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap">
+                        <i class="fa-solid fa-lightbulb" aria-hidden="true"></i>
+                        <span class="hidden sm:inline">정리방법</span>
+                    </button>
 
-                <button type="button" id="resetProgressBtn" title="학습 진도 초기화" aria-label="학습 진도 초기화"
-                    class="bg-slate-900 border border-slate-700/80 hover:border-rose-500/50 hover:text-rose-300 text-slate-400 px-3 py-2 rounded-xl text-sm transition cursor-pointer">
-                    <i class="fa-solid fa-rotate-left" aria-hidden="true"></i>
-                </button>
+                    <button type="button" id="resetProgressBtn" title="학습 진도 초기화" aria-label="학습 진도 초기화"
+                        class="bg-slate-900 border border-slate-700/80 hover:border-rose-500/50 hover:text-rose-300 text-slate-400 px-2.5 sm:px-3 py-2 rounded-xl text-xs sm:text-sm transition flex items-center justify-center cursor-pointer">
+                        <i class="fa-solid fa-rotate-left" aria-hidden="true"></i>
+                    </button>
+                </div>
             </div>
         </div>
 
@@ -113,64 +115,68 @@
 
     <!-- Navigation Categories & Status Filters -->
     <nav class="bg-slate-900/40 border-b border-slate-800/80" aria-label="카테고리 및 난이도·상태 필터">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col py-3 gap-2.5">
-            <div class="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1">
-                <button type="button" data-category="all" class="cat-btn px-3.5 py-2 rounded-xl text-sm font-semibold whitespace-nowrap transition bg-blue-600 text-white shadow-lg shadow-blue-600/20 cursor-pointer">
-                    <i class="fa-solid fa-border-all mr-1.5" aria-hidden="true"></i> 전체 (152)
+        <div class="max-w-7xl mx-auto px-3.5 sm:px-6 lg:px-8 flex flex-col py-2.5 sm:py-3 gap-2">
+            <!-- Category Tabs (Horizontal Scroll) -->
+            <div class="flex items-center gap-1.5 sm:gap-2 overflow-x-auto no-scrollbar pb-0.5">
+                <button type="button" data-category="all" class="cat-btn px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl text-xs sm:text-sm font-semibold whitespace-nowrap transition bg-blue-600 text-white shadow-lg shadow-blue-600/20 cursor-pointer shrink-0">
+                    <i class="fa-solid fa-border-all mr-1 sm:mr-1.5" aria-hidden="true"></i> 전체 (152)
                 </button>
-                <button type="button" data-category="web-security" class="cat-btn px-3.5 py-2 rounded-xl text-sm font-medium whitespace-nowrap transition bg-slate-900 border border-slate-800 text-slate-400 hover:text-slate-200 hover:bg-slate-800 cursor-pointer">
+                <button type="button" data-category="web-security" class="cat-btn px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl text-xs sm:text-sm font-medium whitespace-nowrap transition bg-slate-900 border border-slate-800 text-slate-400 hover:text-slate-200 hover:bg-slate-800 cursor-pointer shrink-0">
                     <i class="fa-solid fa-shield-halved mr-1 text-cyan-400" aria-hidden="true"></i> 웹 보안 17
                 </button>
-                <button type="button" data-category="database" class="cat-btn px-3.5 py-2 rounded-xl text-sm font-medium whitespace-nowrap transition bg-slate-900 border border-slate-800 text-slate-400 hover:text-slate-200 hover:bg-slate-800 cursor-pointer">
+                <button type="button" data-category="database" class="cat-btn px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl text-xs sm:text-sm font-medium whitespace-nowrap transition bg-slate-900 border border-slate-800 text-slate-400 hover:text-slate-200 hover:bg-slate-800 cursor-pointer shrink-0">
                     <i class="fa-solid fa-database mr-1 text-emerald-400" aria-hidden="true"></i> DB 15
                 </button>
-                <button type="button" data-category="data-structure" class="cat-btn px-3.5 py-2 rounded-xl text-sm font-medium whitespace-nowrap transition bg-slate-900 border border-slate-800 text-slate-400 hover:text-slate-200 hover:bg-slate-800 cursor-pointer">
+                <button type="button" data-category="data-structure" class="cat-btn px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl text-xs sm:text-sm font-medium whitespace-nowrap transition bg-slate-900 border border-slate-800 text-slate-400 hover:text-slate-200 hover:bg-slate-800 cursor-pointer shrink-0">
                     <i class="fa-solid fa-diagram-project mr-1 text-purple-400" aria-hidden="true"></i> 자료구조 15
                 </button>
-                <button type="button" data-category="sql-traps" class="cat-btn px-3.5 py-2 rounded-xl text-sm font-medium whitespace-nowrap transition bg-slate-900 border border-slate-800 text-slate-400 hover:text-slate-200 hover:bg-slate-800 cursor-pointer">
+                <button type="button" data-category="sql-traps" class="cat-btn px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl text-xs sm:text-sm font-medium whitespace-nowrap transition bg-slate-900 border border-slate-800 text-slate-400 hover:text-slate-200 hover:bg-slate-800 cursor-pointer shrink-0">
                     <i class="fa-solid fa-triangle-exclamation mr-1 text-rose-400" aria-hidden="true"></i> SQL 15
                 </button>
-                <button type="button" data-category="os-network" class="cat-btn px-3.5 py-2 rounded-xl text-sm font-medium whitespace-nowrap transition bg-slate-900 border border-slate-800 text-slate-400 hover:text-slate-200 hover:bg-slate-800 cursor-pointer">
+                <button type="button" data-category="os-network" class="cat-btn px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl text-xs sm:text-sm font-medium whitespace-nowrap transition bg-slate-900 border border-slate-800 text-slate-400 hover:text-slate-200 hover:bg-slate-800 cursor-pointer shrink-0">
                     <i class="fa-solid fa-network-wired mr-1 text-amber-400" aria-hidden="true"></i> OS·네트워크 15
                 </button>
-                <button type="button" data-category="architecture" class="cat-btn px-3.5 py-2 rounded-xl text-sm font-medium whitespace-nowrap transition bg-slate-900 border border-slate-800 text-slate-400 hover:text-slate-200 hover:bg-slate-800 cursor-pointer">
+                <button type="button" data-category="architecture" class="cat-btn px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl text-xs sm:text-sm font-medium whitespace-nowrap transition bg-slate-900 border border-slate-800 text-slate-400 hover:text-slate-200 hover:bg-slate-800 cursor-pointer shrink-0">
                     <i class="fa-solid fa-cubes mr-1 text-indigo-400" aria-hidden="true"></i> 설계·클린코드 15
                 </button>
-                <button type="button" data-category="frontend" class="cat-btn px-3.5 py-2 rounded-xl text-sm font-medium whitespace-nowrap transition bg-slate-900 border border-slate-800 text-slate-400 hover:text-slate-200 hover:bg-slate-800 cursor-pointer">
+                <button type="button" data-category="frontend" class="cat-btn px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl text-xs sm:text-sm font-medium whitespace-nowrap transition bg-slate-900 border border-slate-800 text-slate-400 hover:text-slate-200 hover:bg-slate-800 cursor-pointer shrink-0">
                     <i class="fa-brands fa-js mr-1 text-sky-400" aria-hidden="true"></i> 브라우저·FE 15
                 </button>
-                <button type="button" data-category="testing" class="cat-btn px-3.5 py-2 rounded-xl text-sm font-medium whitespace-nowrap transition bg-slate-900 border border-slate-800 text-slate-400 hover:text-slate-200 hover:bg-slate-800 cursor-pointer">
+                <button type="button" data-category="testing" class="cat-btn px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl text-xs sm:text-sm font-medium whitespace-nowrap transition bg-slate-900 border border-slate-800 text-slate-400 hover:text-slate-200 hover:bg-slate-800 cursor-pointer shrink-0">
                     <i class="fa-solid fa-vial-circle-check mr-1 text-fuchsia-400" aria-hidden="true"></i> 테스트 15
                 </button>
-                <button type="button" data-category="devops" class="cat-btn px-3.5 py-2 rounded-xl text-sm font-medium whitespace-nowrap transition bg-slate-900 border border-slate-800 text-slate-400 hover:text-slate-200 hover:bg-slate-800 cursor-pointer">
+                <button type="button" data-category="devops" class="cat-btn px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl text-xs sm:text-sm font-medium whitespace-nowrap transition bg-slate-900 border border-slate-800 text-slate-400 hover:text-slate-200 hover:bg-slate-800 cursor-pointer shrink-0">
                     <i class="fa-solid fa-gears mr-1 text-orange-400" aria-hidden="true"></i> CI/CD·DevOps 15
                 </button>
-                <button type="button" data-category="ai-agent" class="cat-btn px-3.5 py-2 rounded-xl text-sm font-medium whitespace-nowrap transition bg-slate-900 border border-slate-800 text-slate-400 hover:text-slate-200 hover:bg-slate-800 cursor-pointer">
+                <button type="button" data-category="ai-agent" class="cat-btn px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl text-xs sm:text-sm font-medium whitespace-nowrap transition bg-slate-900 border border-slate-800 text-slate-400 hover:text-slate-200 hover:bg-slate-800 cursor-pointer shrink-0">
                     <i class="fa-solid fa-robot mr-1 text-teal-400" aria-hidden="true"></i> AI·LLM·에이전트 15
                 </button>
             </div>
 
             <!-- Difficulty (Priority) & Status Filter Bar -->
-            <div class="flex flex-wrap items-center justify-between gap-2">
-                <div class="flex flex-wrap items-center gap-1.5" role="group" aria-label="난이도 단계 필터">
-                    <span class="text-[11px] text-slate-500 mr-1"><i class="fa-solid fa-signal mr-1" aria-hidden="true"></i>난이도:</span>
-                    <button type="button" data-level="all" class="level-btn px-2.5 py-1 rounded-lg text-xs font-semibold transition bg-slate-800 text-white border border-slate-500 cursor-pointer">전체</button>
-                    <button type="button" data-level="1" class="level-btn px-2.5 py-1 rounded-lg text-xs font-medium transition bg-slate-900 text-emerald-300 border border-slate-800 hover:border-emerald-500/40 cursor-pointer">Lv.1 입문·필수</button>
-                    <button type="button" data-level="2" class="level-btn px-2.5 py-1 rounded-lg text-xs font-medium transition bg-slate-900 text-amber-300 border border-slate-800 hover:border-amber-500/40 cursor-pointer">Lv.2 실무·핵심</button>
-                    <button type="button" data-level="3" class="level-btn px-2.5 py-1 rounded-lg text-xs font-medium transition bg-slate-900 text-purple-300 border border-slate-800 hover:border-purple-500/40 cursor-pointer">Lv.3 심화·고급</button>
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-2">
+                <!-- Difficulty Segmented Bar (single row on mobile) -->
+                <div class="grid grid-cols-4 sm:flex items-center gap-1.5" role="group" aria-label="난이도 단계 필터">
+                    <span class="hidden sm:inline-flex items-center text-[11px] text-slate-500 mr-1"><i class="fa-solid fa-signal mr-1" aria-hidden="true"></i>난이도:</span>
+                    <button type="button" data-level="all" class="level-btn px-2 sm:px-2.5 py-1.5 sm:py-1 rounded-lg text-[11px] sm:text-xs font-semibold text-center whitespace-nowrap transition bg-slate-800 text-white border border-slate-500 cursor-pointer">전체 난이도</button>
+                    <button type="button" data-level="1" class="level-btn px-2 sm:px-2.5 py-1.5 sm:py-1 rounded-lg text-[11px] sm:text-xs font-medium text-center whitespace-nowrap transition bg-slate-900 text-emerald-300 border border-slate-800 hover:border-emerald-500/40 cursor-pointer">Lv.1 입문<span class="hidden sm:inline">·필수</span></button>
+                    <button type="button" data-level="2" class="level-btn px-2 sm:px-2.5 py-1.5 sm:py-1 rounded-lg text-[11px] sm:text-xs font-medium text-center whitespace-nowrap transition bg-slate-900 text-amber-300 border border-slate-800 hover:border-amber-500/40 cursor-pointer">Lv.2 실무<span class="hidden sm:inline">·핵심</span></button>
+                    <button type="button" data-level="3" class="level-btn px-2 sm:px-2.5 py-1.5 sm:py-1 rounded-lg text-[11px] sm:text-xs font-medium text-center whitespace-nowrap transition bg-slate-900 text-purple-300 border border-slate-800 hover:border-purple-500/40 cursor-pointer">Lv.3 심화<span class="hidden sm:inline">·고급</span></button>
                 </div>
 
-                <div class="flex flex-wrap items-center gap-1.5">
+                <!-- Sort & Status Filter Bar (clean single row on mobile) -->
+                <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar">
                     <button type="button" id="sortPriorityBtn" aria-pressed="true"
                         title="난이도(Lv.1 입문 → Lv.3 고급) 우선순위순 정렬 전환"
-                        class="px-3 py-1.5 rounded-lg text-xs font-semibold transition bg-indigo-600/20 text-indigo-300 border border-indigo-500/40 hover:bg-indigo-600/30 cursor-pointer">
+                        class="px-2.5 sm:px-3 py-1.5 rounded-lg text-[11px] sm:text-xs font-semibold whitespace-nowrap shrink-0 transition bg-indigo-600/20 text-indigo-300 border border-indigo-500/40 hover:bg-indigo-600/30 cursor-pointer">
                         <i class="fa-solid fa-arrow-down-short-wide mr-1" aria-hidden="true"></i>
                         <span id="sortPriorityText">우선순위순 (Lv.1→3)</span>
                     </button>
-                    <button type="button" data-status="all" class="status-btn px-3 py-1.5 rounded-lg text-xs font-semibold transition bg-slate-800 text-white border border-slate-600 cursor-pointer">전체</button>
-                    <button type="button" data-status="unlearned" class="status-btn px-3 py-1.5 rounded-lg text-xs font-medium transition bg-slate-900 text-slate-400 border border-slate-800 hover:text-slate-200 cursor-pointer">미학습</button>
-                    <button type="button" data-status="learned" class="status-btn px-3 py-1.5 rounded-lg text-xs font-medium transition bg-slate-900 text-slate-400 border border-slate-800 hover:text-slate-200 cursor-pointer">완료</button>
-                    <button type="button" data-status="bookmarked" class="status-btn px-3 py-1.5 rounded-lg text-xs font-medium transition bg-slate-900 text-slate-400 border border-slate-800 hover:text-amber-300 cursor-pointer">
+                    <div class="h-4 w-px bg-slate-800 shrink-0" aria-hidden="true"></div>
+                    <button type="button" data-status="all" class="status-btn px-2.5 sm:px-3 py-1.5 rounded-lg text-[11px] sm:text-xs font-semibold whitespace-nowrap shrink-0 transition bg-slate-800 text-white border border-slate-600 cursor-pointer">전체</button>
+                    <button type="button" data-status="unlearned" class="status-btn px-2.5 sm:px-3 py-1.5 rounded-lg text-[11px] sm:text-xs font-medium whitespace-nowrap shrink-0 transition bg-slate-900 text-slate-400 border border-slate-800 hover:text-slate-200 cursor-pointer">미학습</button>
+                    <button type="button" data-status="learned" class="status-btn px-2.5 sm:px-3 py-1.5 rounded-lg text-[11px] sm:text-xs font-medium whitespace-nowrap shrink-0 transition bg-slate-900 text-slate-400 border border-slate-800 hover:text-slate-200 cursor-pointer">완료</button>
+                    <button type="button" data-status="bookmarked" class="status-btn px-2.5 sm:px-3 py-1.5 rounded-lg text-[11px] sm:text-xs font-medium whitespace-nowrap shrink-0 transition bg-slate-900 text-slate-400 border border-slate-800 hover:text-amber-300 cursor-pointer">
                         <i class="fa-solid fa-star text-amber-400 mr-1" aria-hidden="true"></i>북마크
                     </button>
                 </div>

@@ -283,9 +283,9 @@
             const active = btn.getAttribute('data-category') === state.currentCategory;
             btn.setAttribute('aria-pressed', active ? 'true' : 'false');
             if (active) {
-                btn.className = 'cat-btn px-3.5 py-2 rounded-xl text-sm font-semibold whitespace-nowrap transition bg-blue-600 text-white shadow-lg shadow-blue-600/20 cursor-pointer';
+                btn.className = 'cat-btn px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl text-xs sm:text-sm font-semibold whitespace-nowrap transition bg-blue-600 text-white shadow-lg shadow-blue-600/20 cursor-pointer shrink-0';
             } else {
-                btn.className = 'cat-btn px-3.5 py-2 rounded-xl text-sm font-medium whitespace-nowrap transition bg-slate-900 border border-slate-800 text-slate-400 hover:text-slate-200 hover:bg-slate-800 cursor-pointer';
+                btn.className = 'cat-btn px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl text-xs sm:text-sm font-medium whitespace-nowrap transition bg-slate-900 border border-slate-800 text-slate-400 hover:text-slate-200 hover:bg-slate-800 cursor-pointer shrink-0';
             }
         });
 
@@ -298,28 +298,28 @@
                 lvl === '2' ? 'text-amber-300' :
                 lvl === '3' ? 'text-purple-300' : 'text-white';
             if (active) {
-                btn.className = `level-btn px-2.5 py-1 rounded-lg text-xs font-semibold transition bg-slate-800 ${baseColor} border border-slate-500 cursor-pointer`;
+                btn.className = `level-btn px-2 sm:px-2.5 py-1.5 sm:py-1 rounded-lg text-[11px] sm:text-xs font-semibold text-center whitespace-nowrap transition bg-slate-800 ${baseColor} border border-slate-500 cursor-pointer`;
             } else {
-                btn.className = `level-btn px-2.5 py-1 rounded-lg text-xs font-medium transition bg-slate-900 ${lvl === 'all' ? 'text-slate-400' : baseColor} border border-slate-800 hover:border-slate-600 cursor-pointer`;
+                btn.className = `level-btn px-2 sm:px-2.5 py-1.5 sm:py-1 rounded-lg text-[11px] sm:text-xs font-medium text-center whitespace-nowrap transition bg-slate-900 ${lvl === 'all' ? 'text-slate-400' : baseColor} border border-slate-800 hover:border-slate-600 cursor-pointer`;
             }
         });
 
         sortPriorityBtn.setAttribute('aria-pressed', state.sortByPriority ? 'true' : 'false');
         if (state.sortByPriority) {
             sortPriorityText.textContent = '우선순위순 (Lv.1→3)';
-            sortPriorityBtn.className = 'px-3 py-1.5 rounded-lg text-xs font-semibold transition bg-indigo-600/20 text-indigo-300 border border-indigo-500/40 hover:bg-indigo-600/30 cursor-pointer';
+            sortPriorityBtn.className = 'px-2.5 sm:px-3 py-1.5 rounded-lg text-[11px] sm:text-xs font-semibold whitespace-nowrap shrink-0 transition bg-indigo-600/20 text-indigo-300 border border-indigo-500/40 hover:bg-indigo-600/30 cursor-pointer';
         } else {
             sortPriorityText.textContent = '기본 번호순';
-            sortPriorityBtn.className = 'px-3 py-1.5 rounded-lg text-xs font-medium transition bg-slate-900 text-slate-400 border border-slate-800 hover:text-slate-200 cursor-pointer';
+            sortPriorityBtn.className = 'px-2.5 sm:px-3 py-1.5 rounded-lg text-[11px] sm:text-xs font-medium whitespace-nowrap shrink-0 transition bg-slate-900 text-slate-400 border border-slate-800 hover:text-slate-200 cursor-pointer';
         }
 
         statusBtns.forEach(btn => {
             const active = btn.getAttribute('data-status') === state.statusFilter;
             btn.setAttribute('aria-pressed', active ? 'true' : 'false');
             if (active) {
-                btn.className = 'status-btn px-3 py-1.5 rounded-lg text-xs font-semibold transition bg-slate-800 text-white border border-slate-500 cursor-pointer';
+                btn.className = 'status-btn px-2.5 sm:px-3 py-1.5 rounded-lg text-[11px] sm:text-xs font-semibold whitespace-nowrap shrink-0 transition bg-slate-800 text-white border border-slate-600 cursor-pointer';
             } else {
-                btn.className = 'status-btn px-3 py-1.5 rounded-lg text-xs font-medium transition bg-slate-900 text-slate-400 border border-slate-800 hover:text-slate-200 cursor-pointer';
+                btn.className = 'status-btn px-2.5 sm:px-3 py-1.5 rounded-lg text-[11px] sm:text-xs font-medium whitespace-nowrap shrink-0 transition bg-slate-900 text-slate-400 border border-slate-800 hover:text-slate-200 cursor-pointer';
             }
         });
     }
