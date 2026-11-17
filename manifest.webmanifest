@@ -1,7 +1,7 @@
 {
-  "name": "개발자 핵심 기본소양 107선",
-  "short_name": "개발자 107선",
-  "description": "웹 보안, DB, 자료구조, SQL, OS·네트워크, 설계·클린코드, 브라우저·FE 핵심 기본기 107선 학습 웹앱",
+  "name": "개발자 핵심 기본소양 122선",
+  "short_name": "개발자 122선",
+  "description": "웹 보안, DB, 자료구조, SQL, OS·네트워크, 설계·클린코드, 브라우저·FE, 테스트 핵심 기본기 122선 학습 웹앱",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#020617",

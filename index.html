@@ -7,7 +7,7 @@
     <meta name="theme-color" content="#0f172a">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>개발자 핵심 기본소양 107선</title>
+    <title>개발자 핵심 기본소양 122선</title>
     <link rel="icon" type="image/svg+xml" href="assets/icon.svg">
     <link rel="manifest" href="manifest.webmanifest">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -29,11 +29,11 @@
                     <div>
                         <div class="flex flex-wrap items-center gap-1.5">
                             <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-blue-500/20 text-blue-300 border border-blue-500/30">3초 개발지식 · 핵심 기본기</span>
-                            <span id="progressBadge" class="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">학습 0/107 (0%)</span>
+                            <span id="progressBadge" class="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">학습 0/122 (0%)</span>
                             <span id="bookmarkBadge" class="text-[10px] font-bold px-2 py-0.5 rounded bg-amber-500/15 text-amber-300 border border-amber-500/30">북마크 0</span>
                         </div>
                         <h1 class="text-lg sm:text-xl font-bold bg-gradient-to-r from-white via-slate-200 to-slate-400 bg-clip-text text-transparent mt-0.5">
-                            개발자 핵심 기본소양 107선
+                            개발자 핵심 기본소양 122선
                         </h1>
                     </div>
                 </div>
@@ -88,7 +88,7 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5">
             <div class="flex items-start justify-between mb-3">
                 <h2 class="text-base font-bold text-indigo-300 flex items-center gap-2">
-                    <i class="fa-solid fa-graduation-cap" aria-hidden="true"></i> 개발자 필수 기본소양 107개 완벽 체화 가이드
+                    <i class="fa-solid fa-graduation-cap" aria-hidden="true"></i> 개발자 필수 기본소양 122개 완벽 체화 가이드
                 </h2>
                 <button type="button" id="closeStudyGuideBtn" class="text-slate-400 hover:text-white text-sm cursor-pointer">
                     <i class="fa-solid fa-xmark" aria-hidden="true"></i> 닫기
@@ -116,7 +116,7 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row sm:items-center justify-between py-3 gap-2.5">
             <div class="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1 sm:pb-0">
                 <button type="button" data-category="all" class="cat-btn px-3.5 py-2 rounded-xl text-sm font-semibold whitespace-nowrap transition bg-blue-600 text-white shadow-lg shadow-blue-600/20 cursor-pointer">
-                    <i class="fa-solid fa-border-all mr-1.5" aria-hidden="true"></i> 전체 (107)
+                    <i class="fa-solid fa-border-all mr-1.5" aria-hidden="true"></i> 전체 (122)
                 </button>
                 <button type="button" data-category="web-security" class="cat-btn px-3.5 py-2 rounded-xl text-sm font-medium whitespace-nowrap transition bg-slate-900 border border-slate-800 text-slate-400 hover:text-slate-200 hover:bg-slate-800 cursor-pointer">
                     <i class="fa-solid fa-shield-halved mr-1 text-cyan-400" aria-hidden="true"></i> 웹 보안 17
@@ -139,6 +139,9 @@
                 <button type="button" data-category="frontend" class="cat-btn px-3.5 py-2 rounded-xl text-sm font-medium whitespace-nowrap transition bg-slate-900 border border-slate-800 text-slate-400 hover:text-slate-200 hover:bg-slate-800 cursor-pointer">
                     <i class="fa-brands fa-js mr-1 text-sky-400" aria-hidden="true"></i> 브라우저·FE 15
                 </button>
+                <button type="button" data-category="testing" class="cat-btn px-3.5 py-2 rounded-xl text-sm font-medium whitespace-nowrap transition bg-slate-900 border border-slate-800 text-slate-400 hover:text-slate-200 hover:bg-slate-800 cursor-pointer">
+                    <i class="fa-solid fa-vial-circle-check mr-1 text-fuchsia-400" aria-hidden="true"></i> 테스트 15
+                </button>
             </div>
 
             <!-- Status Filter Pills -->
@@ -156,7 +159,7 @@
     <!-- Main Container -->
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-7 w-full flex-1">
         <div class="flex items-center justify-between mb-4 text-xs text-slate-400">
-            <span id="visibleCountText">현재 표시된 카드: 107개 / 전체 107개</span>
+            <span id="visibleCountText">현재 표시된 카드: 122개 / 전체 122개</span>
             <button type="button" id="scrollTopBtn" class="hover:text-slate-200 transition cursor-pointer">
                 <i class="fa-solid fa-arrow-up mr-1" aria-hidden="true"></i> 맨 위로
             </button>
@@ -181,7 +184,7 @@
 
     <!-- Footer -->
     <footer class="border-t border-slate-800/80 py-6 text-center text-xs text-slate-500 bg-slate-950">
-        <p>3초 개발지식 · 웹 보안 · DB · 자료구조 · SQL · OS/네트워크 · 설계 · 브라우저 개발자 기본소양 107선 웹앱</p>
+        <p>3초 개발지식 · 웹 보안 · DB · 자료구조 · SQL · OS/네트워크 · 설계 · 브라우저 · 테스트 개발자 기본소양 122선 웹앱</p>
     </footer>
 
     <!-- Toast Notification -->

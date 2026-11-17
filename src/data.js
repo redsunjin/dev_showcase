@@ -870,6 +870,128 @@ const items = [
         diagram: '<div> 남발(X) ➔ <header> <nav> <main> <article> <button> 사용(O)',
         concept: '태그 자체에 의미를 부여하여 검색 엔진(SEO)과 스크린 리더 등 보조 기기가 문서 구조를 이해하도록 작성.',
         defense: '키보드 포커스 이동(Tab), 명확한 alt 텍스트, 명도 대비 준수는 모든 사용자를 위한 기본 소양'
+    },
+
+    // --- Software Testing (15) ---
+    {
+        id: 108, category: 'testing', catName: '테스트',
+        badgeColor: 'bg-fuchsia-500/10 text-fuchsia-400 border-fuchsia-500/20',
+        title: '01. 단위 테스트', subtitle: 'Unit Test',
+        diagram: '함수 f(x): x=2 → 4 | 의존성은 필요할 때 대역 사용 | 작고 빠른 피드백',
+        concept: '함수·클래스 등 가장 작은 코드 단위를 외부 의존성과 분리하여 독립적으로 빠르게 검증하는 테스트.',
+        defense: '작은 코드 단위를 빠르게 검증 (외부 DB·네트워크 의존성은 필요 시 테스트 대역으로 격리)'
+    },
+    {
+        id: 109, category: 'testing', catName: '테스트',
+        badgeColor: 'bg-fuchsia-500/10 text-fuchsia-400 border-fuchsia-500/20',
+        title: '02. 통합 테스트', subtitle: 'Integration Test',
+        diagram: '모듈 ↔ 서비스 ↔ DB | 경계와 실제 연동 확인 | 환경 범위는 테스트마다 명시',
+        concept: '여러 모듈, 서비스, 데이터베이스 등 구성 요소 간 경계에서 실제 연동이 올바르게 동작하는지 확인하는 테스트.',
+        defense: '모듈·DB 등 경계의 연동을 검증하며, 사용하는 테스트 환경 범위를 테스트마다 명확히 명시'
+    },
+    {
+        id: 110, category: 'testing', catName: '테스트',
+        badgeColor: 'bg-fuchsia-500/10 text-fuchsia-400 border-fuchsia-500/20',
+        title: '03. E2E 테스트', subtitle: 'End-to-End Test',
+        diagram: '화면 → API → DB | 로그인 → 주문 → 완료 | 실제 경로에 가까운 흐름',
+        concept: '사용자 화면(UI)부터 API, DB까지 실제 운영 환경과 가장 유사한 전체 흐름을 끝에서 끝까지 검증하는 테스트.',
+        defense: '사용자 흐름을 실제 경로에 가깝게 검증 (실행 비용이 크므로 핵심 시나리오 위주로 유지)'
+    },
+    {
+        id: 111, category: 'testing', catName: '테스트',
+        badgeColor: 'bg-fuchsia-500/10 text-fuchsia-400 border-fuchsia-500/20',
+        title: '04. 테스트 피라미드', subtitle: 'Test Pyramid',
+        diagram: 'E2E(소수) / 통합(중간) / 단위·많이 | 조직·제품에 따라 비율은 조정',
+        concept: '실행 속도가 빠르고 비용이 낮은 단위 테스트를 가장 많이 두고, 위로 갈수록(통합·E2E) 비중을 줄이는 테스트 구성 지침.',
+        defense: '빠른 하위 테스트를 더 많이 두는 지침 (단, 조직과 제품 특성에 따라 비율은 유연하게 조정)'
+    },
+    {
+        id: 112, category: 'testing', catName: '테스트',
+        badgeColor: 'bg-fuchsia-500/10 text-fuchsia-400 border-fuchsia-500/20',
+        title: '05. AAA 패턴', subtitle: 'Arrange Act Assert',
+        diagram: '준비(Arrange) → 실행(Act) → 검증(Assert) | given → when → then과 같은 역할',
+        concept: '하나의 테스트 코드를 준비(Arrange)·실행(Act)·검증(Assert) 세 구간으로 나누어 테스트 의도를 명확히 드러내는 구조.',
+        defense: '준비·실행·검증으로 테스트를 구분 (BDD의 given → when → then 패턴과 동일한 역할)'
+    },
+    {
+        id: 113, category: 'testing', catName: '테스트',
+        badgeColor: 'bg-fuchsia-500/10 text-fuchsia-400 border-fuchsia-500/20',
+        title: '06. Mock · Stub · Fake', subtitle: 'Test Doubles',
+        diagram: 'Stub(정해진 응답) | Mock(호출 검증) | Fake(간소 구현)',
+        concept: '테스트 대상의 외부 의존성을 대체하는 테스트 대역(Test Double)으로, Stub은 고정 응답, Mock은 호출 여부·인자 검증, Fake는 동작하는 간소 구현을 제공.',
+        defense: '대역은 목적과 구현 수준에 따라 구분 (용어 경계는 테스트 프레임워크·문헌마다 차이가 있음)'
+    },
+    {
+        id: 114, category: 'testing', catName: '테스트',
+        badgeColor: 'bg-fuchsia-500/10 text-fuchsia-400 border-fuchsia-500/20',
+        title: '07. 상태 · 행위 검증', subtitle: 'State vs Behavior Verification',
+        diagram: '상태 검증(잔액 = 900) vs 행위 검증(save 1회) | 관찰할 계약에 맞춰 선택',
+        concept: '테스트 후 반환값·객체 상태 변화를 확인하는 상태 검증과, 협력 객체의 메서드 호출 여부를 확인하는 행위 검증의 구분.',
+        defense: '상태 결과와 협력 호출 중 관찰할 계약에 맞춰 선택하되, 내부 구현 결합도도 함께 고려'
+    },
+    {
+        id: 115, category: 'testing', catName: '테스트',
+        badgeColor: 'bg-fuchsia-500/10 text-fuchsia-400 border-fuchsia-500/20',
+        title: '08. 경계값 분석', subtitle: 'Boundary Value Analysis',
+        diagram: '허용 범위 1···100 → 0, 1, 2 ··· 99, 100, 101 경계값과 바로 안팎 확인',
+        concept: '결함이 입력 범위의 경계 부근에서 자주 발생한다는 경험적 원리에 따라 경계값과 바로 안팎의 값을 집중적으로 테스트하는 기법.',
+        defense: '경계값과 바로 안팎을 집중 확인 (동등 분할과 함께 적용하면 최소 케이스로 높은 결함 탐지율 확보)'
+    },
+    {
+        id: 116, category: 'testing', catName: '테스트',
+        badgeColor: 'bg-fuchsia-500/10 text-fuchsia-400 border-fuchsia-500/20',
+        title: '09. 코드 커버리지', subtitle: 'Code Coverage',
+        diagram: '실행됨 11 / 16 | 라인·분기 등 기준이 다름 | 높아도 검증 품질을 보장하진 않음',
+        concept: '테스트 실행 시 전체 코드 중 실제로 실행된 비율(라인·분기·조건 등)을 측정하는 지표.',
+        defense: '실행 범위를 보여줄 뿐 결함 부재나 단언(Assertion) 품질을 보장하지 않으므로 맹목적 수치 목표는 지양'
+    },
+    {
+        id: 117, category: 'testing', catName: '테스트',
+        badgeColor: 'bg-fuchsia-500/10 text-fuchsia-400 border-fuchsia-500/20',
+        title: '10. 회귀 테스트', subtitle: 'Regression Test',
+        diagram: '기존 기능 + 변경 → 관련 테스트 실행 | 의도치 않은 영향 탐지',
+        concept: '기능 추가, 버그 수정, 리팩토링 등 코드 변경 후 기존에 정상 동작하던 기능이 깨지지 않았는지 재확인하는 테스트.',
+        defense: '변경 뒤 기존 동작이 깨졌는지 재확인 (CI 파이프라인 자동화로 배포 전 의도치 않은 사이드 이펙트 차단)'
+    },
+    {
+        id: 118, category: 'testing', catName: '테스트',
+        badgeColor: 'bg-fuchsia-500/10 text-fuchsia-400 border-fuchsia-500/20',
+        title: '11. Flaky 테스트', subtitle: 'Flaky Test',
+        diagram: '통과 / 실패 / 통과 / 실패 | 관련 변경 없이 결과가 흔들림 | 시간·순서·외부 의존성 점검',
+        concept: '코드 변경 없이도 실행할 때마다 통과와 실패가 간헐적으로 바뀌는 비결정적(불안정한) 테스트.',
+        defense: '관련 변경 없이 결과가 간헐적으로 바뀜 → 고정 시각, 테스트 실행 순서, 비동기 대기, 외부 의존성을 점검해 제거'
+    },
+    {
+        id: 119, category: 'testing', catName: '테스트',
+        badgeColor: 'bg-fuchsia-500/10 text-fuchsia-400 border-fuchsia-500/20',
+        title: '12. TDD', subtitle: 'Test-Driven Development',
+        diagram: 'RED(실패) → GREEN(최소 구현) → REFACTOR(개선) 짧은 주기',
+        concept: '실패하는 테스트를 먼저 작성(Red)하고, 테스트를 통과하는 최소 코드를 구현(Green)한 뒤, 중복과 설계를 개선(Refactor)하는 개발 방법론.',
+        defense: '실패 테스트·최소 구현·개선의 짧은 주기를 반복해 요구사항 명세화와 안전한 리팩토링을 동시에 달성'
+    },
+    {
+        id: 120, category: 'testing', catName: '테스트',
+        badgeColor: 'bg-fuchsia-500/10 text-fuchsia-400 border-fuchsia-500/20',
+        title: '13. 계약 테스트', subtitle: 'Contract Test',
+        diagram: '소비자 GET /users/1 ↔ 제공자 { id, name } | 상호작용 약속 호환성 검증',
+        concept: '마이크로서비스 등에서 API 소비자(Consumer)와 제공자(Provider) 간 요청·응답 스키마 약속이 깨지지 않았는지 검증하는 테스트.',
+        defense: '서비스 간 상호작용 약속의 호환성 검증 (전체 통합 환경 없이도 API 변경으로 인한 연동 장애를 조기 탐지)'
+    },
+    {
+        id: 121, category: 'testing', catName: '테스트',
+        badgeColor: 'bg-fuchsia-500/10 text-fuchsia-400 border-fuchsia-500/20',
+        title: '14. 속성 기반 테스트', subtitle: 'Property-Based Testing',
+        diagram: 'reverse(reverse(xs)) = xs | [] [1] [2, 7] 랜덤 | 일반 성질 선언 · 생성·축소',
+        concept: '개별 예시 입력을 나열하는 대신 항상 성립해야 하는 불변 성질(Property)을 선언하면, 도구가 무작위 입력을 생성·축소(Shrinking)해 반례를 찾는 기법.',
+        defense: '여러 생성 입력으로 일반 성질을 확인 (예상치 못한 엣지 케이스와 경계 조건을 자동으로 발견)'
+    },
+    {
+        id: 122, category: 'testing', catName: '테스트',
+        badgeColor: 'bg-fuchsia-500/10 text-fuchsia-400 border-fuchsia-500/20',
+        title: '15. 부하 · 스트레스 테스트', subtitle: 'Load vs Stress Test',
+        diagram: '목표 부하(Load) vs 한계 탐색(Stress) | 응답시간·오류율·자원 함께 측정',
+        concept: '예상 트래픽(목표 부하)에서의 안정적 성능을 확인하는 부하 테스트와, 시스템이 무너지는 임계점(한계)을 탐색하는 스트레스 테스트.',
+        defense: '예상 부하와 한계 탐색을 구분해 측정하며, 처리량뿐 아니라 응답시간(Latency)·오류율·CPU/메모리 자원을 함께 관찰'
     }
 ];
 
@@ -1555,7 +1677,125 @@ function getInfographic(id) {
         105: ui.vflow([
             ui.code('&lt;header&gt; &lt;nav&gt; &lt;main&gt; &lt;article&gt; &lt;button&gt;', 'text-emerald-300 border-emerald-500/30'),
             `<span class="badge-info">SEO 검색 최적화 + 스크린 리더 · 키보드 접근성(A11y) 보장</span>`
-        ])
+        ]),
+
+        // --- Software Testing 108~122 ---
+        108: ui.vflow([
+            ui.tree('함수 f(x)', 'x = 2', '결과 4', '의존성은 필요할 때 대역 사용'),
+            `<span class="badge-ok">작고 빠른 피드백</span>`
+        ]),
+        109: ui.vflow([
+            ui.flow([
+                `<span class="node-pill">모듈</span>`,
+                `<span class="node-pill border-cyan-500/50 text-cyan-300">서비스</span>`,
+                `<span class="node-pill border-emerald-500/50 text-emerald-300">DB</span>`
+            ]),
+            `<span class="badge-info">경계와 실제 연동 확인 · 환경 범위는 테스트마다 명시</span>`
+        ]),
+        110: ui.vflow([
+            ui.flow([
+                `<span class="node-pill">화면(UI)</span>`,
+                `<span class="node-pill">API</span>`,
+                `<span class="node-pill">DB</span>`
+            ]),
+            `<span class="text-[10.5px] font-mono text-slate-300">로그인 → 주문 → 완료</span>`,
+            `<span class="badge-info">실제 경로에 가까운 흐름</span>`
+        ]),
+        111: ui.vflow([
+            `<div class="flex flex-col items-center gap-1 w-full">
+                <div class="w-16 text-center text-[10px] py-0.5 rounded bg-rose-500/15 border border-rose-500/40 text-rose-300">E2E</div>
+                <div class="w-28 text-center text-[10px] py-0.5 rounded bg-amber-500/15 border border-amber-500/40 text-amber-300">통합</div>
+                <div class="w-44 text-center text-[10px] py-0.5 rounded bg-emerald-500/15 border border-emerald-500/40 text-emerald-300 font-semibold">단위 · 많이</div>
+            </div>`,
+            `<span class="text-[10px] text-slate-400">조직 · 제품에 따라 비율은 조정</span>`
+        ]),
+        112: ui.vflow([
+            ui.flow([
+                `<span class="node-pill border-amber-500/40 text-amber-300">준비 (Arrange)</span>`,
+                `<span class="node-pill border-blue-500/40 text-blue-300">실행 (Act)</span>`,
+                `<span class="node-pill border-emerald-500/40 text-emerald-300">검증 (Assert)</span>`
+            ]),
+            `<span class="text-[10px] font-mono text-slate-400">given → when → then과 같은 역할</span>`
+        ]),
+        113: ui.vflow([
+            ui.rows([
+                ['Stub', '정해진 응답 반환', 'badge-info'],
+                ['Mock', '호출 여부·인자 검증', 'badge-warn'],
+                ['Fake', '동작하는 간소 구현', 'badge-ok']
+            ]),
+            `<span class="text-[10px] text-slate-400">용어 경계는 도구·문헌마다 차이</span>`
+        ]),
+        114: ui.vs(
+            '<span class="text-emerald-300">상태 검증</span>', ['잔액 = 900', '최종 상태·반환값 확인'], 'border-emerald-500/30',
+            '<span class="text-sky-300">행위 검증</span>', ['save 1회 호출', '협력 객체 호출 검증'], 'border-sky-500/30'
+        ),
+        115: ui.vflow([
+            `<span class="text-[10.5px] text-slate-300">허용 범위 <span class="font-mono text-fuchsia-300">1 ··· 100</span></span>`,
+            `<div class="flex items-center gap-1.5 font-mono text-[10.5px]">
+                <span class="badge-err">0</span>
+                <span class="badge-ok">1</span>
+                <span class="node-pill">2</span>
+                <span class="text-slate-500">···</span>
+                <span class="node-pill">99</span>
+                <span class="badge-ok">100</span>
+                <span class="badge-err">101</span>
+            </div>`,
+            `<span class="text-[10px] text-slate-400">경계값과 바로 안팎 확인</span>`
+        ]),
+        116: ui.vflow([
+            `<div class="grid grid-cols-8 gap-1">
+                ${Array.from({ length: 16 }, (_, idx) => `<span class="w-4 h-4 rounded-sm border ${idx < 11 ? 'bg-fuchsia-500/40 border-fuchsia-400/60' : 'bg-slate-800 border-slate-700'}"></span>`).join('')}
+            </div>`,
+            `<span class="text-[11px] font-mono text-slate-200">실행됨 11 / 16</span>`,
+            `<span class="badge-warn">라인·분기 기준 다름 · 품질 보장은 아님</span>`
+        ]),
+        117: ui.vflow([
+            ui.flow([
+                `<span class="node-pill">기존 기능</span>`,
+                `<span class="node-pill border-amber-500/40 text-amber-300">변경</span>`
+            ]),
+            `<span class="badge-info">관련 테스트 재실행 → 의도치 않은 영향 탐지</span>`
+        ]),
+        118: ui.vflow([
+            `<div class="flex items-center gap-1.5">
+                <span class="badge-info">통과</span>
+                <span class="badge-err">실패</span>
+                <span class="badge-info">통과</span>
+                <span class="badge-err">실패</span>
+            </div>`,
+            `<span class="text-[10.5px] text-slate-300">관련 변경 없이 결과가 흔들림</span>`,
+            `<span class="badge-warn">시간 · 순서 · 외부 의존성 점검</span>`
+        ]),
+        119: ui.vflow([
+            ui.flow([
+                `<span class="badge-err">RED (실패)</span>`,
+                `<span class="badge-ok">GREEN (최소 구현)</span>`,
+                `<span class="badge-info">REFACTOR (개선)</span>`
+            ]),
+            `<span class="text-[10px] text-slate-400">실패 테스트 → 최소 구현 → 설계 개선 순환</span>`
+        ]),
+        120: ui.vflow([
+            ui.flow([
+                `<span class="node-pill">소비자</span>`,
+                ui.code('GET /users/1 → { id, name }', 'text-fuchsia-300 border-fuchsia-500/30'),
+                `<span class="node-pill">제공자</span>`
+            ]),
+            `<span class="badge-ok">소비자 · 제공자의 상호작용 약속 확인</span>`
+        ]),
+        121: ui.vflow([
+            ui.code('reverse(reverse(xs)) = xs', 'text-fuchsia-300 border-fuchsia-500/30'),
+            `<div class="flex items-center gap-1 font-mono text-[10px]">
+                <span class="node-pill">[]</span>
+                <span class="node-pill">[1]</span>
+                <span class="node-pill">[2, 7]</span>
+                <span class="badge-info">랜덤</span>
+            </div>`,
+            `<span class="text-[10px] text-slate-400">일반 성질 선언 · 도구가 입력 생성 및 축소</span>`
+        ]),
+        122: ui.vs(
+            '<span class="text-emerald-300">부하 (Load)</span>', ['목표 부하 유지', '예상 트래픽 성능 검증'], 'border-emerald-500/30',
+            '<span class="text-rose-300">스트레스 (Stress)</span>', ['한계점 탐색', '응답시간·오류율·자원 측정'], 'border-rose-500/30'
+        )
     };
     return map[id] || '';
 }
