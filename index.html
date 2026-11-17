@@ -158,27 +158,28 @@
                 <!-- Difficulty Segmented Bar (single row on mobile) -->
                 <div class="grid grid-cols-4 sm:flex items-center gap-1.5" role="group" aria-label="난이도 단계 필터">
                     <span class="hidden sm:inline-flex items-center text-[11px] text-slate-500 mr-1"><i class="fa-solid fa-signal mr-1" aria-hidden="true"></i>난이도:</span>
-                    <button type="button" data-level="all" class="level-btn px-2 sm:px-2.5 py-1.5 sm:py-1 rounded-lg text-[11px] sm:text-xs font-semibold text-center whitespace-nowrap transition bg-slate-800 text-white border border-slate-500 cursor-pointer">전체 난이도</button>
-                    <button type="button" data-level="1" class="level-btn px-2 sm:px-2.5 py-1.5 sm:py-1 rounded-lg text-[11px] sm:text-xs font-medium text-center whitespace-nowrap transition bg-slate-900 text-emerald-300 border border-slate-800 hover:border-emerald-500/40 cursor-pointer">Lv.1 입문<span class="hidden sm:inline">·필수</span></button>
-                    <button type="button" data-level="2" class="level-btn px-2 sm:px-2.5 py-1.5 sm:py-1 rounded-lg text-[11px] sm:text-xs font-medium text-center whitespace-nowrap transition bg-slate-900 text-amber-300 border border-slate-800 hover:border-amber-500/40 cursor-pointer">Lv.2 실무<span class="hidden sm:inline">·핵심</span></button>
-                    <button type="button" data-level="3" class="level-btn px-2 sm:px-2.5 py-1.5 sm:py-1 rounded-lg text-[11px] sm:text-xs font-medium text-center whitespace-nowrap transition bg-slate-900 text-purple-300 border border-slate-800 hover:border-purple-500/40 cursor-pointer">Lv.3 심화<span class="hidden sm:inline">·고급</span></button>
+                    <button type="button" data-level="all" class="level-btn px-1.5 sm:px-2.5 py-1.5 sm:py-1 rounded-lg text-[11px] sm:text-xs font-semibold text-center whitespace-nowrap transition bg-slate-800 text-white border border-slate-500 cursor-pointer">전체<span class="hidden sm:inline"> 난이도</span></button>
+                    <button type="button" data-level="1" class="level-btn px-1.5 sm:px-2.5 py-1.5 sm:py-1 rounded-lg text-[11px] sm:text-xs font-medium text-center whitespace-nowrap transition bg-slate-900 text-emerald-300 border border-slate-800 hover:border-emerald-500/40 cursor-pointer">Lv.1 입문<span class="hidden sm:inline">·필수</span></button>
+                    <button type="button" data-level="2" class="level-btn px-1.5 sm:px-2.5 py-1.5 sm:py-1 rounded-lg text-[11px] sm:text-xs font-medium text-center whitespace-nowrap transition bg-slate-900 text-amber-300 border border-slate-800 hover:border-amber-500/40 cursor-pointer">Lv.2 실무<span class="hidden sm:inline">·핵심</span></button>
+                    <button type="button" data-level="3" class="level-btn px-1.5 sm:px-2.5 py-1.5 sm:py-1 rounded-lg text-[11px] sm:text-xs font-medium text-center whitespace-nowrap transition bg-slate-900 text-purple-300 border border-slate-800 hover:border-purple-500/40 cursor-pointer">Lv.3 심화<span class="hidden sm:inline">·고급</span></button>
                 </div>
 
-                <!-- Sort & Status Filter Bar (clean single row on mobile) -->
-                <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar">
+                <!-- Sort & Status Filter Bar -->
+                <div class="flex flex-col sm:flex-row sm:items-center gap-1.5">
                     <button type="button" id="sortPriorityBtn" aria-pressed="true"
                         title="난이도(Lv.1 입문 → Lv.3 고급) 우선순위순 정렬 전환"
-                        class="px-2.5 sm:px-3 py-1.5 rounded-lg text-[11px] sm:text-xs font-semibold whitespace-nowrap shrink-0 transition bg-indigo-600/20 text-indigo-300 border border-indigo-500/40 hover:bg-indigo-600/30 cursor-pointer">
+                        class="w-full sm:w-auto px-3 py-1.5 rounded-lg text-[11px] sm:text-xs font-semibold whitespace-nowrap shrink-0 transition bg-indigo-600/20 text-indigo-300 border border-indigo-500/40 hover:bg-indigo-600/30 cursor-pointer text-center">
                         <i class="fa-solid fa-arrow-down-short-wide mr-1" aria-hidden="true"></i>
                         <span id="sortPriorityText">우선순위순 (Lv.1→3)</span>
                     </button>
-                    <div class="h-4 w-px bg-slate-800 shrink-0" aria-hidden="true"></div>
-                    <button type="button" data-status="all" class="status-btn px-2.5 sm:px-3 py-1.5 rounded-lg text-[11px] sm:text-xs font-semibold whitespace-nowrap shrink-0 transition bg-slate-800 text-white border border-slate-600 cursor-pointer">전체</button>
-                    <button type="button" data-status="unlearned" class="status-btn px-2.5 sm:px-3 py-1.5 rounded-lg text-[11px] sm:text-xs font-medium whitespace-nowrap shrink-0 transition bg-slate-900 text-slate-400 border border-slate-800 hover:text-slate-200 cursor-pointer">미학습</button>
-                    <button type="button" data-status="learned" class="status-btn px-2.5 sm:px-3 py-1.5 rounded-lg text-[11px] sm:text-xs font-medium whitespace-nowrap shrink-0 transition bg-slate-900 text-slate-400 border border-slate-800 hover:text-slate-200 cursor-pointer">완료</button>
-                    <button type="button" data-status="bookmarked" class="status-btn px-2.5 sm:px-3 py-1.5 rounded-lg text-[11px] sm:text-xs font-medium whitespace-nowrap shrink-0 transition bg-slate-900 text-slate-400 border border-slate-800 hover:text-amber-300 cursor-pointer">
-                        <i class="fa-solid fa-star text-amber-400 mr-1" aria-hidden="true"></i>북마크
-                    </button>
+                    <div class="grid grid-cols-4 sm:flex items-center gap-1.5" role="group" aria-label="학습 상태 필터">
+                        <button type="button" data-status="all" class="status-btn px-2 sm:px-3 py-1.5 rounded-lg text-[11px] sm:text-xs font-semibold text-center whitespace-nowrap transition bg-slate-800 text-white border border-slate-600 cursor-pointer">전체</button>
+                        <button type="button" data-status="unlearned" class="status-btn px-2 sm:px-3 py-1.5 rounded-lg text-[11px] sm:text-xs font-medium text-center whitespace-nowrap transition bg-slate-900 text-slate-400 border border-slate-800 hover:text-slate-200 cursor-pointer">미학습</button>
+                        <button type="button" data-status="learned" class="status-btn px-2 sm:px-3 py-1.5 rounded-lg text-[11px] sm:text-xs font-medium text-center whitespace-nowrap transition bg-slate-900 text-slate-400 border border-slate-800 hover:text-slate-200 cursor-pointer">완료</button>
+                        <button type="button" data-status="bookmarked" class="status-btn px-2 sm:px-3 py-1.5 rounded-lg text-[11px] sm:text-xs font-medium text-center whitespace-nowrap transition bg-slate-900 text-slate-400 border border-slate-800 hover:text-amber-300 cursor-pointer">
+                            <i class="fa-solid fa-star text-amber-400 mr-0.5 sm:mr-1" aria-hidden="true"></i>북마크
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
