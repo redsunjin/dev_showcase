@@ -3,7 +3,7 @@
 웹 보안, 데이터베이스, 자료구조, SQL 함정, OS·네트워크, 설계·클린코드, 브라우저·FE, 소프트웨어 테스트, CI/CD·DevOps, AI·LLM·에이전트까지 **10개 분야 152개 핵심 기본기**를 도식·난이도(`Lv.1`~`Lv.3`)·암기 모드·집중 퀴즈로 학습할 수 있는 오픈소스 PWA 웹앱입니다.
 
 - **라이브 웹앱**: https://redsunjin.github.io/dev_showcase/
-- **라이선스**: [MIT License](LICENSE)
+- **라이선스**: [CC BY-NC 4.0 (비상업적 이용만 허용)](LICENSE)
 
 ## 주요 기능
 - **난이도·우선순위 학습**: `Lv.1 입문·필수` → `Lv.2 실무·핵심` → `Lv.3 심화·고급` 필터 및 우선순위 정렬
@@ -20,4 +20,7 @@ node harness/functional-test.mjs
 ```
 
 ## License
-Distributed under the **MIT License**. See [LICENSE](LICENSE) for more information.
+Distributed under **Creative Commons Attribution-NonCommercial 4.0 International (CC BY-NC 4.0)**.
+- 누구나 개인 학습·스터디·비영리 교육 등 **비상업적 목적**으로 자유롭게 사용·공유·수정할 수 있습니다.
+- **상업적·영리적 이용은 금지**되며, 이용 시 원저작자(`sunjin.jo / redsunjin`) 및 출처를 표시해야 합니다.
+- 자세한 내용은 [LICENSE](LICENSE)를 참고하세요.
