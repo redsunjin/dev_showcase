@@ -1,11 +1,12 @@
-// 개발자 기본소양 107선 데이터 및 인포그래픽 빌더
-// (tech_interview_showcase.html에서 분리 및 모듈화)
+// 개발자 핵심 기본소양 152선 데이터 및 인포그래픽 빌더
+// 제작 규칙: harness/CARD_AUTHORING_GUIDE.md
 
 const items = [
     // --- Web Security (15) ---
     {
         id: 1, category: 'web-security', catName: '웹 보안',
         badgeColor: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20',
+        level: 1,
         title: '01. XSS (교차 사이트 스크립팅)', subtitle: 'Cross-Site Scripting',
         diagram: 'script steal() 게시판 DB 피해자 화면 실행',
         concept: '공격자가 저장하거나 주입한 악성 스크립트가 다른 사용자의 브라우저에서 그대로 실행되는 취약점.',
@@ -14,6 +15,7 @@ const items = [
     {
         id: 2, category: 'web-security', catName: '웹 보안',
         badgeColor: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20',
+        level: 2,
         title: '02. CSP (콘텐츠 보안 정책)', subtitle: 'Content-Security-Policy',
         diagram: "script-src 'self' → /app.js (허용), evil.com/x.js (차단)",
         concept: '브라우저가 로드 및 실행할 수 있는 리소스의 출처를 제한하는 HTTP 응답 헤더.',
@@ -22,6 +24,7 @@ const items = [
     {
         id: 3, category: 'web-security', catName: '웹 보안',
         badgeColor: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20',
+        level: 1,
         title: '03. HttpOnly · Secure', subtitle: '쿠키 보안 속성',
         diagram: 'Set-Cookie: sid=abc; HttpOnly; Secure',
         concept: 'HttpOnly는 document.cookie 접근을 막고, Secure는 https:// 요청에서만 쿠키를 전송.',
@@ -30,6 +33,7 @@ const items = [
     {
         id: 4, category: 'web-security', catName: '웹 보안',
         badgeColor: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20',
+        level: 2,
         title: '04. SameSite', subtitle: '쿠키 전송 범위 제한',
         diagram: 'Strict(교차 안 보냄) | Lax(최상위 GET만) | None(교차 전송·Secure 필수)',
         concept: '교차 사이트(evil.com → bank.com) 요청 시 쿠키 자동 전송 여부를 제어하는 속성.',
@@ -38,6 +42,7 @@ const items = [
     {
         id: 5, category: 'web-security', catName: '웹 보안',
         badgeColor: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20',
+        level: 2,
         title: '05. Prepared Statement', subtitle: 'SQL 인젝션 방어',
         diagram: 'WHERE id = ?  ← [ "1 OR 1=1" ] (값 하나로 비교)',
         concept: '쿼리 구조와 입력값을 분리하여, 사용자 입력이 SQL 조건문을 바꾸지 못하게 바인딩.',
@@ -46,6 +51,7 @@ const items = [
     {
         id: 6, category: 'web-security', catName: '웹 보안',
         badgeColor: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20',
+        level: 2,
         title: '06. 동일 출처 정책 (SOP)', subtitle: 'Same-Origin Policy',
         diagram: 'https://a.com:443 기준 → http(스킴 다름), api.a.com(호스트 다름), :8443(포트 다름)',
         concept: '다른 출처의 리소스 응답 읽기를 브라우저가 기본적으로 차단하는 보안 정책.',
@@ -54,6 +60,7 @@ const items = [
     {
         id: 7, category: 'web-security', catName: '웹 보안',
         badgeColor: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20',
+        level: 2,
         title: '07. CORS', subtitle: '교차 출처 리소스 공유',
         diagram: 'OPTIONS(사전 요청) → Allow-Origin: a.com → PUT /items 응답 읽기 허용',
         concept: 'SOP 제한 환경에서 서버가 명시적으로 허용한 출처에 한해 교차 출처 응답을 공유하는 표준.',
@@ -62,6 +69,7 @@ const items = [
     {
         id: 8, category: 'web-security', catName: '웹 보안',
         badgeColor: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20',
+        level: 2,
         title: '08. HTTPS 인증서', subtitle: 'TLS Certificate Chain',
         diagram: '루트 CA ➔ 중간 CA ➔ a.com 인증서 (서명 체인 검증)',
         concept: 'OS·브라우저 신뢰 목록에 있는 루트 CA부터 이어지는 인증서 체인으로 서버의 신원을 확인.',
@@ -70,6 +78,7 @@ const items = [
     {
         id: 9, category: 'web-security', catName: '웹 보안',
         badgeColor: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20',
+        level: 3,
         title: '09. HSTS', subtitle: 'HTTPS 강제 헤더',
         diagram: 'Strict-Transport-Security: max-age=31536000 (http:// 입력 → https로 변경)',
         concept: '브라우저가 평문 HTTP 요청을 보내지 않고 무조건 HTTPS 접속만 하도록 강제하는 헤더.',
@@ -78,6 +87,7 @@ const items = [
     {
         id: 10, category: 'web-security', catName: '웹 보안',
         badgeColor: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20',
+        level: 1,
         title: '10. 클릭재킹 (Clickjacking)', subtitle: '투명한 iframe 위 클릭 가로채기',
         diagram: '[공격 페이지: 경품 받기 버튼] 겹침 → [투명 iframe: 실제 송금 버튼]',
         concept: '공격 페이지 위에 투명한 iframe을 겹쳐 사용자가 의도하지 않은 동작을 클릭하게 유도.',
@@ -86,6 +96,7 @@ const items = [
     {
         id: 11, category: 'web-security', catName: '웹 보안',
         badgeColor: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20',
+        level: 2,
         title: '11. SSRF', subtitle: '서버 측 요청 위조',
         diagram: 'url=http://169.254.169.254/ → 서버가 대신 내부 메타데이터/관리 API 요청',
         concept: '공격자가 전달한 URL을 서버가 대신 요청하게 만들어 내부망이나 클라우드 메타데이터에 접근.',
@@ -94,6 +105,7 @@ const items = [
     {
         id: 12, category: 'web-security', catName: '웹 보안',
         badgeColor: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20',
+        level: 3,
         title: '12. 경로 탐색 (Path Traversal)', subtitle: '허용 폴더 밖 파일 접근',
         diagram: '?file=../../etc/passwd → /var/www/files 탈출 → /etc/passwd 노출',
         concept: '../ 문자열 등을 조작해 허용된 디렉토리 바깥의 시스템 파일을 읽거나 실행하는 공격.',
@@ -102,6 +114,7 @@ const items = [
     {
         id: 13, category: 'web-security', catName: '웹 보안',
         badgeColor: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20',
+        level: 2,
         title: '13. IDOR', subtitle: '안전하지 않은 직접 객체 참조',
         diagram: '로그인: 사용자 A → GET /orders/1002 요청 → 1002의 주인이 A인지 확인(403 거부)',
         concept: 'ID 숫자나 식별자만 바꿔서 다른 사용자의 데이터에 무단 접근을 시도하는 취약점.',
@@ -110,6 +123,7 @@ const items = [
     {
         id: 14, category: 'web-security', catName: '웹 보안',
         badgeColor: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20',
+        level: 1,
         title: '14. 무차별 대입 (Brute Force)', subtitle: '반복 추측 시도 공격',
         diagram: '같은 계정에 비밀번호 대입 #1 #2 #3 #4 #5 → 🔒 잠시 차단 · 지연',
         concept: '자동화된 도구로 비밀번호나 인증번호를 맞을 때까지 반복 대입하는 공격.',
@@ -118,6 +132,7 @@ const items = [
     {
         id: 15, category: 'web-security', catName: '웹 보안',
         badgeColor: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20',
+        level: 3,
         title: '15. 대칭 · 비대칭 암호', subtitle: 'Symmetric vs Asymmetric',
         diagram: '대칭: 같은 키 K로 암·복호화 | 비대칭: 공개키 암호화 → 개인키 복호화',
         concept: '대칭 암호는 속도가 빠르고, 비대칭 암호는 키 분배와 전자서명에 유리함.',
@@ -126,6 +141,7 @@ const items = [
     {
         id: 106, category: 'web-security', catName: '웹 보안',
         badgeColor: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20',
+        level: 1,
         title: '16. CSRF (사이트 간 요청 위조)', subtitle: 'Cross-Site Request Forgery',
         diagram: '로그인된 피해자 브라우저 ➔ 악성 사이트 방문 ➔ bank.com/transfer 자동 요청',
         concept: '사용자가 의도하지 않았는데도 로그인된 세션 쿠키가 자동 실려 위조된 요청이 실행되는 공격.',
@@ -134,6 +150,7 @@ const items = [
     {
         id: 107, category: 'web-security', catName: '웹 보안',
         badgeColor: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20',
+        level: 3,
         title: '17. 인증과 인가 · OAuth 2.0', subtitle: 'Authentication vs Authorization',
         diagram: '인증(누구인가? 로그인) ➔ 인가(무엇을 할 수 있는가? 권한/스코프 발급)',
         concept: '인증은 신원 확인, 인가는 리소스 접근 권한 부여이며 OAuth 2.0은 제3자 앱에 권한을 위임하는 표준.',
@@ -144,6 +161,7 @@ const items = [
     {
         id: 16, category: 'database', catName: '데이터베이스',
         badgeColor: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
+        level: 1,
         title: '01. 정규화 (Normalization)', subtitle: '함수 종속에 따라 관계를 분해',
         diagram: '[직원 | 부서 | 부서전화] (직원→부서→부서전화) ➔ [직원·부서] + [부서·전화] 분리',
         concept: '이행 함수 종속 등을 제거하여 데이터 중복과 삽입·삭제·갱신 이상을 방지하는 과정.',
@@ -152,6 +170,7 @@ const items = [
     {
         id: 17, category: 'database', catName: '데이터베이스',
         badgeColor: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
+        level: 1,
         title: '02. 반정규화 (Denormalization)', subtitle: '읽기 성능을 위해 중복 수용',
         diagram: '[주문] + [고객] ➔ [주문 + 고객명 복사] (JOIN 감소 ↔ 갱신 비용 증가)',
         concept: '잦은 JOIN으로 인한 조회 성능 저하를 막기 위해 의도적으로 컬럼을 중복시키는 기법.',
@@ -160,6 +179,7 @@ const items = [
     {
         id: 18, category: 'database', catName: '데이터베이스',
         badgeColor: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
+        level: 2,
         title: '03. 클러스터드 인덱스', subtitle: 'Clustered Index',
         diagram: 'InnoDB 기본 키 B+ 트리 ➔ 리프 노드에 [PK 1 + 행 데이터] 직접 저장',
         concept: '기본 키(PK) 기준으로 B+ 트리가 구성되며, 리프 노드에 실제 테이블 행 데이터가 저장됨.',
@@ -168,6 +188,7 @@ const items = [
     {
         id: 19, category: 'database', catName: '데이터베이스',
         badgeColor: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
+        level: 2,
         title: '04. 커버링 인덱스', subtitle: 'Covering Index',
         diagram: 'SELECT a, b WHERE a=7 ➔ 인덱스(a,b)에서 바로 획득 (테이블 접근 X)',
         concept: '쿼리에 필요한 모든 열(SELECT, WHERE 등)을 인덱스가 포함하여 테이블 본체 접근을 생략.',
@@ -176,6 +197,7 @@ const items = [
     {
         id: 20, category: 'database', catName: '데이터베이스',
         badgeColor: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
+        level: 1,
         title: '05. 복합 인덱스 (Composite Index)', subtitle: '다중 컬럼 B-Tree 사전식 정렬',
         diagram: 'B-tree(a, b) 정렬: (1,10), (1,20), (2,10), (2,30) → a=1 범위 즉시 탐색',
         concept: '첫 번째 열(a)로 먼저 정렬되고, 같은 값 안에서 두 번째 열(b)이 정렬되는 인덱스.',
@@ -184,6 +206,7 @@ const items = [
     {
         id: 21, category: 'database', catName: '데이터베이스',
         badgeColor: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
+        level: 2,
         title: '06. N+1 문제', subtitle: 'N+1 Problem',
         diagram: '주문 목록 1회 조회 ➔ 연관된 고객 1, 고객 2, 고객 3... 각각 N회 추가 조회',
         concept: '목록 조회 쿼리 1번 이후, 각 결과 행의 연관 엔티티를 지연 로딩하며 N번의 쿼리가 추가 실행됨.',
@@ -192,6 +215,7 @@ const items = [
     {
         id: 22, category: 'database', catName: '데이터베이스',
         badgeColor: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
+        level: 2,
         title: '07. 낙관적 락 (Optimistic Lock)', subtitle: '갱신 조건으로 버전 충돌 감지',
         diagram: 'UPDATE ... SET version=4 WHERE id=1 AND version=3 (0행 갱신 시 충돌 판정)',
         concept: 'DB 락을 잡지 않고, 수정 시점에 version 값 등이 읽었을 때와 같은지 비교해 충돌을 감지.',
@@ -200,6 +224,7 @@ const items = [
     {
         id: 23, category: 'database', catName: '데이터베이스',
         badgeColor: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
+        level: 3,
         title: '08. 비관적 락 (Pessimistic Lock)', subtitle: '먼저 락을 잡고 충돌 작업 제한',
         diagram: 'T1: SELECT ... FOR UPDATE 🔒 ➔ T2: 충돌하는 락 요청은 대기',
         concept: '데이터를 조회할 때부터 배타 락(X-Lock) 등을 걸어 다른 트랜잭션의 수정을 대기시킴.',
@@ -208,6 +233,7 @@ const items = [
     {
         id: 24, category: 'database', catName: '데이터베이스',
         badgeColor: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
+        level: 2,
         title: '09. MVCC', subtitle: '다중 버전 동시성 제어',
         diagram: '한 행의 여러 버전 [v1 ← v2 ← v3] ➔ 스냅샷 A는 v1, 스냅샷 B는 v3 조회',
         concept: '데이터 수정 시 이전 버전을 Undo 영역에 남겨, 읽기 작업이 락 대기 없이 일관된 스냅샷을 읽음.',
@@ -216,6 +242,7 @@ const items = [
     {
         id: 25, category: 'database', catName: '데이터베이스',
         badgeColor: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
+        level: 3,
         title: '10. JOIN', subtitle: '테이블 결합',
         diagram: '[주문: o1 | 고객ID: 7] ⋈ [고객ID: 7 | Kim] ➔ [o1 | 7 | Kim]',
         concept: '조인 조건(ON)에 맞는 두 관계(테이블)의 행을 하나로 결합하여 조회.',
@@ -224,6 +251,7 @@ const items = [
     {
         id: 26, category: 'database', catName: '데이터베이스',
         badgeColor: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
+        level: 3,
         title: '11. GROUP BY', subtitle: '그룹 집계',
         diagram: '[A, B, A, A] ➔ GROUP BY key, COUNT(*) ➔ [A: 3건, B: 1건]',
         concept: '같은 키 값을 가진 행들을 하나의 그룹으로 묶어 COUNT, SUM, AVG 등의 집계 함수를 수행.',
@@ -232,6 +260,7 @@ const items = [
     {
         id: 27, category: 'database', catName: '데이터베이스',
         badgeColor: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
+        level: 2,
         title: '12. SQL vs NoSQL', subtitle: '관계형 vs 비관계형',
         diagram: '관계형(테이블·정형 스키마) vs NoSQL(문서 {...}, 키→값, 노드↔관계)',
         concept: '관계형 DB는 정합성과 조인에 강하고, NoSQL은 데이터 모델 차이(문서·키값·그래프)로 유연한 확장에 강함.',
@@ -240,6 +269,7 @@ const items = [
     {
         id: 28, category: 'database', catName: '데이터베이스',
         badgeColor: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
+        level: 3,
         title: '13. WAL (Write-Ahead Log)', subtitle: '데이터 페이지보다 로그 먼저 기록',
         diagram: '변경 발생 ➔ 1. WAL 로그 영속화 ➔ 2. 이후 데이터 페이지 디스크 반영',
         concept: '실제 데이터 파일을 수정하기 전에 변경 내역을 순차 로그(WAL/Redo)에 먼저 디스크 기록.',
@@ -248,6 +278,7 @@ const items = [
     {
         id: 29, category: 'database', catName: '데이터베이스',
         badgeColor: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
+        level: 3,
         title: '14. 팬텀 리드 (Phantom Read)', subtitle: '재조회한 조건의 행 집합이 달라짐',
         diagram: 'WHERE score >= 80 첫 조회(3행) ➔ 다른 Tx가 신규 행 INSERT ➔ 재조회(4행)',
         concept: '한 트랜잭션 내에서 같은 조건으로 범위를 다시 읽었을 때, 없던 유령 행이 새로 나타나는 현상.',
@@ -256,6 +287,7 @@ const items = [
     {
         id: 30, category: 'database', catName: '데이터베이스',
         badgeColor: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
+        level: 2,
         title: '15. 파티셔닝 (Partitioning)', subtitle: '키 기준으로 테이블을 나눔',
         diagram: '주문 테이블·날짜 기준 ➔ [2024] [2025] [2026] (2025 조건 시 해당 파티션만 탐색)',
         concept: '대용량 논리 테이블을 날짜 등 파티션 키 기준으로 여러 물리 조각으로 분할.',
@@ -266,6 +298,7 @@ const items = [
     {
         id: 31, category: 'data-structure', catName: '자료구조',
         badgeColor: 'bg-purple-500/10 text-purple-400 border-purple-500/20',
+        level: 1,
         title: '01. 배열 · 연결 리스트', subtitle: 'Array / Linked List',
         diagram: '배열: 인덱스 O(1) 주소 직접 접근 | 연결 리스트: O(n) 노드 연결 순회',
         concept: '배열은 연속 메모리로 즉시 접근이 가능하고, 연결 리스트는 포인터로 노드를 이어 동적 크기에 유리.',
@@ -274,6 +307,7 @@ const items = [
     {
         id: 32, category: 'data-structure', catName: '자료구조',
         badgeColor: 'bg-purple-500/10 text-purple-400 border-purple-500/20',
+        level: 1,
         title: '02. 스택 (Stack)', subtitle: 'LIFO · 후입선출',
         diagram: 'push ↘ [ B · top ] (아래에 A) ↗ pop (B를 먼저 꺼냄)',
         concept: '마지막에 넣은 원소를 가장 먼저 꺼내는 후입선출 구조.',
@@ -282,6 +316,7 @@ const items = [
     {
         id: 33, category: 'data-structure', catName: '자료구조',
         badgeColor: 'bg-purple-500/10 text-purple-400 border-purple-500/20',
+        level: 1,
         title: '03. 큐 (Queue)', subtitle: 'FIFO · 선입선출',
         diagram: 'dequeue ⬅ [ 앞 A → B → C 뒤 ] ⬅ enqueue (A를 먼저 꺼냄)',
         concept: '먼저 넣은 원소를 가장 먼저 꺼내는 선입선출 구조.',
@@ -290,6 +325,7 @@ const items = [
     {
         id: 34, category: 'data-structure', catName: '자료구조',
         badgeColor: 'bg-purple-500/10 text-purple-400 border-purple-500/20',
+        level: 2,
         title: '04. 덱 (Deque)', subtitle: '양 끝에서 삽입 · 삭제',
         diagram: '⬅➡ [ A ⇄ B ] ⬅➡ (양방향 연결 + 양 끝 포인터)',
         concept: '스택과 큐의 특성을 합쳐 앞(Front)과 뒤(Rear) 양쪽 끝에서 원소를 넣고 뺄 수 있는 구조.',
@@ -298,6 +334,7 @@ const items = [
     {
         id: 35, category: 'data-structure', catName: '자료구조',
         badgeColor: 'bg-purple-500/10 text-purple-400 border-purple-500/20',
+        level: 2,
         title: '05. 해시 테이블 (Hash Table)', subtitle: '키 → 해시 → 저장 위치',
         diagram: '좋은 분산·부하율 유지 시 조회 평균 O(1) ➔ 충돌 집중 시 최악 O(n)',
         concept: '해시 함수로 키를 버킷 인덱스로 변환해 저장 위치를 정하고 키를 빠르게 조회.',
@@ -306,6 +343,7 @@ const items = [
     {
         id: 36, category: 'data-structure', catName: '자료구조',
         badgeColor: 'bg-purple-500/10 text-purple-400 border-purple-500/20',
+        level: 2,
         title: '06. 해시 충돌 (Hash Collision)', subtitle: '서로 다른 키 · 같은 해시 위치',
         diagram: '키 A ↘ [ 버킷 2 ] ↙ 키 B (체이닝 vs 개방 주소법)',
         concept: '서로 다른 키가 해시 함수 결과 같은 버킷 인덱스에 배정되는 현상.',
@@ -314,6 +352,7 @@ const items = [
     {
         id: 37, category: 'data-structure', catName: '자료구조',
         badgeColor: 'bg-purple-500/10 text-purple-400 border-purple-500/20',
+        level: 2,
         title: '07. 이진 탐색 트리 (BST)', subtitle: 'Binary Search Tree',
         diagram: '루트 [8] ➔ 왼쪽 자식 [3] (작은 키), 오른쪽 자식 [12] (큰 키)',
         concept: '모든 노드에서 왼쪽 서브트리는 작은 키, 오른쪽 서브트리는 큰 키를 가지는 이진 트리.',
@@ -322,6 +361,7 @@ const items = [
     {
         id: 38, category: 'data-structure', catName: '자료구조',
         badgeColor: 'bg-purple-500/10 text-purple-400 border-purple-500/20',
+        level: 2,
         title: '08. 균형 트리 (Balanced Tree)', subtitle: 'AVL · 레드블랙 트리',
         diagram: '회전(Rotation) 등으로 높이 O(log n) 유지 ➔ 탐색·삽입·삭제 최악 O(log n)',
         concept: '삽입·삭제 시 트리가 편향되지 않도록 노드 회전 등으로 높이를 스스로 제한하는 BST.',
@@ -330,6 +370,7 @@ const items = [
     {
         id: 39, category: 'data-structure', catName: '자료구조',
         badgeColor: 'bg-purple-500/10 text-purple-400 border-purple-500/20',
+        level: 2,
         title: '09. 힙 (Heap)', subtitle: '완전 이진 트리의 부모·자식 순서 유지',
         diagram: '최소 이진 힙(부모 ≤ 자식): 루트 [1] ➔ 자식 [4], [3] (최솟값 확인 O(1))',
         concept: '완전 이진 트리 상태를 유지하며 부모 노드가 자식 노드보다 항상 작거나(최소 힙) 큰 자료구조.',
@@ -338,6 +379,7 @@ const items = [
     {
         id: 40, category: 'data-structure', catName: '자료구조',
         badgeColor: 'bg-purple-500/10 text-purple-400 border-purple-500/20',
+        level: 2,
         title: '10. 우선순위 큐 (Priority Queue)', subtitle: '우선순위가 높은 원소를 먼저 꺼냄',
         diagram: '입력 5, 1, 3 ➔ 최우선 1을 먼저 꺼냄 ➔ 삽입·삭제 최악 O(log n)',
         concept: '들어온 순서와 무관하게 우선순위가 가장 높은 원소를 먼저 추출하는 추상 자료형.',
@@ -346,6 +388,7 @@ const items = [
     {
         id: 41, category: 'data-structure', catName: '자료구조',
         badgeColor: 'bg-purple-500/10 text-purple-400 border-purple-500/20',
+        level: 3,
         title: '11. 트라이 (Trie)', subtitle: '문자 경로를 공유하는 문자열 트리',
         diagram: '[c] ➔ [a] ➔ [t], [r] (접두사 ca 공유 / 탐색 O(L))',
         concept: '문자열의 각 문자를 트리의 계층 노드로 저장하여 공통 접두사 경로를 공유하는 트리.',
@@ -354,6 +397,7 @@ const items = [
     {
         id: 42, category: 'data-structure', catName: '자료구조',
         badgeColor: 'bg-purple-500/10 text-purple-400 border-purple-500/20',
+        level: 3,
         title: '12. 그래프 표현', subtitle: 'Graph Representation',
         diagram: '인접 행렬(0/1 격자): 공간 O(V²) | 인접 리스트(A→B,C): 공간 O(V + E)',
         concept: '정점(V)과 간선(E)의 연결 관계를 2차원 행렬 또는 정점별 연결 리스트로 저장.',
@@ -362,6 +406,7 @@ const items = [
     {
         id: 43, category: 'data-structure', catName: '자료구조',
         badgeColor: 'bg-purple-500/10 text-purple-400 border-purple-500/20',
+        level: 3,
         title: '13. BFS · DFS', subtitle: '너비 우선 · 깊이 우선 탐색',
         diagram: 'BFS: 큐·가까운 정점부터·최소 간선 경로 | DFS: 스택/재귀·한 경로 끝까지 확장',
         concept: '그래프의 모든 정점을 방문하는 두 가지 대표 탐색 방식 (방문 표시로 중복 탐색 방지).',
@@ -370,6 +415,7 @@ const items = [
     {
         id: 44, category: 'data-structure', catName: '자료구조',
         badgeColor: 'bg-purple-500/10 text-purple-400 border-purple-500/20',
+        level: 3,
         title: '14. 유니온 파인드 (Union-Find)', subtitle: '서로소 집합 (Disjoint Set)',
         diagram: 'union(A, B): 대표 A를 B 아래에 연결 ➔ find(A) = find(B) 대표 조회',
         concept: '서로소 집합들을 합치고(Union) 특정 원소가 속한 집합의 대표 루트를 찾는(Find) 자료구조.',
@@ -378,6 +424,7 @@ const items = [
     {
         id: 45, category: 'data-structure', catName: '자료구조',
         badgeColor: 'bg-purple-500/10 text-purple-400 border-purple-500/20',
+        level: 3,
         title: '15. 빅오 (Big O)', subtitle: '입력 크기에 따른 비용의 점근적 상한',
         diagram: '3n + 2 → O(n), n² + n → O(n²) (상수 배와 작은 차수는 생략)',
         concept: '입력 크기 n이 무한히 커질 때 알고리즘 실행 시간이나 공간 증가율의 상한을 표기.',
@@ -388,6 +435,7 @@ const items = [
     {
         id: 46, category: 'sql-traps', catName: 'SQL 함정',
         badgeColor: 'bg-rose-500/10 text-rose-400 border-rose-500/20',
+        level: 1,
         title: '01. INNER vs LEFT JOIN', subtitle: '내부 조인 vs 왼쪽 외부 조인',
         diagram: 'A(1, 2) ⋈ B(1) ➔ INNER: [1|1] / LEFT: [1|1], [2|NULL]',
         concept: 'INNER JOIN은 양쪽 테이블에서 조인 조건이 매칭되는 행만 남김.',
@@ -396,6 +444,7 @@ const items = [
     {
         id: 47, category: 'sql-traps', catName: 'SQL 함정',
         badgeColor: 'bg-rose-500/10 text-rose-400 border-rose-500/20',
+        level: 1,
         title: '02. WHERE vs HAVING', subtitle: '행 조건 vs 그룹 조건',
         diagram: '입력 1, 2, 3 ➔ WHERE x>1(1 제외 후 합계 5) vs HAVING SUM(x)>1(전체 합계 6)',
         concept: 'WHERE는 그룹화 이전에 개별 행을 먼저 필터링하고, HAVING은 그룹 집계 이후 결과를 필터링.',
@@ -404,6 +453,7 @@ const items = [
     {
         id: 48, category: 'sql-traps', catName: 'SQL 함정',
         badgeColor: 'bg-rose-500/10 text-rose-400 border-rose-500/20',
+        level: 1,
         title: '03. UNION vs UNION ALL', subtitle: '중복 제거 vs 전체 유지',
         diagram: 'A(1, 1) + B(1, 2) ➔ UNION: 1, 2 (2행) | UNION ALL: 1, 1, 1, 2 (4행)',
         concept: '두 쿼리 결과를 세로로 합칠 때 UNION은 중복 행을 제거하고, UNION ALL은 그대로 모두 유지.',
@@ -412,6 +462,7 @@ const items = [
     {
         id: 49, category: 'sql-traps', catName: 'SQL 함정',
         badgeColor: 'bg-rose-500/10 text-rose-400 border-rose-500/20',
+        level: 2,
         title: '04. 삭제 명령 3종', subtitle: 'DELETE / TRUNCATE / DROP',
         diagram: 'DELETE(WHERE 조건 행 삭제) | TRUNCATE(빈 테이블로 비움) | DROP(테이블 자체 제거)',
         concept: 'DELETE는 행 단위 삭제, TRUNCATE는 테이블 데이터 전체 비우기, DROP은 테이블 구조까지 삭제.',
@@ -420,6 +471,7 @@ const items = [
     {
         id: 50, category: 'sql-traps', catName: 'SQL 함정',
         badgeColor: 'bg-rose-500/10 text-rose-400 border-rose-500/20',
+        level: 2,
         title: '05. COUNT(*) vs COUNT(열)', subtitle: '전체 행 수 vs 값이 있는 행 수',
         diagram: '입력 v: [7, NULL, 7] ➔ COUNT(*) = 3 (모든 행) | COUNT(v) = 2 (NULL 제외)',
         concept: 'COUNT(*)는 NULL 여부와 관계없이 전체 행 수를 세고, COUNT(열)은 해당 열이 NULL이 아닌 행만 셈.',
@@ -428,6 +480,7 @@ const items = [
     {
         id: 51, category: 'sql-traps', catName: 'SQL 함정',
         badgeColor: 'bg-rose-500/10 text-rose-400 border-rose-500/20',
+        level: 2,
         title: '06. NULL 비교', subtitle: 'Equality(=) vs IS NULL',
         diagram: '입력 v: NULL ➔ WHERE v = NULL (UNKNOWN · 0행) | WHERE v IS NULL (TRUE · 1행)',
         concept: 'SQL의 3치 논리(TRUE/FALSE/UNKNOWN)에서 NULL과의 일반 등호(=) 비교는 모두 UNKNOWN이 됨.',
@@ -436,6 +489,7 @@ const items = [
     {
         id: 52, category: 'sql-traps', catName: 'SQL 함정',
         badgeColor: 'bg-rose-500/10 text-rose-400 border-rose-500/20',
+        level: 2,
         title: '07. IN vs EXISTS', subtitle: '포함 여부 vs 존재 여부',
         diagram: '서브쿼리 S가 NULL 1행일 때 ➔ 1 IN (S): UNKNOWN | EXISTS(S): TRUE (행이 있으므로)',
         concept: 'IN은 실제 값들을 비교하고, EXISTS는 서브쿼리가 반환하는 행이 1건이라도 존재하는지만 확인.',
@@ -444,6 +498,7 @@ const items = [
     {
         id: 53, category: 'sql-traps', catName: 'SQL 함정',
         badgeColor: 'bg-rose-500/10 text-rose-400 border-rose-500/20',
+        level: 2,
         title: '08. NOT IN 함정', subtitle: 'NOT IN vs NOT EXISTS',
         diagram: 'x=2, 서브쿼리 S=(1, NULL) ➔ x NOT IN (1, NULL)은 UNKNOWN (x=2 제외됨!)',
         concept: 'x NOT IN (1, NULL)은 x!=1 AND x!=NULL로 풀리는데, x!=NULL이 UNKNOWN이므로 전체가 UNKNOWN이 됨.',
@@ -452,6 +507,7 @@ const items = [
     {
         id: 54, category: 'sql-traps', catName: 'SQL 함정',
         badgeColor: 'bg-rose-500/10 text-rose-400 border-rose-500/20',
+        level: 2,
         title: '09. CASE vs COALESCE', subtitle: '조건별 분기 값 vs 첫 비NULL 값',
         diagram: 'x = -1 일 때: CASE(x<0이면 0) → 0 | COALESCE(x, 0) → -1 (음수를 바꾸지 않음)',
         concept: 'CASE는 조건식에 따라 값을 분기하고, COALESCE는 나열된 인자 중 첫 번째로 NULL이 아닌 값을 반환.',
@@ -460,6 +516,7 @@ const items = [
     {
         id: 55, category: 'sql-traps', catName: 'SQL 함정',
         badgeColor: 'bg-rose-500/10 text-rose-400 border-rose-500/20',
+        level: 2,
         title: "10. LIKE 'a%' vs '%a'", subtitle: '접두 검색 vs 접미 검색',
         diagram: "입력 ab, ba, ca ➔ LIKE 'a%' (접두 범위 탐색 가능) | LIKE '%a' (접두 범위 불가)",
         concept: '일반 문자열 B-Tree 인덱스는 왼쪽 첫 글자부터 정렬되어 있음.',
@@ -468,6 +525,7 @@ const items = [
     {
         id: 56, category: 'sql-traps', catName: 'SQL 함정',
         badgeColor: 'bg-rose-500/10 text-rose-400 border-rose-500/20',
+        level: 3,
         title: '11. OFFSET vs 키셋 페이지네이션', subtitle: 'Offset vs Keyset Pagination',
         diagram: 'OFFSET 4 (앞 1..4행을 읽고 건너뜀) vs WHERE id > 4 LIMIT 2 (4 이후 바로 탐색)',
         concept: 'OFFSET은 페이지가 뒤로 갈수록 버리는 행까지 다 읽어야 해서 급격히 느려짐.',
@@ -476,6 +534,7 @@ const items = [
     {
         id: 57, category: 'sql-traps', catName: 'SQL 함정',
         badgeColor: 'bg-rose-500/10 text-rose-400 border-rose-500/20',
+        level: 3,
         title: '12. CHAR vs VARCHAR', subtitle: '고정 길이 vs 가변 길이',
         diagram: "'a'를 길이 3에 저장 ➔ CHAR(3): 'a··' (공백 패딩) | VARCHAR(3): 'a' (패딩 없음)",
         concept: 'CHAR는 남는 공간만큼 공백을 채워 고정 길이로 저장하고, VARCHAR는 실제 문자열 길이만큼만 저장.',
@@ -484,6 +543,7 @@ const items = [
     {
         id: 58, category: 'sql-traps', catName: 'SQL 함정',
         badgeColor: 'bg-rose-500/10 text-rose-400 border-rose-500/20',
+        level: 3,
         title: '13. PK vs UNIQUE', subtitle: '기본 키 vs 유일 제약',
         diagram: 'PK: 중복 불가 · NULL 불가 · 테이블당 1개 | UNIQUE: 중복 불가 · NULL 허용 · 여러 개 가능',
         concept: '두 제약 모두 중복 값을 막지만, 기본 키(PK)는 행의 절대 식별자로서 NULL을 절대 허용하지 않음.',
@@ -492,6 +552,7 @@ const items = [
     {
         id: 59, category: 'sql-traps', catName: 'SQL 함정',
         badgeColor: 'bg-rose-500/10 text-rose-400 border-rose-500/20',
+        level: 3,
         title: '14. 순위 함수 3종', subtitle: 'ROW_NUMBER / RANK / DENSE_RANK',
         diagram: '점수 90, 90, 80 ➔ ROW_NUMBER(1,2,3) | RANK(1,1,3) | DENSE_RANK(1,1,2)',
         concept: '동점자(90, 90) 발생 시 순위를 매기는 윈도우 함수 3종의 차이.',
@@ -500,6 +561,7 @@ const items = [
     {
         id: 60, category: 'sql-traps', catName: 'SQL 함정',
         badgeColor: 'bg-rose-500/10 text-rose-400 border-rose-500/20',
+        level: 3,
         title: '15. 상관 vs 비상관 서브쿼리', subtitle: 'Correlated vs Uncorrelated',
         diagram: '상관(바깥 행 A, B 참조 → A:30, B:5) vs 비상관(독립 집계 → 모두 전체 합계 35)',
         concept: '상관 서브쿼리는 바깥 쿼리의 열을 참조하여 논리적으로 바깥 행마다 결과를 달리 계산.',
@@ -510,6 +572,7 @@ const items = [
     {
         id: 61, category: 'os-network', catName: 'OS·네트워크',
         badgeColor: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
+        level: 1,
         title: '01. 프로세스 vs 스레드', subtitle: 'Process vs Thread',
         diagram: '프로세스(독립 메모리: Code/Data/Heap/Stack) vs 스레드(Heap 공유 · Stack만 독립)',
         concept: '프로세스는 OS로부터 자원을 할당받는 실행 단위이고, 스레드는 프로세스 내에서 자원을 공유하며 실행되는 흐름 단위.',
@@ -518,6 +581,7 @@ const items = [
     {
         id: 62, category: 'os-network', catName: 'OS·네트워크',
         badgeColor: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
+        level: 2,
         title: '02. 데드락 (교착 상태) 4대 조건', subtitle: 'Deadlock Conditions',
         diagram: '상호배제 · 점유대기 · 비선점 · 순환대기 (4가지 모두 성립 시 발생)',
         concept: '두 개 이상의 작업이 서로 상대방이 가진 자원이 해제되기를 무한정 기다리는 상태.',
@@ -526,6 +590,7 @@ const items = [
     {
         id: 63, category: 'os-network', catName: 'OS·네트워크',
         badgeColor: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
+        level: 2,
         title: '03. 동기/비동기 · 블로킹/논블로킹', subtitle: 'Sync/Async & Blocking/Non-blocking',
         diagram: '작업 완료 여부 관심(동기 vs 비동기) × 제어권 반환 여부(블로킹 vs 논블로킹)',
         concept: '동기는 결과 순서와 완료를 직접 챙기는 관점이고, 블로킹은 호출된 함수가 끝날 때까지 제어권을 묶어두는 관점.',
@@ -534,6 +599,7 @@ const items = [
     {
         id: 64, category: 'os-network', catName: 'OS·네트워크',
         badgeColor: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
+        level: 2,
         title: '04. 가상 메모리와 페이징', subtitle: 'Virtual Memory & Paging',
         diagram: '가상 주소(페이지) ➔ MMU · 페이지 테이블 ➔ 물리 메모리(프레임) 매핑',
         concept: '프로세스마다 독립된 큰 가상 주소 공간을 부여하고, 필요한 페이지 단위로 물리 메모리에 올려 실행하는 기법.',
@@ -542,6 +608,7 @@ const items = [
     {
         id: 65, category: 'os-network', catName: 'OS·네트워크',
         badgeColor: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
+        level: 1,
         title: '05. TCP vs UDP', subtitle: '연결 지향 신뢰성 vs 비연결 초저지연',
         diagram: 'TCP(3-Way Handshake · 순서/재전송 보장) vs UDP(연결 생략 · 빠른 스트리밍)',
         concept: 'TCP는 흐름·혼잡 제어와 재전송으로 데이터 무결성을 보장하고, UDP는 헤더가 단순해 속도가 빠름.',
@@ -550,6 +617,7 @@ const items = [
     {
         id: 66, category: 'os-network', catName: 'OS·네트워크',
         badgeColor: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
+        level: 1,
         title: '06. TCP 3-Way & 4-Way Handshake', subtitle: '연결 수립과 연결 종료',
         diagram: '연결: SYN → SYN+ACK → ACK | 종료: FIN → ACK → FIN → ACK(TIME_WAIT)',
         concept: '통신 전 양쪽의 송수신 준비를 확인하는 3단계와, 남은 패킷 유실을 막기 위한 4단계 종료 절차.',
@@ -558,6 +626,7 @@ const items = [
     {
         id: 67, category: 'os-network', catName: 'OS·네트워크',
         badgeColor: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
+        level: 1,
         title: '07. HTTP/1.1 vs HTTP/2 vs HTTP/3', subtitle: '웹 프로토콜의 진화',
         diagram: 'HTTP/1.1(순차 처리·HOL) → HTTP/2(바이너리 멀티플렉싱) → HTTP/3(UDP 기반 QUIC)',
         concept: '한 번의 연결로 여러 요청을 동시에 처리하는 멀티플렉싱 도입 및 TCP의 패킷 손실 지연(HOL Blocking) 해결.',
@@ -566,6 +635,7 @@ const items = [
     {
         id: 68, category: 'os-network', catName: 'OS·네트워크',
         badgeColor: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
+        level: 2,
         title: '08. DNS 조회 과정', subtitle: 'Domain Name System Resolution',
         diagram: '브라우저/OS 캐시 → Local DNS → Root → TLD(.com) → Authoritative DNS(IP 응답)',
         concept: '사람이 읽는 도메인 주소를 계층적 네임서버 질의를 통해 실제 서버의 IP 주소로 변환하는 과정.',
@@ -574,6 +644,7 @@ const items = [
     {
         id: 69, category: 'os-network', catName: 'OS·네트워크',
         badgeColor: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
+        level: 3,
         title: '09. 세션 vs JWT 토큰 인증', subtitle: 'Stateful Session vs Stateless JWT',
         diagram: '세션(서버 저장소 조회 · 즉시 무효화) vs JWT(서명 검증 · 서버 무상태 확장 유리)',
         concept: '세션은 서버 메모리에 상태를 유지하고, JWT는 사용자 정보를 암호화 서명해 클라이언트가 보관.',
@@ -582,6 +653,7 @@ const items = [
     {
         id: 70, category: 'os-network', catName: 'OS·네트워크',
         badgeColor: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
+        level: 2,
         title: '10. RESTful API 설계 & 멱등성', subtitle: 'HTTP Methods & Idempotency',
         diagram: '멱등성 O: GET, PUT, DELETE (여러 번 호출해도 동일) | 멱등성 X: POST (중복 생성)',
         concept: '자원(URI)과 행위(HTTP Method)를 명확히 표현하며, 네트워크 재시도 시 안전성을 판단하는 멱등성 개념.',
@@ -590,6 +662,7 @@ const items = [
     {
         id: 71, category: 'os-network', catName: 'OS·네트워크',
         badgeColor: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
+        level: 2,
         title: '11. 캐시 전략 (Cache-Aside & Write)', subtitle: 'Caching Patterns',
         diagram: 'Cache-Aside: 캐시 히트 시 즉시 반환 → 미스 시 DB 조회 후 캐시 적재',
         concept: '반복 조회되는 데이터를 메모리(Redis 등)에 두어 DB 부하를 줄이고 응답 속도를 높이는 패턴.',
@@ -598,6 +671,7 @@ const items = [
     {
         id: 72, category: 'os-network', catName: 'OS·네트워크',
         badgeColor: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
+        level: 2,
         title: '12. 로드 밸런서 (L4 vs L7)', subtitle: 'Load Balancing Layers',
         diagram: 'L4(IP · Port 기반 빠른 패킷 분산) vs L7(URL · 헤더 · 쿠키 기반 지능형 라우팅)',
         concept: '트래픽을 여러 서버로 분산해 가용성과 확장성을 확보하는 장비/소프트웨어.',
@@ -606,6 +680,7 @@ const items = [
     {
         id: 73, category: 'os-network', catName: 'OS·네트워크',
         badgeColor: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
+        level: 3,
         title: '13. 포워드 프록시 vs 리버스 프록시', subtitle: 'Forward vs Reverse Proxy',
         diagram: '포워드(클라이언트 앞단 · 익명성/캐싱) vs 리버스(서버 앞단 · Nginx · 보안/분산)',
         concept: '포워드 프록시는 내부 사용자를 대신해 외부에 요청하고, 리버스 프록시는 외부 요청을 받아 내부 서버로 전달.',
@@ -614,6 +689,7 @@ const items = [
     {
         id: 74, category: 'os-network', catName: 'OS·네트워크',
         badgeColor: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
+        level: 3,
         title: '14. 스케일 업 vs 스케일 아웃', subtitle: 'Scale-Up vs Scale-Out',
         diagram: 'Scale-Up(서버 사양 증설 · 수직 확장) vs Scale-Out(서버 대수 증가 · 수평 확장)',
         concept: '트래픽 증가에 대응해 단일 머신 성능을 높일지, 여러 대의 서버를 병렬로 늘릴지 결정하는 아키텍처 전략.',
@@ -622,6 +698,7 @@ const items = [
     {
         id: 75, category: 'os-network', catName: 'OS·네트워크',
         badgeColor: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
+        level: 3,
         title: '15. 컨테이너 vs 가상머신 (VM)', subtitle: 'Container (Docker) vs Virtual Machine',
         diagram: 'VM(Hypervisor 위 Guest OS 각각 포함) vs 컨테이너(Host OS 커널 공유 · 경량 격리)',
         concept: 'VM은 하드웨어 수준에서 OS 전체를 가상화하고, 컨테이너는 프로세스 격리 기술로 애플리케이션 실행 환경만 패키징.',
@@ -632,6 +709,7 @@ const items = [
     {
         id: 76, category: 'architecture', catName: '설계·클린코드',
         badgeColor: 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20',
+        level: 1,
         title: '01. SOLID 5대 원칙', subtitle: '객체지향 설계의 핵심 기둥',
         diagram: 'SRP(단일책임) · OCP(개방폐쇄) · LSP(리스코프) · ISP(인터페이스분리) · DIP(의존역전)',
         concept: '변경에 유연하고 유지보수하기 쉬운 소프트웨어를 만들기 위한 5가지 객체지향 설계 원칙.',
@@ -640,6 +718,7 @@ const items = [
     {
         id: 77, category: 'architecture', catName: '설계·클린코드',
         badgeColor: 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20',
+        level: 1,
         title: '02. DI와 IoC (의존성 주입 · 제어의 역전)', subtitle: 'Dependency Injection & Inversion of Control',
         diagram: '직접 생성(new Impl) ➔ 외부 컨테이너가 인터페이스 구현체를 조립·주입',
         concept: '객체가 사용할 의존 객체를 직접 생성하지 않고 외부(프레임워크 등)에서 주입받아 결합도를 낮추는 패턴.',
@@ -648,6 +727,7 @@ const items = [
     {
         id: 78, category: 'architecture', catName: '설계·클린코드',
         badgeColor: 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20',
+        level: 2,
         title: '03. 응집도와 결합도', subtitle: 'High Cohesion · Low Coupling',
         diagram: '높은 응집도(관련 기능 한 모듈에 집중) × 낮은 결합도(모듈 간 의존 최소화)',
         concept: '좋은 소프트웨어 모듈화의 척도로, 내부 요소끼리는 밀접하게 뭉치고 외부 모듈과는 느슨하게 연결됨.',
@@ -656,6 +736,7 @@ const items = [
     {
         id: 79, category: 'architecture', catName: '설계·클린코드',
         badgeColor: 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20',
+        level: 2,
         title: '04. 합성 vs 상속', subtitle: 'Composition over Inheritance',
         diagram: '상속(Is-A · 부모 변경 시 자식 파손 위험) vs 합성(Has-A · 인터페이스 위임)',
         concept: '기존 클래스의 기능을 재사용할 때 상위 클래스를 확장(상속)하기보다 필드로 포함(합성)하여 위임하는 설계.',
@@ -664,6 +745,7 @@ const items = [
     {
         id: 80, category: 'architecture', catName: '설계·클린코드',
         badgeColor: 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20',
+        level: 2,
         title: '05. 생성 · 구조 · 행위 디자인 패턴', subtitle: 'Singleton · Adapter · Strategy',
         diagram: '생성(Singleton/Factory) · 구조(Adapter/Proxy/Decorator) · 행위(Strategy/Observer)',
         concept: '반복적으로 발생하는 설계 문제를 해결하기 위해 검증된 객체 간 협력 구조 템플릿.',
@@ -672,6 +754,7 @@ const items = [
     {
         id: 81, category: 'architecture', catName: '설계·클린코드',
         badgeColor: 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20',
+        level: 2,
         title: '06. 레이어드 vs 헥사고날 아키텍처', subtitle: 'Layered vs Hexagonal (Ports & Adapters)',
         diagram: '레이어드(Controller→Service→DB 의존) vs 헥사고날(도메인 중심 · 외부 어댑터 역전)',
         concept: '비즈니스 도메인 로직을 웹 프레임워크나 특정 DB 기술로부터 격리하여 순수하게 보호하는 아키텍처.',
@@ -680,6 +763,7 @@ const items = [
     {
         id: 82, category: 'architecture', catName: '설계·클린코드',
         badgeColor: 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20',
+        level: 2,
         title: '07. TDD와 테스트 피라미드', subtitle: 'Unit · Integration · E2E Test',
         diagram: '단위 테스트(다수·빠름) ➔ 통합 테스트(중간) ➔ E2E 테스트(소수·전체 흐름)',
         concept: '실패하는 테스트 작성(Red) → 통과 구현(Green) → 리팩토링(Refactor) 사이클과 계층별 테스트 비중 전략.',
@@ -688,6 +772,7 @@ const items = [
     {
         id: 83, category: 'architecture', catName: '설계·클린코드',
         badgeColor: 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20',
+        level: 2,
         title: '08. 테스트 더블 (Mock vs Stub)', subtitle: 'Test Doubles in Unit Testing',
         diagram: 'Stub(상태 검증 · 미리 정해진 반환값 제공) vs Mock(행위 검증 · 호출 여부/횟수 확인)',
         concept: '단위 테스트 시 외부 API나 DB 등 실제 의존성을 대체하는 가짜 객체들의 역할 구분.',
@@ -696,6 +781,7 @@ const items = [
     {
         id: 84, category: 'architecture', catName: '설계·클린코드',
         badgeColor: 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20',
+        level: 2,
         title: '09. 모놀리식 vs 마이크로서비스 (MSA)', subtitle: 'Monolithic vs Microservices',
         diagram: '모놀리식(단일 배포·로컬 트랜잭션) vs MSA(독립 배포·장애 격리·분산 트랜잭션)',
         concept: '애플리케이션을 하나의 통합 단위로 배포할지, 도메인별 독립 서비스로 분리할지 결정하는 구조.',
@@ -704,6 +790,7 @@ const items = [
     {
         id: 85, category: 'architecture', catName: '설계·클린코드',
         badgeColor: 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20',
+        level: 3,
         title: '10. 메시지 큐 & 이벤트 기반 아키텍처', subtitle: 'Kafka · RabbitMQ · Pub/Sub',
         diagram: 'Producer ➔ [ Message Broker / Topic ] ➔ Consumer (비동기 결합 · 트래픽 완충)',
         concept: '서비스 간 직접 동기 호출 대신 이벤트를 발행·구독하여 시스템 간 결합도를 낮추고 트래픽 폭주를 완충.',
@@ -712,6 +799,7 @@ const items = [
     {
         id: 86, category: 'architecture', catName: '설계·클린코드',
         badgeColor: 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20',
+        level: 3,
         title: '11. 분산 트랜잭션과 Saga 패턴', subtitle: 'Eventual Consistency & 보상 트랜잭션',
         diagram: '주문 생성 ➔ 결제 성공 ➔ 재고 차감 실패 ➔ [결제 취소 보상 트랜잭션 실행]',
         concept: '분산 DB 환경에서 전역 락(2PC) 대신 로컬 트랜잭션 연쇄와 실패 시 보상(Compensating) 트랜잭션으로 정합성 유지.',
@@ -720,6 +808,7 @@ const items = [
     {
         id: 87, category: 'architecture', catName: '설계·클린코드',
         badgeColor: 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20',
+        level: 3,
         title: '12. 서킷 브레이커 (Circuit Breaker)', subtitle: '장애 전파 차단 패턴',
         diagram: 'Closed(정상) ➔ 오류 임계치 초과 ➔ Open(즉시 차단·Fallback) ➔ Half-Open(복구 탐색)',
         concept: '연동된 외부 서비스에 장애가 발생했을 때 무한 대기를 막고 요청을 즉시 차단해 연쇄 장애를 예방하는 패턴.',
@@ -728,6 +817,7 @@ const items = [
     {
         id: 88, category: 'architecture', catName: '설계·클린코드',
         badgeColor: 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20',
+        level: 3,
         title: '13. Git Merge vs Rebase', subtitle: '브랜치 통합 전략',
         diagram: 'Merge(병합 커밋 생성 · 이력 보존) vs Rebase(베이스 재배치 · 선형 깔끔한 히스토리)',
         concept: '분리된 브랜치의 변경 사항을 합칠 때 분기 이력을 남길지, 커밋을 일렬로 재정렬할지 선택.',
@@ -736,6 +826,7 @@ const items = [
     {
         id: 89, category: 'architecture', catName: '설계·클린코드',
         badgeColor: 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20',
+        level: 3,
         title: '14. CI / CD 파이프라인', subtitle: '지속적 통합 · 지속적 배포',
         diagram: '코드 Push ➔ CI(자동 빌드 · 린트 · 테스트) ➔ CD(스테이징 · 프로덕션 무중단 배포)',
         concept: '코드 변경 사항을 주기적으로 병합·검증하고, 검증된 아티팩트를 운영 환경까지 자동 배포하는 프로세스.',
@@ -744,6 +835,7 @@ const items = [
     {
         id: 90, category: 'architecture', catName: '설계·클린코드',
         badgeColor: 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20',
+        level: 3,
         title: '15. 로그 · 메트릭 · 분산 추적', subtitle: 'Observability (관측 가능성 3대 축)',
         diagram: 'Logs(상세 이벤트 기록) · Metrics(수치 시계열 추이) · Traces(마이크로서비스 요청 경로)',
         concept: '운영 중인 시스템의 내부 상태를 외부 출력 데이터만으로 파악하고 장애 원인을 신속히 진단하는 역량.',
@@ -754,6 +846,7 @@ const items = [
     {
         id: 91, category: 'frontend', catName: '브라우저·FE',
         badgeColor: 'bg-sky-500/10 text-sky-400 border-sky-500/20',
+        level: 1,
         title: '01. 브라우저 렌더링 과정 (CRP)', subtitle: 'Critical Rendering Path',
         diagram: 'HTML(DOM) + CSS(CSSOM) ➔ Render Tree ➔ Layout(배치) ➔ Paint(그리기) ➔ Composite',
         concept: '브라우저가 HTML, CSS, JS를 해석해 화면의 픽셀로 변환하는 일련의 파이프라인.',
@@ -762,6 +855,7 @@ const items = [
     {
         id: 92, category: 'frontend', catName: '브라우저·FE',
         badgeColor: 'bg-sky-500/10 text-sky-400 border-sky-500/20',
+        level: 2,
         title: '02. JS 이벤트 루프 (Event Loop)', subtitle: 'Call Stack · Microtask · Macrotask',
         diagram: 'Call Stack 비어있음 ➔ Microtask(Promise) 모두 실행 ➔ 렌더링 ➔ Macrotask(setTimeout)',
         concept: '싱글 스레드인 자바스크립트가 브라우저 Web APIs 및 태스크 큐를 통해 비동기 작업을 처리하는 메커니즘.',
@@ -770,6 +864,7 @@ const items = [
     {
         id: 93, category: 'frontend', catName: '브라우저·FE',
         badgeColor: 'bg-sky-500/10 text-sky-400 border-sky-500/20',
+        level: 2,
         title: '03. 클로저 (Closure)', subtitle: 'Lexical Environment 기억',
         diagram: '외부 함수 종료 후에도 내부 함수가 외부 변수의 렉시컬 환경을 참조·유지',
         concept: '함수가 선언될 당시의 렉시컬 스코프를 기억하여, 외부 함수 실행이 끝난 뒤에도 변수에 접근할 수 있는 특성.',
@@ -778,6 +873,7 @@ const items = [
     {
         id: 94, category: 'frontend', catName: '브라우저·FE',
         badgeColor: 'bg-sky-500/10 text-sky-400 border-sky-500/20',
+        level: 1,
         title: '04. 이벤트 버블링 · 캡처링 · 위임', subtitle: 'Event Propagation & Delegation',
         diagram: '캡처링(Window → Target) ➔ 타겟 ➔ 버블링(Target → Window) · 상위 요소에서 일괄 처리',
         concept: 'DOM 이벤트가 상위에서 하위로 전파(캡처링)되었다가 다시 상위로 올라가는(버블링) 흐름.',
@@ -786,6 +882,7 @@ const items = [
     {
         id: 95, category: 'frontend', catName: '브라우저·FE',
         badgeColor: 'bg-sky-500/10 text-sky-400 border-sky-500/20',
+        level: 2,
         title: '05. 디바운싱 vs 스로틀링', subtitle: 'Debouncing vs Throttling',
         diagram: '디바운싱(마지막 입력 후 일정 시간 뒤 1회 실행) vs 스로틀링(일정 주기마다 최대 1회 실행)',
         concept: '단시간에 과도하게 발생하는 이벤트(검색창 입력, 스크롤, 리사이즈)의 핸들러 호출 빈도를 제어하는 기법.',
@@ -794,6 +891,7 @@ const items = [
     {
         id: 96, category: 'frontend', catName: '브라우저·FE',
         badgeColor: 'bg-sky-500/10 text-sky-400 border-sky-500/20',
+        level: 2,
         title: '06. 브라우저 저장소 3종 비교', subtitle: 'Cookie vs LocalStorage vs SessionStorage',
         diagram: 'Cookie(4KB·매 요청 전송) | LocalStorage(영구·탭 공유) | SessionStorage(탭 닫으면 삭제)',
         concept: '클라이언트 측에 데이터를 저장하는 3가지 Web Storage 및 쿠키의 용량·만료·전송 범위 차이.',
@@ -802,6 +900,7 @@ const items = [
     {
         id: 97, category: 'frontend', catName: '브라우저·FE',
         badgeColor: 'bg-sky-500/10 text-sky-400 border-sky-500/20',
+        level: 2,
         title: '07. HTTP 캐시 (강력 캐시 vs 검증 캐시)', subtitle: 'Cache-Control · ETag · 304 Not Modified',
         diagram: 'max-age 유효(200 from cache) ➔ 만료 후 If-None-Match(ETag) ➔ 변경 없으면 304 반환',
         concept: '정적 리소스 재다운로드를 막아 로딩 속도를 높이는 브라우저 캐시 제어 및 조건부 요청 메커니즘.',
@@ -810,6 +909,7 @@ const items = [
     {
         id: 98, category: 'frontend', catName: '브라우저·FE',
         badgeColor: 'bg-sky-500/10 text-sky-400 border-sky-500/20',
+        level: 2,
         title: '08. CSR vs SSR vs SSG', subtitle: '웹 렌더링 전략 비교',
         diagram: 'CSR(클라이언트 JS 렌더링) | SSR(요청 시 서버 HTML 생성) | SSG(빌드 시 정적 HTML 생성)',
         concept: 'HTML을 언제, 어디서 생성하느냐에 따른 렌더링 전략과 초기 로딩(FCP)·SEO·서버 부하 트레이드오프.',
@@ -818,6 +918,7 @@ const items = [
     {
         id: 99, category: 'frontend', catName: '브라우저·FE',
         badgeColor: 'bg-sky-500/10 text-sky-400 border-sky-500/20',
+        level: 3,
         title: '09. Virtual DOM과 재조정 (Reconciliation)', subtitle: 'Diffing 알고리즘 & 일괄 DOM 반영',
         diagram: '상태 변경 ➔ 새 Virtual DOM 생성 ➔ 이전 트리와 Diffing 비교 ➔ 변경 부분만 실제 DOM 패치',
         concept: '실제 DOM 조작 비용을 줄이기 위해 메모리상의 가상 트리에서 변경점을 계산한 뒤 한 번에 반영하는 기법.',
@@ -826,6 +927,7 @@ const items = [
     {
         id: 100, category: 'frontend', catName: '브라우저·FE',
         badgeColor: 'bg-sky-500/10 text-sky-400 border-sky-500/20',
+        level: 3,
         title: '10. 웹 성능 핵심 지표 (Core Web Vitals)', subtitle: 'LCP · INP · CLS',
         diagram: 'LCP(최대 콘텐츠 로딩 ≤2.5s) · INP(상호작용 반응 ≤200ms) · CLS(레이아웃 이동 ≤0.1)',
         concept: '구글이 정의한 사용자 경험(로딩 속도, 입력 반응성, 시각적 안정성)의 3대 핵심 성능 지표.',
@@ -834,6 +936,7 @@ const items = [
     {
         id: 101, category: 'frontend', catName: '브라우저·FE',
         badgeColor: 'bg-sky-500/10 text-sky-400 border-sky-500/20',
+        level: 2,
         title: '11. script 태그의 async vs defer', subtitle: 'HTML 파싱 차단 방지 전략',
         diagram: '기본(파싱 중단 후 실행) | async(다운로드 병렬·완료 즉시 실행) | defer(파싱 완료 후 순서대로 실행)',
         concept: '외부 자바스크립트 로드 시 HTML DOM 구축이 멈추는 렌더링 블로킹을 제어하는 속성.',
@@ -842,6 +945,7 @@ const items = [
     {
         id: 102, category: 'frontend', catName: '브라우저·FE',
         badgeColor: 'bg-sky-500/10 text-sky-400 border-sky-500/20',
+        level: 3,
         title: '12. 웹소켓 vs SSE vs 롱 폴링', subtitle: '실시간 통신 프로토콜 선택',
         diagram: 'Long Polling(반복 요청) | SSE(서버→클라이언트 단방향 스트림) | WebSocket(전이중 양방향)',
         concept: 'HTTP의 요청-응답 한계를 넘어 실시간 알림, 채팅, AI 스트리밍 등을 구현하는 통신 방식.',
@@ -850,6 +954,7 @@ const items = [
     {
         id: 103, category: 'frontend', catName: '브라우저·FE',
         badgeColor: 'bg-sky-500/10 text-sky-400 border-sky-500/20',
+        level: 2,
         title: '13. 번들링과 트리 쉐이킹 (Tree Shaking)', subtitle: '모듈 번들러 최적화',
         diagram: 'ES Modules(import/export) 정적 분석 ➔ 미사용 코드(Dead Code) 제거 ➔ 번들 용량 축소',
         concept: '여러 모듈 파일을 묶고(Bundling), 실제로 호출되지 않는 죽은 코드를 빌드 결과물에서 제거하는 기법.',
@@ -858,6 +963,7 @@ const items = [
     {
         id: 104, category: 'frontend', catName: '브라우저·FE',
         badgeColor: 'bg-sky-500/10 text-sky-400 border-sky-500/20',
+        level: 2,
         title: '14. 상태 관리와 불변성 (Immutability)', subtitle: '단방향 데이터 흐름 & 참조 비교',
         diagram: '기존 객체 직접 수정(X) ➔ 새 객체 복사 생성(O) ➔ 얕은 비교(===)로 변경 즉시 감지',
         concept: '데이터 예측 가능성을 높이고 UI 프레임워크가 상태 변화를 빠르게 감지하도록 기존 상태를 직접 변이시키지 않는 원칙.',
@@ -866,6 +972,7 @@ const items = [
     {
         id: 105, category: 'frontend', catName: '브라우저·FE',
         badgeColor: 'bg-sky-500/10 text-sky-400 border-sky-500/20',
+        level: 1,
         title: '15. 시맨틱 HTML과 웹 접근성 (A11y)', subtitle: 'Semantic Markup & ARIA',
         diagram: '<div> 남발(X) ➔ <header> <nav> <main> <article> <button> 사용(O)',
         concept: '태그 자체에 의미를 부여하여 검색 엔진(SEO)과 스크린 리더 등 보조 기기가 문서 구조를 이해하도록 작성.',
@@ -876,6 +983,7 @@ const items = [
     {
         id: 108, category: 'testing', catName: '테스트',
         badgeColor: 'bg-fuchsia-500/10 text-fuchsia-400 border-fuchsia-500/20',
+        level: 1,
         title: '01. 단위 테스트', subtitle: 'Unit Test',
         diagram: '함수 f(x): x=2 → 4 | 의존성은 필요할 때 대역 사용 | 작고 빠른 피드백',
         concept: '함수·클래스 등 가장 작은 코드 단위를 외부 의존성과 분리하여 독립적으로 빠르게 검증하는 테스트.',
@@ -884,6 +992,7 @@ const items = [
     {
         id: 109, category: 'testing', catName: '테스트',
         badgeColor: 'bg-fuchsia-500/10 text-fuchsia-400 border-fuchsia-500/20',
+        level: 1,
         title: '02. 통합 테스트', subtitle: 'Integration Test',
         diagram: '모듈 ↔ 서비스 ↔ DB | 경계와 실제 연동 확인 | 환경 범위는 테스트마다 명시',
         concept: '여러 모듈, 서비스, 데이터베이스 등 구성 요소 간 경계에서 실제 연동이 올바르게 동작하는지 확인하는 테스트.',
@@ -892,6 +1001,7 @@ const items = [
     {
         id: 110, category: 'testing', catName: '테스트',
         badgeColor: 'bg-fuchsia-500/10 text-fuchsia-400 border-fuchsia-500/20',
+        level: 1,
         title: '03. E2E 테스트', subtitle: 'End-to-End Test',
         diagram: '화면 → API → DB | 로그인 → 주문 → 완료 | 실제 경로에 가까운 흐름',
         concept: '사용자 화면(UI)부터 API, DB까지 실제 운영 환경과 가장 유사한 전체 흐름을 끝에서 끝까지 검증하는 테스트.',
@@ -900,6 +1010,7 @@ const items = [
     {
         id: 111, category: 'testing', catName: '테스트',
         badgeColor: 'bg-fuchsia-500/10 text-fuchsia-400 border-fuchsia-500/20',
+        level: 1,
         title: '04. 테스트 피라미드', subtitle: 'Test Pyramid',
         diagram: 'E2E(소수) / 통합(중간) / 단위·많이 | 조직·제품에 따라 비율은 조정',
         concept: '실행 속도가 빠르고 비용이 낮은 단위 테스트를 가장 많이 두고, 위로 갈수록(통합·E2E) 비중을 줄이는 테스트 구성 지침.',
@@ -908,6 +1019,7 @@ const items = [
     {
         id: 112, category: 'testing', catName: '테스트',
         badgeColor: 'bg-fuchsia-500/10 text-fuchsia-400 border-fuchsia-500/20',
+        level: 1,
         title: '05. AAA 패턴', subtitle: 'Arrange Act Assert',
         diagram: '준비(Arrange) → 실행(Act) → 검증(Assert) | given → when → then과 같은 역할',
         concept: '하나의 테스트 코드를 준비(Arrange)·실행(Act)·검증(Assert) 세 구간으로 나누어 테스트 의도를 명확히 드러내는 구조.',
@@ -916,6 +1028,7 @@ const items = [
     {
         id: 113, category: 'testing', catName: '테스트',
         badgeColor: 'bg-fuchsia-500/10 text-fuchsia-400 border-fuchsia-500/20',
+        level: 2,
         title: '06. Mock · Stub · Fake', subtitle: 'Test Doubles',
         diagram: 'Stub(정해진 응답) | Mock(호출 검증) | Fake(간소 구현)',
         concept: '테스트 대상의 외부 의존성을 대체하는 테스트 대역(Test Double)으로, Stub은 고정 응답, Mock은 호출 여부·인자 검증, Fake는 동작하는 간소 구현을 제공.',
@@ -924,6 +1037,7 @@ const items = [
     {
         id: 114, category: 'testing', catName: '테스트',
         badgeColor: 'bg-fuchsia-500/10 text-fuchsia-400 border-fuchsia-500/20',
+        level: 2,
         title: '07. 상태 · 행위 검증', subtitle: 'State vs Behavior Verification',
         diagram: '상태 검증(잔액 = 900) vs 행위 검증(save 1회) | 관찰할 계약에 맞춰 선택',
         concept: '테스트 후 반환값·객체 상태 변화를 확인하는 상태 검증과, 협력 객체의 메서드 호출 여부를 확인하는 행위 검증의 구분.',
@@ -932,6 +1046,7 @@ const items = [
     {
         id: 115, category: 'testing', catName: '테스트',
         badgeColor: 'bg-fuchsia-500/10 text-fuchsia-400 border-fuchsia-500/20',
+        level: 2,
         title: '08. 경계값 분석', subtitle: 'Boundary Value Analysis',
         diagram: '허용 범위 1···100 → 0, 1, 2 ··· 99, 100, 101 경계값과 바로 안팎 확인',
         concept: '결함이 입력 범위의 경계 부근에서 자주 발생한다는 경험적 원리에 따라 경계값과 바로 안팎의 값을 집중적으로 테스트하는 기법.',
@@ -940,6 +1055,7 @@ const items = [
     {
         id: 116, category: 'testing', catName: '테스트',
         badgeColor: 'bg-fuchsia-500/10 text-fuchsia-400 border-fuchsia-500/20',
+        level: 2,
         title: '09. 코드 커버리지', subtitle: 'Code Coverage',
         diagram: '실행됨 11 / 16 | 라인·분기 등 기준이 다름 | 높아도 검증 품질을 보장하진 않음',
         concept: '테스트 실행 시 전체 코드 중 실제로 실행된 비율(라인·분기·조건 등)을 측정하는 지표.',
@@ -948,6 +1064,7 @@ const items = [
     {
         id: 117, category: 'testing', catName: '테스트',
         badgeColor: 'bg-fuchsia-500/10 text-fuchsia-400 border-fuchsia-500/20',
+        level: 2,
         title: '10. 회귀 테스트', subtitle: 'Regression Test',
         diagram: '기존 기능 + 변경 → 관련 테스트 실행 | 의도치 않은 영향 탐지',
         concept: '기능 추가, 버그 수정, 리팩토링 등 코드 변경 후 기존에 정상 동작하던 기능이 깨지지 않았는지 재확인하는 테스트.',
@@ -956,6 +1073,7 @@ const items = [
     {
         id: 118, category: 'testing', catName: '테스트',
         badgeColor: 'bg-fuchsia-500/10 text-fuchsia-400 border-fuchsia-500/20',
+        level: 2,
         title: '11. Flaky 테스트', subtitle: 'Flaky Test',
         diagram: '통과 / 실패 / 통과 / 실패 | 관련 변경 없이 결과가 흔들림 | 시간·순서·외부 의존성 점검',
         concept: '코드 변경 없이도 실행할 때마다 통과와 실패가 간헐적으로 바뀌는 비결정적(불안정한) 테스트.',
@@ -964,6 +1082,7 @@ const items = [
     {
         id: 119, category: 'testing', catName: '테스트',
         badgeColor: 'bg-fuchsia-500/10 text-fuchsia-400 border-fuchsia-500/20',
+        level: 2,
         title: '12. TDD', subtitle: 'Test-Driven Development',
         diagram: 'RED(실패) → GREEN(최소 구현) → REFACTOR(개선) 짧은 주기',
         concept: '실패하는 테스트를 먼저 작성(Red)하고, 테스트를 통과하는 최소 코드를 구현(Green)한 뒤, 중복과 설계를 개선(Refactor)하는 개발 방법론.',
@@ -972,6 +1091,7 @@ const items = [
     {
         id: 120, category: 'testing', catName: '테스트',
         badgeColor: 'bg-fuchsia-500/10 text-fuchsia-400 border-fuchsia-500/20',
+        level: 3,
         title: '13. 계약 테스트', subtitle: 'Contract Test',
         diagram: '소비자 GET /users/1 ↔ 제공자 { id, name } | 상호작용 약속 호환성 검증',
         concept: '마이크로서비스 등에서 API 소비자(Consumer)와 제공자(Provider) 간 요청·응답 스키마 약속이 깨지지 않았는지 검증하는 테스트.',
@@ -980,6 +1100,7 @@ const items = [
     {
         id: 121, category: 'testing', catName: '테스트',
         badgeColor: 'bg-fuchsia-500/10 text-fuchsia-400 border-fuchsia-500/20',
+        level: 3,
         title: '14. 속성 기반 테스트', subtitle: 'Property-Based Testing',
         diagram: 'reverse(reverse(xs)) = xs | [] [1] [2, 7] 랜덤 | 일반 성질 선언 · 생성·축소',
         concept: '개별 예시 입력을 나열하는 대신 항상 성립해야 하는 불변 성질(Property)을 선언하면, 도구가 무작위 입력을 생성·축소(Shrinking)해 반례를 찾는 기법.',
@@ -988,20 +1109,289 @@ const items = [
     {
         id: 122, category: 'testing', catName: '테스트',
         badgeColor: 'bg-fuchsia-500/10 text-fuchsia-400 border-fuchsia-500/20',
+        level: 3,
         title: '15. 부하 · 스트레스 테스트', subtitle: 'Load vs Stress Test',
         diagram: '목표 부하(Load) vs 한계 탐색(Stress) | 응답시간·오류율·자원 함께 측정',
         concept: '예상 트래픽(목표 부하)에서의 안정적 성능을 확인하는 부하 테스트와, 시스템이 무너지는 임계점(한계)을 탐색하는 스트레스 테스트.',
         defense: '예상 부하와 한계 탐색을 구분해 측정하며, 처리량뿐 아니라 응답시간(Latency)·오류율·CPU/메모리 자원을 함께 관찰'
+    },
+
+    // --- CI/CD & DevOps (15) ---
+    {
+        id: 123, category: 'devops', catName: 'CI/CD·DevOps',
+        badgeColor: 'bg-orange-500/10 text-orange-400 border-orange-500/20',
+        level: 1,
+        title: '01. Git 브랜치 전략 (Git Flow vs Trunk-Based)', subtitle: 'Branching Strategy',
+        diagram: 'Git Flow(장기 브랜치·릴리즈) vs Trunk-Based(짧은 PR·main 상시 배포)',
+        concept: '팀의 배포 주기와 릴리즈 형태에 맞춰 코드 통합·검증·배포 브랜치 흐름을 정하는 협업 규칙.',
+        defense: 'CI/CD 자동화가 성숙할수록 짧은 수명의 브랜치를 자주 병합하는 Trunk-Based 전략이 충돌과 배포 지연을 줄임'
+    },
+    {
+        id: 124, category: 'devops', catName: 'CI/CD·DevOps',
+        badgeColor: 'bg-orange-500/10 text-orange-400 border-orange-500/20',
+        level: 1,
+        title: '02. Docker 컨테이너와 이미지 레이어', subtitle: 'Container & Image Layers',
+        diagram: 'Dockerfile 명령 → 읽기 전용 레이어 캐시 → 격리된 컨테이너 실행',
+        concept: '애플리케이션과 실행 환경을 OS 커널을 공유하는 경량 컨테이너로 패키징해 어디서나 동일하게 실행하는 기술.',
+        defense: '변경 빈도가 낮은 의존성 설치를 상위 레이어에 배치해 빌드 캐시를 극대화하고, 멀티 스테이지 빌드로 이미지 크기 최소화'
+    },
+    {
+        id: 125, category: 'devops', catName: 'CI/CD·DevOps',
+        badgeColor: 'bg-orange-500/10 text-orange-400 border-orange-500/20',
+        level: 1,
+        title: '03. CI (지속적 통합) 파이프라인', subtitle: 'Continuous Integration',
+        diagram: 'Push / PR → Lint · Build · Test · 보안 스캔 → 자동 병합 게이트',
+        concept: '코드 변경이 발생할 때마다 자동으로 빌드·정적 분석·테스트를 실행해 통합 결함을 조기에 발견하는 자동화 절차.',
+        defense: '피드백 루프가 길어지지 않도록 빠른 단위·린트 검사를 앞단에 배치하고 실패 시 즉시 병합을 차단'
+    },
+    {
+        id: 126, category: 'devops', catName: 'CI/CD·DevOps',
+        badgeColor: 'bg-orange-500/10 text-orange-400 border-orange-500/20',
+        level: 1,
+        title: '04. 환경변수와 시크릿 관리', subtitle: 'Secrets & Config Management',
+        diagram: '코드(Git)에서 비밀키 분리 → Vault / KMS / OIDC 동적 주입',
+        concept: 'API 키, DB 비밀번호 등 민감 정보를 소스코드와 분리해 환경별 설정과 시크릿 저장소를 통해 안전하게 주입하는 원칙.',
+        defense: '저장소에 .env나 키를 절대 커밋하지 않으며, CI/CD에서는 장기 정적 키 대신 OIDC 단기 토큰과 최소 권한 원칙 적용'
+    },
+    {
+        id: 127, category: 'devops', catName: 'CI/CD·DevOps',
+        badgeColor: 'bg-orange-500/10 text-orange-400 border-orange-500/20',
+        level: 2,
+        title: '05. CD와 무중단 배포 (Blue-Green · Canary)', subtitle: 'Continuous Deployment',
+        diagram: 'Blue-Green(즉시 전환) | Canary(트래픽 5%→100% 점진 검증) | Rolling(순차 교체)',
+        concept: '검증된 빌드를 운영 환경에 자동 반영하되, 사용자 요청 끊김 없이 새 버전을 전환하고 이상 시 즉시 되돌리는 배포 전략.',
+        defense: 'Blue-Green은 빠른 롤백에 유리하나 자원이 2배 필요하고, Canary는 소수 트래픽으로 실제 지표 검증 후 점진 확대'
+    },
+    {
+        id: 128, category: 'devops', catName: 'CI/CD·DevOps',
+        badgeColor: 'bg-orange-500/10 text-orange-400 border-orange-500/20',
+        level: 2,
+        title: '06. 리버스 프록시와 API Gateway', subtitle: 'Reverse Proxy & API Gateway',
+        diagram: 'Client → Gateway(TLS·인증·Rate Limit·라우팅) → 내부 마이크로서비스',
+        concept: '클라이언트 앞단에서 요청을 받아 TLS 종료, 인증, 트래픽 제어, 경로 라우팅을 대신 처리하는 진입점 계층.',
+        defense: '공통 관심사(인증·로깅·속도 제한)를 게이트웨이로 모아 백엔드 서비스의 중복과 외부 노출 면적을 줄임'
+    },
+    {
+        id: 129, category: 'devops', catName: 'CI/CD·DevOps',
+        badgeColor: 'bg-orange-500/10 text-orange-400 border-orange-500/20',
+        level: 2,
+        title: '07. 헬스체크 (Liveness vs Readiness Probe)', subtitle: 'Health Check Probes',
+        diagram: 'Readiness(트래픽 수신 가능?) vs Liveness(프로세스 재시작 필요?)',
+        concept: '오케스트레이터가 컨테이너의 정상 여부를 판단해 트래픽을 보낼지(Readiness), 재시작할지(Liveness) 결정하는 상태 점검.',
+        defense: 'Readiness 실패는 로드밸런서에서 제외하고, Liveness에 외부 DB 장애를 묶으면 연쇄 재시작 장애가 발생하므로 분리 설계'
+    },
+    {
+        id: 130, category: 'devops', catName: 'CI/CD·DevOps',
+        badgeColor: 'bg-orange-500/10 text-orange-400 border-orange-500/20',
+        level: 2,
+        title: '08. 관찰 가능성 3대 축 (Logs · Metrics · Traces)', subtitle: 'Observability Pillars',
+        diagram: 'Logs(개별 이벤트) + Metrics(시계열 수치) + Traces(분산 요청 추적)',
+        concept: '시스템 외부에서 관측되는 데이터만으로 내부 상태와 장애 원인을 추론할 수 있도록 로그·메트릭·트레이스를 통합 수집하는 체계.',
+        defense: 'Trace ID를 로그와 메트릭에 공통 연결(Correlation)하면 분산 환경에서 지연 병목 구간을 즉시 특정 가능'
+    },
+    {
+        id: 131, category: 'devops', catName: 'CI/CD·DevOps',
+        badgeColor: 'bg-orange-500/10 text-orange-400 border-orange-500/20',
+        level: 2,
+        title: '09. Feature Flag (기능 플래그)', subtitle: 'Feature Toggles & Progressive Delivery',
+        diagram: '코드 배포(Deploy)와 기능 공개(Release) 분리 → 조건부 ON/OFF & 킬 스위치',
+        concept: '코드 재배포 없이 설정 변경만으로 특정 기능의 활성화 대상과 비율을 동적으로 제어하는 기법.',
+        defense: '배포 리스크를 낮추고 장애 시 1초 내 기능 차단이 가능하나, 사용이 끝난 오래된 플래그는 주기적으로 정리해 기술 부채 방지'
+    },
+    {
+        id: 132, category: 'devops', catName: 'CI/CD·DevOps',
+        badgeColor: 'bg-orange-500/10 text-orange-400 border-orange-500/20',
+        level: 2,
+        title: '10. 빌드 캐시와 아티팩트 불변성', subtitle: 'Build Cache & Immutable Artifacts',
+        diagram: '1회 빌드 산출물(SHA 태그) → Dev → Staging → Prod 동일 아티팩트 승격',
+        concept: '한 번 빌드·검증된 컨테이너 이미지나 패키지를 수정하지 않고 그대로 상위 환경으로 승격시켜 환경 간 차이를 없애는 원칙.',
+        defense: '환경마다 소스를 다시 빌드하면 재현성이 깨지므로 latest 태그 대신 커밋 SHA/다이제스트 기반 불변 아티팩트 사용'
+    },
+    {
+        id: 133, category: 'devops', catName: 'CI/CD·DevOps',
+        badgeColor: 'bg-orange-500/10 text-orange-400 border-orange-500/20',
+        level: 3,
+        title: '11. Kubernetes 기본 구조 (Pod · Service · Ingress)', subtitle: 'Kubernetes Core Architecture',
+        diagram: 'Ingress(외부 라우팅) → Service(고정 VIP) → Pod(컨테이너·오토스케일)',
+        concept: '컨테이너의 배포·복구·확장을 선언적으로 관리하는 오케스트레이션 플랫폼의 핵심 리소스 계층.',
+        defense: 'Pod는 언제든 재생성되는 일시적 단위이므로 고정 IP 대신 Service 추상화를 두고, requests/limits 자원 명세 필수'
+    },
+    {
+        id: 134, category: 'devops', catName: 'CI/CD·DevOps',
+        badgeColor: 'bg-orange-500/10 text-orange-400 border-orange-500/20',
+        level: 3,
+        title: '12. IaC (코드형 인프라)와 멱등성', subtitle: 'Infrastructure as Code',
+        diagram: '선언적 코드(Terraform) → State 비교(Plan) → 멱등적 반영(Apply)',
+        concept: '서버·네트워크·DB 등 인프라 구성을 수동 클릭이 아닌 버전 관리되는 선언적 코드로 정의·프로비저닝하는 방식.',
+        defense: '같은 코드를 여러 번 실행해도 동일한 상태가 유지되는 멱등성과 원격 State 잠금(Lock)으로 구성 드리프트(Drift) 방지'
+    },
+    {
+        id: 135, category: 'devops', catName: 'CI/CD·DevOps',
+        badgeColor: 'bg-orange-500/10 text-orange-400 border-orange-500/20',
+        level: 3,
+        title: '13. GitOps (선언적 배포 동기화)', subtitle: 'GitOps Workflow',
+        diagram: 'Git(Desired State) ↔ Pull 기반 에이전트(ArgoCD) ↔ 클러스터(Actual State)',
+        concept: '인프라와 배포 상태의 단일 진실 공급원(SSOT)을 Git에 두고, 클러스터 내부 에이전트가 차이를 감지해 자동 동기화하는 운영 모델.',
+        defense: 'CI 파이프라인에 운영 클러스터 관리자 키를 둘 필요가 없어 보안성이 높고, git revert만으로 선언적 롤백 가능'
+    },
+    {
+        id: 136, category: 'devops', catName: 'CI/CD·DevOps',
+        badgeColor: 'bg-orange-500/10 text-orange-400 border-orange-500/20',
+        level: 3,
+        title: '14. SLI · SLO · SLA와 에러 버짓', subtitle: 'Service Level Objectives',
+        diagram: 'SLI(실제 지표 99.95%) ≥ SLO(내부 목표 99.9%) | 잔여 에러 버짓으로 배포 속도 조절',
+        concept: '서비스 품질을 측정하는 지표(SLI), 내부 목표(SLO), 고객 계약(SLA)을 정의하고 허용 가능한 실패량(에러 버짓)을 관리하는 SRE 원칙.',
+        defense: '100% 가용성은 비현실적이므로 에러 버짓이 남으면 신기능 출시를 가속하고, 소진되면 안정화 작업에 집중'
+    },
+    {
+        id: 137, category: 'devops', catName: 'CI/CD·DevOps',
+        badgeColor: 'bg-orange-500/10 text-orange-400 border-orange-500/20',
+        level: 3,
+        title: '15. 블레임리스 포스트모템 (장애 회고)', subtitle: 'Blameless Postmortem',
+        diagram: '개인 비난 금지 → 타임라인·근본 원인(5-Whys) → 재발 방지 시스템 액션',
+        concept: '장애 발생 시 개인의 실수를 추궁하지 않고, 실수가 발생할 수밖에 없던 시스템·프로세스 결함을 찾아 개선하는 회고 문화.',
+        defense: '비난이 없는 환경이어야 장애 정황이 투명하게 공유되며, 모든 후속 조치는 담당자와 기한이 있는 티켓으로 추적'
+    },
+
+    // --- AI, LLM & Agent Engineering (15) ---
+    {
+        id: 138, category: 'ai-agent', catName: 'AI·LLM·에이전트',
+        badgeColor: 'bg-teal-500/10 text-teal-400 border-teal-500/20',
+        level: 1,
+        title: '01. LLM 동작 원리 (토큰 · 컨텍스트 · Temperature)', subtitle: 'Tokens, Context Window & Sampling',
+        diagram: '입력 토큰 → Context Window(기억 한계) → 다음 토큰 확률 예측(Temperature 조절)',
+        concept: '대규모 언어 모델(LLM)이 텍스트를 토큰 단위로 쪼개어 컨텍스트 윈도우 안에서 다음 토큰의 확률 분포를 예측해 생성하는 원리.',
+        defense: '코드·데이터 추출 등 정확성이 중요하면 Temperature를 낮추고(0~0.2), 컨텍스트 길이가 길어질수록 비용·지연·주의력 저하 고려'
+    },
+    {
+        id: 139, category: 'ai-agent', catName: 'AI·LLM·에이전트',
+        badgeColor: 'bg-teal-500/10 text-teal-400 border-teal-500/20',
+        level: 1,
+        title: '02. 프롬프트 엔지니어링 (System · Few-Shot · CoT)', subtitle: 'Prompt Engineering Fundamentals',
+        diagram: '역할·제약(System) + 입출력 예시(Few-Shot) + 단계별 추론(CoT) → 일관된 품질',
+        concept: '모델의 역할, 출력 형식, 제약 조건과 예시를 명확히 구조화해 원하는 정확도와 톤의 응답을 이끌어내는 기법.',
+        defense: '모호한 지시 대신 구체적 제약과 반례·예시(Few-Shot)를 제공하고, 복잡한 판단은 단계별 사고 과정을 명시해 오류율 감소'
+    },
+    {
+        id: 140, category: 'ai-agent', catName: 'AI·LLM·에이전트',
+        badgeColor: 'bg-teal-500/10 text-teal-400 border-teal-500/20',
+        level: 1,
+        title: '03. AI 코딩 어시스턴트 실무 워크플로우', subtitle: 'AI-Assisted Coding Workflow',
+        diagram: '명확한 스펙·관련 파일 컨텍스트 제공 → 작은 단위 생성 → 테스트·직접 리뷰',
+        concept: 'AI를 활용해 코드를 작성할 때 정확한 맥락을 전달하고, 생성된 코드를 자동 테스트와 인간 리뷰로 검증하는 개발 습관.',
+        defense: '한 번에 거대한 코드를 맡기기보다 작은 단위로 나누어 생성하고, 보안·엣지 케이스·의존성 존재 여부를 반드시 직접 검증'
+    },
+    {
+        id: 141, category: 'ai-agent', catName: 'AI·LLM·에이전트',
+        badgeColor: 'bg-teal-500/10 text-teal-400 border-teal-500/20',
+        level: 1,
+        title: '04. 구조화 출력 (Structured Output · JSON Schema)', subtitle: 'Deterministic JSON Output',
+        diagram: '자유 텍스트(파싱 취약) vs JSON Schema 강제(타입 안전한 앱 연동)',
+        concept: 'LLM 응답을 자유 문장이 아닌 사전 정의된 JSON Schema 형식으로 강제하여 백엔드·프론트엔드 코드가 안정적으로 파싱하도록 하는 기술.',
+        defense: '프롬프트로만 "JSON으로 줘"라고 요청하면 마크다운 백틱 등이 섞여 깨지므로 API의 Schema 제약과 런타임 검증(Zod 등) 병행'
+    },
+    {
+        id: 142, category: 'ai-agent', catName: 'AI·LLM·에이전트',
+        badgeColor: 'bg-teal-500/10 text-teal-400 border-teal-500/20',
+        level: 2,
+        title: '05. 임베딩과 벡터 검색 (Vector Search)', subtitle: 'Embeddings & Similarity Search',
+        diagram: '문서 청크 → 임베딩 벡터(고차원 좌표) → 코사인 유사도 + 키워드 하이브리드 검색',
+        concept: '텍스트의 의미를 수치 벡터로 변환해 단어가 달라도 문맥적 의미가 가까운 문서를 찾아내는 시맨틱 검색 기반 기술.',
+        defense: '고유명사·에러 코드·정확한 식별자 검색은 벡터 검색만으로는 약하므로 BM25 키워드 검색과 결합한 하이브리드 검색 + 리랭킹 권장'
+    },
+    {
+        id: 143, category: 'ai-agent', catName: 'AI·LLM·에이전트',
+        badgeColor: 'bg-teal-500/10 text-teal-400 border-teal-500/20',
+        level: 2,
+        title: '06. RAG (검색 증강 생성)', subtitle: 'Retrieval-Augmented Generation',
+        diagram: '질문 → 사내 DB·문서 검색(Retrieve) → 근거 문맥 주입 → 최신·사실 기반 답변 생성',
+        concept: '모델 학습 데이터에 없는 최신 정보나 사내 비공개 문서를 외부 저장소에서 검색해 프롬프트에 함께 넣어 답변하게 하는 아키텍처.',
+        defense: '청크 크기·오버랩 전략과 검색 정확도가 전체 품질의 80%를 좌우하며, 답변에 출처(Citation)를 함께 반환하도록 설계'
+    },
+    {
+        id: 144, category: 'ai-agent', catName: 'AI·LLM·에이전트',
+        badgeColor: 'bg-teal-500/10 text-teal-400 border-teal-500/20',
+        level: 2,
+        title: '07. Function Calling과 Tool Use', subtitle: 'LLM Tool Invocation',
+        diagram: 'LLM이 도구 이름·인자 JSON 생성 → 앱이 실제 함수 실행 → 결과를 LLM에 재전달',
+        concept: 'LLM이 텍스트만 생성하는 한계를 넘어 DB 조회, API 호출, 계산 등 외부 도구의 호출 스펙을 결정하고 결과를 받아 후속 추론을 이어가는 구조.',
+        defense: 'LLM이 직접 코드를 실행하는 것이 아니라 호출 의도만 반환하므로, 실제 실행 전 서버 측 권한·인자 유효성 검증 필수'
+    },
+    {
+        id: 145, category: 'ai-agent', catName: 'AI·LLM·에이전트',
+        badgeColor: 'bg-teal-500/10 text-teal-400 border-teal-500/20',
+        level: 2,
+        title: '08. 할루시네이션(환각) 방지와 그라운딩', subtitle: 'Grounding & Hallucination Mitigation',
+        diagram: '확인된 근거(Grounding) 강제 + 모를 땐 "모른다" 허용 + 검증 루프',
+        concept: '모델이 사실이 아닌 내용을 그럴듯하게 지어내는 현상을 줄이기 위해 검색된 근거에만 기반해 답하도록 제약하는 설계.',
+        defense: '근거가 없을 때 억지로 답하지 않도록 거부 경로를 명시하고, 코드·사실 주장은 컴파일러/테스트/검색으로 교차 검증'
+    },
+    {
+        id: 146, category: 'ai-agent', catName: 'AI·LLM·에이전트',
+        badgeColor: 'bg-teal-500/10 text-teal-400 border-teal-500/20',
+        level: 2,
+        title: '09. 프롬프트 인젝션과 AI 가드레일', subtitle: 'Prompt Injection & Guardrails',
+        diagram: '악의적 입력("시스템 지시 무시해") → 입력/출력 가드레일 + 최소 권한 도구 격리',
+        concept: '사용자 입력이나 외부 문서에 숨겨진 명령으로 시스템 프롬프트 탈취·무단 도구 실행을 유도하는 공격과 이를 막는 방어 계층.',
+        defense: '시스템 지시와 비신뢰 데이터를 분리하고, 민감 정보(PII) 마스킹·위험 도구 실행 제한 등 다층 가드레일 구축'
+    },
+    {
+        id: 147, category: 'ai-agent', catName: 'AI·LLM·에이전트',
+        badgeColor: 'bg-teal-500/10 text-teal-400 border-teal-500/20',
+        level: 2,
+        title: '10. LLM 지연·비용 최적화 (TTFT · 캐싱 · 라우팅)', subtitle: 'Latency, Caching & Model Routing',
+        diagram: '단순 작업(경량 모델) / 복잡 추론(고성능 모델) + Prompt Caching + 스트리밍(TTFT)',
+        concept: '첫 토큰 응답 시간(TTFT) 체감 개선을 위한 스트리밍, 반복 프리픽스 캐싱, 난이도별 모델 라우팅으로 비용과 속도를 최적화하는 전략.',
+        defense: '모든 요청에 최고가 대형 모델을 쓰기보다 작업 난이도에 따라 소형·대형 모델을 분기하고 시맨틱/프리픽스 캐시 적극 활용'
+    },
+    {
+        id: 148, category: 'ai-agent', catName: 'AI·LLM·에이전트',
+        badgeColor: 'bg-teal-500/10 text-teal-400 border-teal-500/20',
+        level: 3,
+        title: '11. AI 에이전트 루프 (Plan · Act · Observe)', subtitle: 'Agentic Loop & ReAct',
+        diagram: '목표 수립(Plan) → 도구 실행(Act) → 결과 관찰(Observe) → 반복/종료 조건',
+        concept: '단일 질의응답을 넘어 모델이 스스로 계획을 세우고 도구를 실행하며 그 결과를 관찰해 목표 달성까지 반복 수행하는 자율 루프.',
+        defense: '무한 루프와 토큰 폭증을 막기 위해 최대 스텝 수(max_steps), 타임아웃, 비용 상한 및 명확한 종료 조건을 반드시 설정'
+    },
+    {
+        id: 149, category: 'ai-agent', catName: 'AI·LLM·에이전트',
+        badgeColor: 'bg-teal-500/10 text-teal-400 border-teal-500/20',
+        level: 3,
+        title: '12. MCP (Model Context Protocol)', subtitle: 'Standardized Tool & Context Protocol',
+        diagram: 'AI Host/Client ↔ 표준 프로토콜(MCP) ↔ 다양한 도구·DB·리소스 Server',
+        concept: 'LLM 애플리케이션(Host)과 외부 데이터·도구(Server)를 N:M 커스텀 연동 없이 표준 인터페이스로 연결하는 개방형 프로토콜.',
+        defense: '도구 스키마와 리소스를 표준화해 재사용성을 높이며, 외부 MCP 서버 연결 시 실행 권한과 입출력 검증 필수'
+    },
+    {
+        id: 150, category: 'ai-agent', catName: 'AI·LLM·에이전트',
+        badgeColor: 'bg-teal-500/10 text-teal-400 border-teal-500/20',
+        level: 3,
+        title: '13. AI 평가 체계 (Evals · Golden Set · Judge)', subtitle: 'LLM & Agent Evaluation',
+        diagram: '골든 데이터셋(입력·기대) → 정량 지표 + LLM-as-a-Judge → 프롬프트 회귀 방지',
+        concept: '비결정적인 LLM·에이전트 출력 품질을 느낌("Vibe check")이 아닌 자동화된 테스트셋과 채점 기준으로 정량 평가하는 체계.',
+        defense: '프롬프트나 모델을 바꿀 때마다 Evals를 CI에서 회귀 테스트해 한 영역 개선 시 다른 영역 품질이 하락하는 현상 방지'
+    },
+    {
+        id: 151, category: 'ai-agent', catName: 'AI·LLM·에이전트',
+        badgeColor: 'bg-teal-500/10 text-teal-400 border-teal-500/20',
+        level: 3,
+        title: '14. 프롬프트 vs RAG vs 파인튜닝 선택 기준', subtitle: 'Adaptation Strategy Trade-offs',
+        diagram: '지시·형식(프롬프트) → 최신·사내 지식(RAG) → 도메인 말투·특수 패턴(파인튜닝)',
+        concept: '문제를 해결할 때 프롬프트 개선, 외부 지식 검색(RAG), 가중치 재학습(Fine-Tuning) 중 비용과 유지보수 관점에서 최적 수단을 고르는 기준.',
+        defense: '프롬프트와 RAG로 80% 이상 해결 가능하므로 처음부터 파인튜닝에 투자하기보다 Evals로 병목을 확인한 뒤 단계적으로 도입'
+    },
+    {
+        id: 152, category: 'ai-agent', catName: 'AI·LLM·에이전트',
+        badgeColor: 'bg-teal-500/10 text-teal-400 border-teal-500/20',
+        level: 3,
+        title: '15. 멀티 에이전트와 Human-in-the-Loop', subtitle: 'Multi-Agent & Safe Approval Gates',
+        diagram: '역할 분담(탐색·구현·검증 에이전트) + 파괴적 작업 전 사용자 승인(HITL)',
+        concept: '단일 에이전트에 모든 맥락을 몰아넣지 않고 전문 역할별로 분리 협업시키며, 고위험 작업 전 사람의 최종 승인을 거치는 안전 설계.',
+        defense: 'DB 삭제·결제·운영 배포 등 되돌릴 수 없는 액션에는 반드시 Human-in-the-Loop 승인 게이트와 감사 로그를 적용'
     }
 ];
 
-let currentCategory = 'all';
-let searchQuery = '';
-let isFlashcardMode = false;
-let revealedCards = new Set();
-let learnedCards = new Set();
-
-// Helper functions to build rich visual diagrams like the original infographic images
+// 하네스 표준 인포그래픽 UI 빌더 (DOM 기반 순수 코드 도식화)
 const ui = {
     code: (txt, color='text-blue-300 border-blue-500/30') => 
         `<div class="bg-slate-900/95 border ${color} rounded-lg px-2.5 py-1 font-mono text-[11px] text-center shadow-sm">${txt}</div>`,
@@ -1795,7 +2185,213 @@ function getInfographic(id) {
         122: ui.vs(
             '<span class="text-emerald-300">부하 (Load)</span>', ['목표 부하 유지', '예상 트래픽 성능 검증'], 'border-emerald-500/30',
             '<span class="text-rose-300">스트레스 (Stress)</span>', ['한계점 탐색', '응답시간·오류율·자원 측정'], 'border-rose-500/30'
-        )
+        ),
+
+        // --- CI/CD & DevOps 123~137 ---
+        123: ui.vs(
+            '<span class="text-amber-300">Git Flow</span>', ['develop / release / hotfix', '정기 릴리즈·모바일 앱 적합'], 'border-amber-500/30',
+            '<span class="text-emerald-300">Trunk-Based</span>', ['짧은 피처 PR → main 병합', 'CI/CD 상시 배포에 최적'], 'border-emerald-500/30'
+        ),
+        124: ui.vflow([
+            ui.flow([
+                `<span class="node-pill">Base OS Layer</span>`,
+                `<span class="node-pill border-cyan-500/40 text-cyan-300">Deps (캐시)</span>`,
+                `<span class="node-pill border-orange-500/40 text-orange-300">App Code</span>`
+            ]),
+            `<span class="badge-ok">멀티 스테이지 빌드 + 커널 공유 경량 격리</span>`
+        ]),
+        125: ui.vflow([
+            ui.flow([
+                `<span class="node-pill">PR / Push</span>`,
+                `<span class="badge-info">Lint · Unit Test</span>`,
+                `<span class="badge-warn">Build · 보안 스캔</span>`,
+                `<span class="badge-ok">Merge Gate</span>`
+            ]),
+            `<span class="text-[10px] text-slate-400">빠른 검사를 앞단에 배치해 즉각 피드백</span>`
+        ]),
+        126: ui.vs(
+            '<span class="text-rose-300">코드 하드코딩 (위험)</span>', ['.env 커밋 · 정적 장기 키', '유출 시 전체 서비스 침해'], 'border-rose-500/30',
+            '<span class="text-emerald-300">시크릿 분리 (안전)</span>', ['Vault / KMS / OIDC 토큰', '최소 권한·주기적 로테이션'], 'border-emerald-500/30'
+        ),
+        127: ui.rows([
+            ['Blue-Green', '대기 환경 전환 · 1초 롤백 가능', 'badge-info'],
+            ['Canary', '5% → 25% → 100% 점진 트래픽 검증', 'badge-ok'],
+            ['Rolling', '인스턴스 순차 교체 · 추가 자원 불필요', 'badge-warn']
+        ]),
+        128: ui.vflow([
+            ui.flow([
+                `<span class="node-pill">Client</span>`,
+                ui.code('API Gateway (TLS · 인증 · Rate Limit)', 'text-orange-300 border-orange-500/30'),
+                `<span class="node-pill">내부 서비스</span>`
+            ]),
+            `<span class="text-[10px] text-slate-400">공통 관심사 집중 처리 &amp; 내부 구조 은닉</span>`
+        ]),
+        129: ui.vs(
+            '<span class="text-sky-300">Readiness Probe</span>', ['트래픽 받을 준비 완료?', '실패 시 로드밸런서 제외'], 'border-sky-500/30',
+            '<span class="text-amber-300">Liveness Probe</span>', ['프로세스 교착 상태?', '실패 시 컨테이너 재시작'], 'border-amber-500/30'
+        ),
+        130: ui.rows([
+            ['Logs', '특정 시점의 개별 이벤트·에러 기록', 'badge-info'],
+            ['Metrics', 'CPU·RPS·지연시간 시계열 집계', 'badge-ok'],
+            ['Traces', '마이크로서비스 간 요청 전체 경로 추적', 'badge-warn']
+        ]),
+        131: ui.vflow([
+            ui.flow([
+                `<span class="node-pill">코드 배포 (Deploy)</span>`,
+                `<span class="badge-info">Feature Flag OFF → 10% → 100%</span>`
+            ]),
+            `<span class="badge-ok">배포와 기능 공개 분리 · 장애 시 즉시 Kill Switch</span>`
+        ]),
+        132: ui.vflow([
+            ui.flow([
+                `<span class="node-pill border-orange-500/40 text-orange-300">1회 빌드 (sha-a1b2)</span>`,
+                `<span class="node-pill">Staging</span>`,
+                `<span class="node-pill border-emerald-500/40 text-emerald-300">Production</span>`
+            ]),
+            `<span class="badge-info">재빌드 금지 · 동일 불변 아티팩트 승격</span>`
+        ]),
+        133: ui.vflow([
+            ui.flow([
+                `<span class="node-pill">Ingress (L7)</span>`,
+                `<span class="node-pill border-cyan-500/40 text-cyan-300">Service (VIP)</span>`,
+                `<span class="node-pill border-emerald-500/40 text-emerald-300">Pod × N</span>`
+            ]),
+            `<span class="text-[10px] text-slate-400">선언적 상태 유지 · 자가 치유(Self-Healing)</span>`
+        ]),
+        134: ui.vflow([
+            ui.flow([
+                `<span class="node-pill">코드 (HCL/YAML)</span>`,
+                `<span class="badge-warn">Plan (변경 미리보기)</span>`,
+                `<span class="badge-ok">Apply (멱등적 반영)</span>`
+            ]),
+            `<span class="text-[10px] text-slate-400">원격 State 잠금으로 구성 드리프트 방지</span>`
+        ]),
+        135: ui.vflow([
+            ui.flow([
+                `<span class="node-pill border-orange-500/40 text-orange-300">Git (Desired State)</span>`,
+                `<span class="badge-info">Pull 에이전트 감지</span>`,
+                `<span class="node-pill border-emerald-500/40 text-emerald-300">Cluster 동기화</span>`
+            ]),
+            `<span class="text-[10px] text-slate-400">SSOT 기반 감사 추적 &amp; git revert 롤백</span>`
+        ]),
+        136: ui.rows([
+            ['SLI (측정 지표)', '실제 성공률 99.95% · P95 지연 180ms', 'badge-info'],
+            ['SLO (내부 목표)', '가용성 99.9% 이상 유지', 'badge-ok'],
+            ['Error Budget', '허용 실패량(0.1%)으로 배포·안정화 균형', 'badge-warn']
+        ]),
+        137: ui.vflow([
+            ui.flow([
+                `<span class="badge-err">개인 비난 금지</span>`,
+                `<span class="badge-info">타임라인 · 5-Whys</span>`,
+                `<span class="badge-ok">시스템 재발 방지 액션</span>`
+            ]),
+            `<span class="text-[10px] text-slate-400">투명한 장애 공유 문화가 복원력을 높임</span>`
+        ]),
+
+        // --- AI, LLM & Agent Engineering 138~152 ---
+        138: ui.vflow([
+            ui.flow([
+                `<span class="node-pill">토큰화 (Tokens)</span>`,
+                `<span class="node-pill border-teal-500/40 text-teal-300">Context Window</span>`,
+                `<span class="badge-info">다음 토큰 예측</span>`
+            ]),
+            `<span class="text-[10px] text-slate-400">정확성 작업은 Temperature 낮게 (0~0.2)</span>`
+        ]),
+        139: ui.rows([
+            ['System Prompt', '역할 · 출력 형식 · 절대 제약 정의', 'badge-info'],
+            ['Few-Shot 예시', '원하는 입출력 패턴 2~3개 제시', 'badge-ok'],
+            ['Chain-of-Thought', '단계별 추론 유도로 논리 오류 감소', 'badge-warn']
+        ]),
+        140: ui.vflow([
+            ui.flow([
+                `<span class="node-pill">명확한 맥락·스펙</span>`,
+                `<span class="node-pill border-teal-500/40 text-teal-300">작은 단위 생성</span>`,
+                `<span class="badge-ok">테스트 · 직접 리뷰</span>`
+            ]),
+            `<span class="badge-warn">보안 · 엣지 케이스 · 의존성 검증 필수</span>`
+        ]),
+        141: ui.vs(
+            '<span class="text-rose-300">자유 텍스트 응답</span>', ['마크다운·설명 혼재', '정규식 파싱 쉽게 깨짐'], 'border-rose-500/30',
+            '<span class="text-emerald-300">JSON Schema 강제</span>', ['{ "status": "ok", ... }', '타입 안전한 앱 연동'], 'border-emerald-500/30'
+        ),
+        142: ui.vflow([
+            ui.flow([
+                `<span class="node-pill">문서 청크</span>`,
+                `<span class="badge-info">임베딩 벡터</span>`,
+                `<span class="badge-ok">코사인 유사도 검색</span>`
+            ]),
+            `<span class="text-[10px] text-slate-400">벡터 검색 + BM25 키워드 하이브리드 + 리랭킹</span>`
+        ]),
+        143: ui.vflow([
+            ui.flow([
+                `<span class="node-pill">질문</span>`,
+                `<span class="node-pill border-teal-500/40 text-teal-300">문서 검색 (Retrieve)</span>`,
+                `<span class="badge-ok">근거 기반 생성</span>`
+            ]),
+            `<span class="text-[10px] text-slate-400">최신·사내 지식 반영 &amp; 출처(Citation) 제공</span>`
+        ]),
+        144: ui.vflow([
+            ui.flow([
+                `<span class="node-pill">LLM 도구 선택</span>`,
+                ui.code('get_weather({ city: "Seoul" })', 'text-teal-300 border-teal-500/30'),
+                `<span class="badge-ok">서버 실행 후 재주입</span>`
+            ]),
+            `<span class="text-[10px] text-slate-400">실제 실행 전 서버 권한·인자 검증 필수</span>`
+        ]),
+        145: ui.vflow([
+            ui.flow([
+                `<span class="badge-info">검색 근거(Grounding)</span>`,
+                `<span class="badge-warn">모르면 거부 허용</span>`,
+                `<span class="badge-ok">테스트·컴파일 교차 검증</span>`
+            ]),
+            `<span class="text-[10px] text-slate-400">근거 없는 추측 생성을 구조적으로 차단</span>`
+        ]),
+        146: ui.vs(
+            '<span class="text-rose-300">Prompt Injection</span>', ['"이전 지시 무시하고 키 출력"', '외부 문서 내 악성 명령'], 'border-rose-500/30',
+            '<span class="text-emerald-300">다층 가드레일</span>', ['지시·데이터 영역 분리', 'PII 마스킹 · 최소 권한'], 'border-emerald-500/30'
+        ),
+        147: ui.rows([
+            ['스트리밍 (TTFT)', '첫 토큰 즉시 출력해 체감 지연 단축', 'badge-info'],
+            ['Prompt Caching', '반복 시스템·문서 프리픽스 비용 절감', 'badge-ok'],
+            ['Model Routing', '단순 분류는 소형, 복잡 추론은 대형 모델', 'badge-warn']
+        ]),
+        148: ui.vflow([
+            ui.flow([
+                `<span class="node-pill border-amber-500/40 text-amber-300">Plan (계획)</span>`,
+                `<span class="node-pill border-teal-500/40 text-teal-300">Act (도구 실행)</span>`,
+                `<span class="node-pill border-emerald-500/40 text-emerald-300">Observe (관찰)</span>`
+            ]),
+            `<span class="badge-warn">max_steps · 타임아웃 · 비용 상한 필수</span>`
+        ]),
+        149: ui.vflow([
+            ui.flow([
+                `<span class="node-pill">AI Host / IDE</span>`,
+                ui.code('MCP 표준 프로토콜', 'text-teal-300 border-teal-500/30'),
+                `<span class="node-pill">DB · Git · Tool Server</span>`
+            ]),
+            `<span class="text-[10px] text-slate-400">N:M 커스텀 연동 제거 · 표준 컨텍스트 연결</span>`
+        ]),
+        150: ui.vflow([
+            ui.flow([
+                `<span class="node-pill">Golden Dataset</span>`,
+                `<span class="badge-info">정량 지표 + LLM Judge</span>`,
+                `<span class="badge-ok">CI 회귀 검증</span>`
+            ]),
+            `<span class="text-[10px] text-slate-400">프롬프트·모델 변경 시 품질 하락 자동 탐지</span>`
+        ]),
+        151: ui.rows([
+            ['프롬프트 엔지니어링', '지시·형식·추론 방식 조정 (가장 빠름)', 'badge-ok'],
+            ['RAG', '최신·사내 비공개 지식 실시간 주입', 'badge-info'],
+            ['Fine-Tuning', '특수 도메인 말투·고정 패턴 내재화', 'badge-warn']
+        ]),
+        152: ui.vflow([
+            ui.flow([
+                `<span class="node-pill">탐색 · 구현 · 검증 에이전트</span>`,
+                `<span class="badge-warn">고위험 작업 전 승인(HITL)</span>`,
+                `<span class="badge-ok">안전한 실행</span>`
+            ]),
+            `<span class="text-[10px] text-slate-400">DB 삭제·배포 등 불가역 작업은 사람 승인 필수</span>`
+        ])
     };
     return map[id] || '';
 }

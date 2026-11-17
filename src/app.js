@@ -3,8 +3,16 @@
 
     const STORAGE_KEY = 'devShowcaseState_v1';
 
+    const LEVEL_META = {
+        1: { label: 'Lv.1 입문·필수', short: 'Lv.1 입문', cls: 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30' },
+        2: { label: 'Lv.2 실무·핵심', short: 'Lv.2 실무', cls: 'bg-amber-500/15 text-amber-300 border-amber-500/30' },
+        3: { label: 'Lv.3 심화·고급', short: 'Lv.3 심화', cls: 'bg-purple-500/15 text-purple-300 border-purple-500/30' }
+    };
+
     const state = {
         currentCategory: 'all',
+        levelFilter: 'all', // 'all' | '1' | '2' | '3'
+        sortByPriority: true, // true: Lv.1 -> Lv.2 -> Lv.3, false: id ascending
         statusFilter: 'all', // 'all' | 'unlearned' | 'learned' | 'bookmarked'
         searchQuery: '',
         isFlashcardMode: false,
@@ -37,7 +45,10 @@
     const bookmarkBadge = document.getElementById('bookmarkBadge');
     const progressBarFill = document.getElementById('progressBarFill');
     const catBtns = document.querySelectorAll('.cat-btn');
+    const levelBtns = document.querySelectorAll('.level-btn');
     const statusBtns = document.querySelectorAll('.status-btn');
+    const sortPriorityBtn = document.getElementById('sortPriorityBtn');
+    const sortPriorityText = document.getElementById('sortPriorityText');
 
     const toastNotification = document.getElementById('toastNotification');
     const toastIcon = document.getElementById('toastIcon');
@@ -48,6 +59,7 @@
     // Detail Dialog Elements
     const detailDialog = document.getElementById('detailDialog');
     const detailCatBadge = document.getElementById('detailCatBadge');
+    const detailLevelBadge = document.getElementById('detailLevelBadge');
     const detailIdBadge = document.getElementById('detailIdBadge');
     const detailTitle = document.getElementById('detailTitle');
     const detailSubtitle = document.getElementById('detailSubtitle');
@@ -69,6 +81,7 @@
     const quizActiveView = document.getElementById('quizActiveView');
     const quizCompleteView = document.getElementById('quizCompleteView');
     const quizCatBadge = document.getElementById('quizCatBadge');
+    const quizLevelBadge = document.getElementById('quizLevelBadge');
     const quizDialogTitle = document.getElementById('quizDialogTitle');
     const quizSubtitle = document.getElementById('quizSubtitle');
     const quizHiddenPrompt = document.getElementById('quizHiddenPrompt');
@@ -109,6 +122,12 @@
             if (typeof parsed.currentCategory === 'string') {
                 state.currentCategory = parsed.currentCategory;
             }
+            if (typeof parsed.levelFilter === 'string') {
+                state.levelFilter = parsed.levelFilter;
+            }
+            if (typeof parsed.sortByPriority === 'boolean') {
+                state.sortByPriority = parsed.sortByPriority;
+            }
             if (typeof parsed.statusFilter === 'string') {
                 state.statusFilter = parsed.statusFilter;
             }
@@ -123,6 +142,8 @@
                 learned: Array.from(state.learnedCards),
                 bookmarked: Array.from(state.bookmarkedCards),
                 currentCategory: state.currentCategory,
+                levelFilter: state.levelFilter,
+                sortByPriority: state.sortByPriority,
                 statusFilter: state.statusFilter
             }));
         } catch {
@@ -226,8 +247,9 @@
 
     function getFilteredItems() {
         const q = state.searchQuery.trim().toLowerCase();
-        return items.filter(item => {
+        const result = items.filter(item => {
             const matchesCategory = state.currentCategory === 'all' || item.category === state.currentCategory;
+            const matchesLevel = state.levelFilter === 'all' || String(item.level) === state.levelFilter;
             const isLearned = state.learnedCards.has(item.id);
             const isBookmarked = state.bookmarkedCards.has(item.id);
 
@@ -245,8 +267,15 @@
                 item.defense.toLowerCase().includes(q) ||
                 item.catName.toLowerCase().includes(q)
             );
-            return matchesCategory && matchesStatus && matchesSearch;
+            return matchesCategory && matchesLevel && matchesStatus && matchesSearch;
         });
+
+        if (state.sortByPriority) {
+            result.sort((a, b) => (a.level - b.level) || (a.id - b.id));
+        } else {
+            result.sort((a, b) => a.id - b.id);
+        }
+        return result;
     }
 
     function updateFilterUI() {
@@ -259,6 +288,30 @@
                 btn.className = 'cat-btn px-3.5 py-2 rounded-xl text-sm font-medium whitespace-nowrap transition bg-slate-900 border border-slate-800 text-slate-400 hover:text-slate-200 hover:bg-slate-800 cursor-pointer';
             }
         });
+
+        levelBtns.forEach(btn => {
+            const lvl = btn.getAttribute('data-level');
+            const active = lvl === state.levelFilter;
+            btn.setAttribute('aria-pressed', active ? 'true' : 'false');
+            const baseColor =
+                lvl === '1' ? 'text-emerald-300' :
+                lvl === '2' ? 'text-amber-300' :
+                lvl === '3' ? 'text-purple-300' : 'text-white';
+            if (active) {
+                btn.className = `level-btn px-2.5 py-1 rounded-lg text-xs font-semibold transition bg-slate-800 ${baseColor} border border-slate-500 cursor-pointer`;
+            } else {
+                btn.className = `level-btn px-2.5 py-1 rounded-lg text-xs font-medium transition bg-slate-900 ${lvl === 'all' ? 'text-slate-400' : baseColor} border border-slate-800 hover:border-slate-600 cursor-pointer`;
+            }
+        });
+
+        sortPriorityBtn.setAttribute('aria-pressed', state.sortByPriority ? 'true' : 'false');
+        if (state.sortByPriority) {
+            sortPriorityText.textContent = '우선순위순 (Lv.1→3)';
+            sortPriorityBtn.className = 'px-3 py-1.5 rounded-lg text-xs font-semibold transition bg-indigo-600/20 text-indigo-300 border border-indigo-500/40 hover:bg-indigo-600/30 cursor-pointer';
+        } else {
+            sortPriorityText.textContent = '기본 번호순';
+            sortPriorityBtn.className = 'px-3 py-1.5 rounded-lg text-xs font-medium transition bg-slate-900 text-slate-400 border border-slate-800 hover:text-slate-200 cursor-pointer';
+        }
 
         statusBtns.forEach(btn => {
             const active = btn.getAttribute('data-status') === state.statusFilter;
@@ -330,6 +383,7 @@
             const isLearned = state.learnedCards.has(item.id);
             const isBookmarked = state.bookmarkedCards.has(item.id);
             const isRevealed = !state.isFlashcardMode || state.revealedCards.has(item.id);
+            const lvl = LEVEL_META[item.level] || LEVEL_META[2];
 
             return `
                 <article data-card-id="${item.id}"
@@ -337,9 +391,14 @@
                     <div>
                         <!-- Card Top Metadata -->
                         <div class="flex items-center justify-between gap-2 mb-3">
-                            <span class="text-[11px] px-2.5 py-0.5 rounded-full border ${item.badgeColor} font-semibold">
-                                ${escapeHtml(item.catName)}
-                            </span>
+                            <div class="flex items-center gap-1.5 flex-wrap">
+                                <span class="text-[11px] px-2.5 py-0.5 rounded-full border ${item.badgeColor} font-semibold">
+                                    ${escapeHtml(item.catName)}
+                                </span>
+                                <span class="text-[10px] px-2 py-0.5 rounded-full border ${lvl.cls} font-semibold">
+                                    ${lvl.short}
+                                </span>
+                            </div>
                             <div class="flex items-center gap-1.5">
                                 <span class="text-xs text-slate-500 font-mono mr-0.5">#${String(item.id).padStart(2, '0')}</span>
                                 <button type="button" data-action="detail" data-id="${item.id}" title="상세 보기" aria-label="${escapeHtml(item.title)} 상세 보기"
@@ -428,8 +487,11 @@
         const isLearned = state.learnedCards.has(id);
         const isBookmarked = state.bookmarkedCards.has(id);
 
+        const lvl = LEVEL_META[item.level] || LEVEL_META[2];
         detailCatBadge.className = `text-xs px-2.5 py-0.5 rounded-full border font-semibold ${item.badgeColor}`;
         detailCatBadge.textContent = item.catName;
+        detailLevelBadge.className = `text-xs px-2.5 py-0.5 rounded-full border font-semibold ${lvl.cls}`;
+        detailLevelBadge.textContent = lvl.label;
         detailIdBadge.textContent = `#${String(item.id).padStart(2, '0')} / ${items.length}`;
         detailTitle.textContent = item.title;
         detailSubtitle.textContent = item.subtitle;
@@ -517,9 +579,12 @@
         quizActiveView.classList.remove('hidden');
 
         const item = state.quizQueue[state.quizIndex];
+        const lvl = LEVEL_META[item.level] || LEVEL_META[2];
         quizCounter.textContent = `${state.quizIndex + 1} / ${state.quizQueue.length}`;
         quizCatBadge.className = `text-[11px] px-2.5 py-0.5 rounded-full border font-semibold ${item.badgeColor}`;
         quizCatBadge.textContent = item.catName;
+        quizLevelBadge.className = `text-[11px] px-2.5 py-0.5 rounded-full border font-semibold ${lvl.cls}`;
+        quizLevelBadge.textContent = lvl.label;
         quizDialogTitle.textContent = item.title;
         quizSubtitle.textContent = item.subtitle;
 
@@ -590,7 +655,7 @@
         render();
     });
 
-    // Category & Status Filters
+    // Category, Level, Sort & Status Filters
     catBtns.forEach(btn => {
         btn.addEventListener('click', () => {
             state.currentCategory = btn.getAttribute('data-category');
@@ -598,6 +663,22 @@
             updateFilterUI();
             render();
         });
+    });
+
+    levelBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            state.levelFilter = btn.getAttribute('data-level');
+            saveState();
+            updateFilterUI();
+            render();
+        });
+    });
+
+    sortPriorityBtn.addEventListener('click', () => {
+        state.sortByPriority = !state.sortByPriority;
+        saveState();
+        updateFilterUI();
+        render();
     });
 
     statusBtns.forEach(btn => {
@@ -611,6 +692,7 @@
 
     resetFiltersBtn.addEventListener('click', () => {
         state.currentCategory = 'all';
+        state.levelFilter = 'all';
         state.statusFilter = 'all';
         state.searchQuery = '';
         searchInput.value = '';
