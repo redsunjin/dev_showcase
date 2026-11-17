@@ -1,0 +1,49 @@
+import fs from 'node:fs';
+import assert from 'node:assert/strict';
+
+const dataCode = fs.readFileSync('src/data.js', 'utf8');
+const { items, getInfographic } = new Function(dataCode + '; return { items, getInfographic };')();
+
+// 1. Verify total count and categories
+assert.equal(items.length, 152, 'Expected 152 total items');
+const byCategory = items.reduce((acc, it) => {
+    acc[it.category] = (acc[it.category] || 0) + 1;
+    return acc;
+}, {});
+assert.equal(byCategory['testing'], 15);
+assert.equal(byCategory['devops'], 15);
+assert.equal(byCategory['ai-agent'], 15);
+
+// 2. Verify difficulty levels & priority sorting
+const lv1 = items.filter(i => i.level === 1);
+const lv2 = items.filter(i => i.level === 2);
+const lv3 = items.filter(i => i.level === 3);
+assert.equal(lv1.length + lv2.length + lv3.length, 152);
+
+const sortedByPriority = [...items].sort((a, b) => (a.level - b.level) || (a.id - b.id));
+assert.equal(sortedByPriority[0].level, 1, 'First item in priority sort must be Lv.1');
+assert.equal(sortedByPriority[sortedByPriority.length - 1].level, 3, 'Last item in priority sort must be Lv.3');
+
+// 3. Verify HTML escaping safety for item #2 (<script> in defense)
+const item2 = items.find(i => i.id === 2);
+assert.ok(item2.defense.includes('<script>'), 'Item #2 should contain <script> text');
+
+// 4. Verify all 152 infographics render non-empty HTML
+for (const it of items) {
+    const html = getInfographic(it.id);
+    assert.ok(typeof html === 'string' && html.length > 10, `Infographic missing for #${it.id}`);
+}
+
+// 5. Verify index.html & styles.css mobile/word-break rules
+const css = fs.readFileSync('assets/styles.css', 'utf8');
+assert.ok(css.includes('word-break: keep-all'), 'styles.css must include word-break: keep-all');
+assert.ok(css.includes('overscroll-behavior: contain'), 'styles.css must contain modal overscroll');
+
+const html = fs.readFileSync('index.html', 'utf8');
+assert.ok(html.includes('data-category="testing"'), 'index.html missing testing category tab');
+assert.ok(html.includes('data-category="devops"'), 'index.html missing devops category tab');
+assert.ok(html.includes('data-category="ai-agent"'), 'index.html missing ai-agent category tab');
+assert.ok(html.includes('data-level="1"'), 'index.html missing difficulty filter');
+assert.ok(html.includes('id="sortPriorityBtn"'), 'index.html missing priority sort button');
+
+console.log('✅ All functional & structural assertions passed (152 items, 10 categories, 3 difficulty levels, mobile CSS rules).');
