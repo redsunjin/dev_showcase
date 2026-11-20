@@ -61,10 +61,18 @@ const { curriculumTracks, trapChallenges } = new Function(curriculumCode + '; re
 const validIds = new Set(items.map(i => i.id));
 assert.equal(curriculumTracks.length, 4, 'Expected 4 curriculum tracks');
 for (const tr of curriculumTracks) {
-    assert.ok(tr.steps.length >= 5, `Track ${tr.id} must have >= 5 steps`);
+    assert.ok(tr.steps.length >= 8, `Track ${tr.id} must have >= 8 steps`);
+    let hasVariant = false;
     for (const st of tr.steps) {
-        assert.ok(validIds.has(st.cardId), `Track ${tr.id} references invalid cardId ${st.cardId}`);
+        assert.ok(typeof st.shortTitle === 'string' && st.shortTitle.length > 0, `Track ${tr.id} step missing shortTitle`);
+        const ids = Array.isArray(st.cardIds) ? st.cardIds : (st.cardId ? [st.cardId] : []);
+        assert.ok(ids.length >= 1, `Track ${tr.id} step ${st.title} must link at least 1 card`);
+        for (const cid of ids) {
+            assert.ok(validIds.has(cid), `Track ${tr.id} references invalid cardId ${cid}`);
+        }
+        if (Array.isArray(st.variants) && st.variants.length >= 2) hasVariant = true;
     }
+    assert.ok(hasVariant, `Track ${tr.id} must include at least 1 interactive variant step`);
 }
 assert.equal(trapChallenges.length, 10, 'Expected 10 trap challenges');
 for (const ch of trapChallenges) {

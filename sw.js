@@ -1,4 +1,4 @@
-const CACHE_NAME = 'dev-showcase-v8';
+const CACHE_NAME = 'dev-showcase-v9';
 const APP_SHELL = [
   './',
   './index.html',
