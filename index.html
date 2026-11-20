@@ -3,8 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="color-scheme" content="dark">
-    <meta name="theme-color" content="#0f172a">
+    <meta name="color-scheme" content="dark light">
+    <meta id="themeColorMeta" name="theme-color" content="#0f172a">
+    <script>
+        try {
+            if (localStorage.getItem('devShowcaseTheme_v1') === 'light') {
+                document.documentElement.classList.remove('dark');
+                document.documentElement.classList.add('light');
+                document.getElementById('themeColorMeta').setAttribute('content', '#f7f6f2');
+            }
+        } catch (e) {}
+    </script>
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>개발자 핵심 기본소양 152선</title>
@@ -53,7 +62,7 @@
                     </button>
                 </div>
 
-                <div class="grid grid-cols-[1fr_1fr_auto_auto] sm:flex items-center gap-1.5 sm:gap-2">
+                <div class="grid grid-cols-[1fr_1fr_auto_auto_auto] sm:flex items-center gap-1.5 sm:gap-2">
                     <button type="button" id="startQuizBtn"
                         class="bg-blue-600 hover:bg-blue-500 text-white px-2.5 sm:px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold transition flex items-center justify-center gap-1.5 shadow-lg shadow-blue-600/20 cursor-pointer whitespace-nowrap">
                         <i class="fa-solid fa-bolt" aria-hidden="true"></i>
@@ -70,6 +79,11 @@
                         class="bg-indigo-600/20 border border-indigo-500/40 hover:bg-indigo-600/30 text-indigo-300 px-2.5 sm:px-3 py-2 rounded-xl text-xs sm:text-sm font-medium transition flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap">
                         <i class="fa-solid fa-lightbulb" aria-hidden="true"></i>
                         <span class="hidden sm:inline">정리방법</span>
+                    </button>
+
+                    <button type="button" id="themeToggleBtn" aria-pressed="false" title="라이트 모드로 전환" aria-label="라이트 모드로 전환"
+                        class="bg-slate-900 border border-slate-700/80 hover:border-amber-400/60 hover:text-amber-300 text-slate-300 px-2.5 sm:px-3 py-2 rounded-xl text-xs sm:text-sm transition flex items-center justify-center cursor-pointer">
+                        <i id="themeIcon" class="fa-solid fa-sun" aria-hidden="true"></i>
                     </button>
 
                     <button type="button" id="resetProgressBtn" title="학습 진도 초기화" aria-label="학습 진도 초기화"
@@ -120,7 +134,7 @@
             <button type="button" role="tab" aria-selected="true" data-view="cards"
                 class="view-tab-btn px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-semibold whitespace-nowrap transition bg-blue-600 text-white shadow-md shadow-blue-600/20 cursor-pointer flex items-center gap-1.5">
                 <i class="fa-solid fa-layer-group" aria-hidden="true"></i>
-                <span>치트시트 152선</span>
+                <span>카드 152선</span>
             </button>
             <button type="button" role="tab" aria-selected="false" data-view="tracks"
                 class="view-tab-btn px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-medium whitespace-nowrap transition bg-slate-900 border border-slate-800 text-slate-300 hover:bg-slate-800 cursor-pointer flex items-center gap-1.5">
@@ -212,7 +226,7 @@
     <!-- Main Container -->
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-7 w-full flex-1">
         <!-- View 1: Cheatsheet Cards (Default) -->
-        <section id="cardsView" aria-label="치트시트 카드 목록">
+        <section id="cardsView" aria-label="학습 카드 목록">
             <div class="flex items-center justify-between mb-4 text-xs text-slate-400">
                 <span id="visibleCountText">현재 표시된 카드: 152개 / 전체 152개</span>
                 <button type="button" id="scrollTopBtn" class="hover:text-slate-200 transition cursor-pointer">
@@ -301,7 +315,7 @@
                         <button type="button" id="trackLinkedCardBtn"
                             class="w-full text-left bg-slate-900/90 hover:bg-slate-800 border border-slate-700 hover:border-blue-500/50 rounded-xl p-3 transition flex items-center justify-between gap-2 cursor-pointer group">
                             <div class="min-w-0">
-                                <div class="text-[10px] font-bold text-blue-400 uppercase">연결된 치트시트 카드</div>
+                                <div class="text-[10px] font-bold text-blue-400 uppercase">연결된 학습 카드</div>
                                 <div id="trackLinkedCardTitle" class="text-xs font-semibold text-white truncate mt-0.5"></div>
                             </div>
                             <span class="text-xs text-slate-400 group-hover:text-blue-300 shrink-0">도식 보기 <i class="fa-solid fa-arrow-up-right-from-square ml-1" aria-hidden="true"></i></span>
@@ -388,7 +402,7 @@
                             <pre id="trapFixCode" class="bg-slate-950 border border-slate-800 rounded-xl p-3 text-[11px] font-mono text-emerald-300 overflow-x-auto whitespace-pre-wrap"></pre>
                         </div>
                         <div>
-                            <div class="text-[11px] font-bold text-slate-400 mb-1.5">관련 치트시트 카드</div>
+                            <div class="text-[11px] font-bold text-slate-400 mb-1.5">관련 학습 카드</div>
                             <div id="trapRelatedCards" class="flex flex-wrap gap-1.5"></div>
                         </div>
                         <button type="button" id="trapCopyPromptBtn"
