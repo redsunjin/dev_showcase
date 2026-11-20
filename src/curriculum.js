@@ -1647,7 +1647,7 @@ const trapChallenges = [
             'public OrderDto createOrder(OrderReq req) {',
             '  Order order = orderRepo.save(req.toEntity());',
             '  // 외부 알림 API (평균 1.5초 ~ 지연 시 10초)',
-            '  restClient.post().uri("https://notify.ext/send").body(order).retrieve();',
+            '  restClient.post().uri("https://notify.ext/send").body(order).retrieve().toBodilessEntity();',
             '  return OrderDto.from(order);',
             '}'
         ],
