@@ -1221,7 +1221,53 @@
         }
     }
 
+    // --- Theme Toggle (Dark default / Light mode) ---
+    const THEME_KEY = 'devShowcaseTheme_v1';
+    const themeToggleBtn = document.getElementById('themeToggleBtn');
+    const themeIcon = document.getElementById('themeIcon');
+    const themeColorMeta = document.getElementById('themeColorMeta');
+
+    function applyTheme(theme) {
+        const isLight = theme === 'light';
+        document.documentElement.classList.toggle('light', isLight);
+        document.documentElement.classList.toggle('dark', !isLight);
+        if (themeColorMeta) {
+            themeColorMeta.setAttribute('content', isLight ? '#f7f6f2' : '#0f172a');
+        }
+        if (themeToggleBtn) {
+            themeToggleBtn.setAttribute('aria-pressed', isLight ? 'true' : 'false');
+            themeToggleBtn.setAttribute('title', isLight ? '다크 모드로 전환' : '라이트 모드로 전환');
+            themeToggleBtn.setAttribute('aria-label', isLight ? '다크 모드로 전환' : '라이트 모드로 전환');
+        }
+        if (themeIcon) {
+            themeIcon.className = isLight ? 'fa-solid fa-moon text-indigo-500' : 'fa-solid fa-sun';
+        }
+    }
+
+    function initTheme() {
+        let saved = 'dark';
+        try {
+            if (localStorage.getItem(THEME_KEY) === 'light') saved = 'light';
+        } catch {
+            // Ignore storage errors
+        }
+        applyTheme(saved);
+    }
+
+    if (themeToggleBtn) {
+        themeToggleBtn.addEventListener('click', () => {
+            const nextTheme = document.documentElement.classList.contains('light') ? 'dark' : 'light';
+            applyTheme(nextTheme);
+            try {
+                localStorage.setItem(THEME_KEY, nextTheme);
+            } catch {
+                // Ignore storage errors
+            }
+        });
+    }
+
     // Initialize
+    initTheme();
     loadState();
     updateFilterUI();
     updateProgress();
