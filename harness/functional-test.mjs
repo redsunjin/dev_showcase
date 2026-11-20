@@ -48,8 +48,12 @@ assert.ok(html.includes('id="sortPriorityBtn"'), 'index.html missing priority so
 assert.ok(html.includes('id="tracksView"'), 'index.html missing tracksView');
 assert.ok(html.includes('id="trapsView"'), 'index.html missing trapsView');
 assert.ok(html.includes('id="themeToggleBtn"'), 'index.html missing themeToggleBtn');
+assert.ok(html.includes('id="simReplayBtn"'), 'index.html missing simReplayBtn');
+assert.ok(html.includes('id="simPauseBtn"'), 'index.html missing simPauseBtn');
 assert.ok(!html.includes('치트시트'), 'index.html should use 카드 terminology instead of 치트시트');
 assert.ok(css.includes('html.light'), 'styles.css missing light mode theme rules');
+assert.ok(css.includes('sim-stage'), 'styles.css missing course simulation stage rules');
+assert.ok(css.includes('bg-slate-950\\/70'), 'styles.css missing light override for bg-slate-950/70');
 
 // 6. Verify curriculumTracks & trapChallenges integrity
 const curriculumCode = fs.readFileSync('src/curriculum.js', 'utf8');
