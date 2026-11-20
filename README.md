@@ -34,7 +34,7 @@ node harness/functional-test.mjs
 
 ### 사내 폐쇄망 / 망분리 환경에서 내부 호스팅하는 방법
 외부 인터넷 접근이 차단된 사내망에서 운영하려면 아래 순서로 로컬 벤더링(Vendoring) 후 정적 웹서버(Nginx, 사내 GitHub/GitLab Pages 등)에 배포하세요.
-1. **Tailwind CSS 로컬 빌드**: 프로젝트 루트에서 Tailwind CLI(`npx tailwindcss -i ./assets/styles.css -o ./assets/vendor/tailwind.css --content "./index.html,./src/**/*.js" --minify`)로 정적 CSS를 생성하고, `index.html`의 `cdn.tailwindcss.com` 스크립트를 `<link rel="stylesheet" href="assets/vendor/tailwind.css">`로 교체합니다.
+1. **Tailwind CSS 로컬 빌드**: `@tailwind base; @tailwind components; @tailwind utilities;` 3줄을 담은 임시 입력 파일(`tailwind.input.css`)을 만든 뒤 Tailwind v3 CLI(`npx tailwindcss@3 -i ./tailwind.input.css -o ./assets/vendor/tailwind.css --content "./index.html,./src/**/*.js" --minify`)로 정적 CSS를 생성하고, `index.html`의 `cdn.tailwindcss.com` 스크립트를 `<link rel="stylesheet" href="assets/vendor/tailwind.css">`로 교체합니다. (`assets/styles.css`는 기존 그대로 유지)
 2. **Font Awesome 로컬 복사**: Font Awesome 6 Free 패키지의 `css/all.min.css`와 `webfonts/` 폴더를 `assets/vendor/fontawesome/`에 배치하고 `index.html` 링크 경로를 로컬로 변경합니다.
 3. **Pretendard 폰트 로컬 복사 (선택)**: `assets/styles.css` 1번 줄의 `@import`를 로컬 폰트 경로로 변경하거나 제거해 OS 기본 시스템 폰트(`-apple-system, BlinkMacSystemFont, sans-serif`)를 사용합니다.
 4. **PWA 캐시 갱신**: `sw.js`의 `APP_SHELL`에 로컬 벤더 파일을 추가하고 `CACHE_NAME` 버전을 올린 뒤 `node harness/validate.mjs`로 검증합니다.
