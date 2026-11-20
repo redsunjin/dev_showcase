@@ -2,6 +2,8 @@
     'use strict';
 
     const STORAGE_KEY = 'devShowcaseState_v1';
+    const GUIDE_DISMISSED_KEY = 'devShowcaseGuideDismissed_v1';
+    const itemsById = new Map(items.map(i => [i.id, i]));
 
     const LEVEL_META = {
         1: { label: 'Lv.1 입문·필수', short: 'Lv.1 입문', cls: 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30' },
@@ -20,6 +22,7 @@
         learnedCards: new Set(),
         bookmarkedCards: new Set(),
         activeDetailId: null,
+        detailContextIds: null,
         quizQueue: [],
         quizIndex: 0,
         quizKnownCount: 0,
@@ -119,46 +122,63 @@
             .replace(/'/g, '&#39;');
     }
 
+    function formatInlineCode(str) {
+        return escapeHtml(str).replace(/`([^`]+)`/g, '<code class="px-1 py-0.5 rounded bg-slate-800/90 text-sky-300 font-mono text-[11px]">$1</code>');
+    }
+
     function loadState() {
         try {
             const raw = localStorage.getItem(STORAGE_KEY);
-            if (!raw) return;
+            if (!raw) return false;
             const parsed = JSON.parse(raw);
+            const validCategories = new Set(['all', ...items.map(i => i.category)]);
+            const tracks = typeof curriculumTracks !== 'undefined' ? curriculumTracks : [];
+            const tracksById = new Map(tracks.map(t => [t.id, t]));
+            const validTrapIds = new Set((typeof trapChallenges !== 'undefined' ? trapChallenges : []).map(t => t.id));
+
             if (Array.isArray(parsed.learned)) {
-                state.learnedCards = new Set(parsed.learned.filter(Number.isInteger));
+                state.learnedCards = new Set(parsed.learned.filter(id => Number.isInteger(id) && itemsById.has(id)));
             }
             if (Array.isArray(parsed.bookmarked)) {
-                state.bookmarkedCards = new Set(parsed.bookmarked.filter(Number.isInteger));
+                state.bookmarkedCards = new Set(parsed.bookmarked.filter(id => Number.isInteger(id) && itemsById.has(id)));
             }
-            if (typeof parsed.currentCategory === 'string') {
+            if (typeof parsed.currentCategory === 'string' && validCategories.has(parsed.currentCategory)) {
                 state.currentCategory = parsed.currentCategory;
             }
-            if (typeof parsed.levelFilter === 'string') {
+            if (typeof parsed.levelFilter === 'string' && ['all', '1', '2', '3'].includes(parsed.levelFilter)) {
                 state.levelFilter = parsed.levelFilter;
             }
             if (typeof parsed.sortByPriority === 'boolean') {
                 state.sortByPriority = parsed.sortByPriority;
             }
-            if (typeof parsed.statusFilter === 'string') {
+            if (typeof parsed.statusFilter === 'string' && ['all', 'unlearned', 'learned', 'bookmarked'].includes(parsed.statusFilter)) {
                 state.statusFilter = parsed.statusFilter;
             }
             if (typeof parsed.activeView === 'string' && ['cards', 'tracks', 'traps'].includes(parsed.activeView)) {
                 state.activeView = parsed.activeView;
             }
-            if (typeof parsed.activeTrackId === 'string') {
+            if (typeof parsed.activeTrackId === 'string' && tracksById.has(parsed.activeTrackId)) {
                 state.activeTrackId = parsed.activeTrackId;
             }
             if (parsed.trackStepByTrack && typeof parsed.trackStepByTrack === 'object') {
-                state.trackStepByTrack = parsed.trackStepByTrack;
+                const cleanSteps = {};
+                for (const [k, v] of Object.entries(parsed.trackStepByTrack)) {
+                    const tr = tracksById.get(k);
+                    if (tr && Number.isInteger(v) && v >= 0) {
+                        cleanSteps[k] = Math.min(v, Math.max(0, tr.steps.length - 1));
+                    }
+                }
+                state.trackStepByTrack = cleanSteps;
             }
             if (Array.isArray(parsed.completedTracks)) {
-                state.completedTracks = new Set(parsed.completedTracks);
+                state.completedTracks = new Set(parsed.completedTracks.filter(id => tracksById.has(id)));
             }
             if (Array.isArray(parsed.solvedTraps)) {
-                state.solvedTraps = new Set(parsed.solvedTraps);
+                state.solvedTraps = new Set(parsed.solvedTraps.filter(id => validTrapIds.has(id)));
             }
+            return true;
         } catch {
-            // Ignore storage errors
+            return false;
         }
     }
 
@@ -183,6 +203,14 @@
     }
 
     function showToast(title, desc, isError = false) {
+        const host = (detailDialog && detailDialog.open)
+            ? detailDialog
+            : (quizDialog && quizDialog.open)
+                ? quizDialog
+                : document.body;
+        if (toastNotification.parentElement !== host) {
+            host.appendChild(toastNotification);
+        }
         toastTitle.textContent = title;
         toastDesc.textContent = desc;
         toastIcon.className = isError
@@ -194,6 +222,9 @@
         toastTimeout = setTimeout(() => {
             toastNotification.classList.add('hidden');
             toastNotification.classList.remove('flex');
+            if (toastNotification.parentElement !== document.body) {
+                document.body.appendChild(toastNotification);
+            }
         }, 3200);
     }
 
@@ -222,7 +253,7 @@
     }
 
     async function copyPrompt(id, type) {
-        const item = items.find(i => i.id === id);
+        const item = itemsById.get(id);
         if (!item) return;
 
         const cleanTitle = item.title.replace(/^\d+\.\s*/, '');
@@ -510,8 +541,15 @@
     }
 
     // Detail Modal Logic
+    function getDetailNavList() {
+        if (Array.isArray(state.detailContextIds) && state.detailContextIds.length) {
+            return state.detailContextIds.map(cid => itemsById.get(cid)).filter(Boolean);
+        }
+        return getFilteredItems();
+    }
+
     function renderDetailModal(id) {
-        const item = items.find(i => i.id === id);
+        const item = itemsById.get(id);
         if (!item) return;
         state.activeDetailId = id;
 
@@ -543,13 +581,14 @@
                 : 'border-slate-700 bg-slate-900 text-slate-400 hover:text-emerald-300'
         }`;
 
-        const filtered = getFilteredItems();
-        const idx = filtered.findIndex(i => i.id === id);
+        const navList = getDetailNavList();
+        const idx = navList.findIndex(i => i.id === id);
         detailPrevBtn.disabled = idx <= 0;
-        detailNextBtn.disabled = idx === -1 || idx >= filtered.length - 1;
+        detailNextBtn.disabled = idx === -1 || idx >= navList.length - 1;
     }
 
-    function openDetailModal(id) {
+    function openDetailModal(id, contextIds = null) {
+        state.detailContextIds = Array.isArray(contextIds) && contextIds.length ? contextIds : null;
         renderDetailModal(id);
         if (!detailDialog.open) {
             detailDialog.showModal();
@@ -557,10 +596,10 @@
     }
 
     function navigateDetail(delta) {
-        const filtered = getFilteredItems();
-        const idx = filtered.findIndex(i => i.id === state.activeDetailId);
+        const navList = getDetailNavList();
+        const idx = navList.findIndex(i => i.id === state.activeDetailId);
         if (idx === -1) return;
-        const nextItem = filtered[idx + delta];
+        const nextItem = navList[idx + delta];
         if (nextItem) {
             renderDetailModal(nextItem.id);
         }
@@ -671,14 +710,17 @@
         }
     });
 
-    // Search & Clear
+    // Search & Clear (debounced for large card catalogs)
+    let searchDebounceTimer = null;
     searchInput.addEventListener('input', (e) => {
         state.searchQuery = e.target.value;
         clearSearchBtn.classList.toggle('hidden', state.searchQuery.length === 0);
-        render();
+        if (searchDebounceTimer) clearTimeout(searchDebounceTimer);
+        searchDebounceTimer = setTimeout(() => render(), 150);
     });
 
     clearSearchBtn.addEventListener('click', () => {
+        if (searchDebounceTimer) clearTimeout(searchDebounceTimer);
         state.searchQuery = '';
         searchInput.value = '';
         clearSearchBtn.classList.add('hidden');
@@ -757,6 +799,7 @@
     closeStudyGuideBtn.addEventListener('click', () => {
         studyGuidePanel.classList.add('hidden');
         studyGuideBtn.setAttribute('aria-expanded', 'false');
+        try { localStorage.setItem(GUIDE_DISMISSED_KEY, '1'); } catch {}
     });
 
     // Scroll to top
@@ -1036,9 +1079,6 @@
         const clamped = Math.max(0, Math.min(idx, track.steps.length - 1));
         state.trackStepByTrack[track.id] = clamped;
         state.simVariantIndex = 0;
-        if (clamped === track.steps.length - 1) {
-            state.completedTracks.add(track.id);
-        }
         saveState();
         renderTracksView();
     }
@@ -1210,23 +1250,23 @@
 
         const storyParagraphs = Array.isArray(step.story) ? step.story : [step.story];
         document.getElementById('trackStepStory').innerHTML = storyParagraphs
-            .map(p => `<p>${escapeHtml(p)}</p>`)
+            .map(p => `<p>${formatInlineCode(p)}</p>`)
             .join('');
 
         const whyBox = document.getElementById('trackStepWhyBox');
         if (step.whyLimit) {
             whyBox.classList.remove('hidden');
-            document.getElementById('trackStepWhyText').textContent = step.whyLimit;
+            document.getElementById('trackStepWhyText').innerHTML = formatInlineCode(step.whyLimit);
         } else {
             whyBox.classList.add('hidden');
         }
 
-        document.getElementById('trackStepTakeaway').textContent = step.takeaway;
+        document.getElementById('trackStepTakeaway').innerHTML = formatInlineCode(step.takeaway);
 
         const tradeoffBox = document.getElementById('trackStepTradeoffBox');
         if (step.tradeoff) {
             tradeoffBox.classList.remove('hidden');
-            document.getElementById('trackStepTradeoffText').textContent = step.tradeoff;
+            document.getElementById('trackStepTradeoffText').innerHTML = formatInlineCode(step.tradeoff);
         } else {
             tradeoffBox.classList.add('hidden');
         }
@@ -1234,7 +1274,7 @@
         const linkedIds = Array.isArray(step.cardIds) && step.cardIds.length
             ? step.cardIds
             : (step.cardId ? [step.cardId] : []);
-        const linkedItems = linkedIds.map(id => items.find(i => i.id === id)).filter(Boolean);
+        const linkedItems = linkedIds.map(id => itemsById.get(id)).filter(Boolean);
         const linkedWrap = document.getElementById('trackLinkedCardsWrap');
         const linkedList = document.getElementById('trackLinkedCardsList');
         if (linkedItems.length) {
@@ -1249,7 +1289,7 @@
                 </button>
             `).join('');
             linkedList.querySelectorAll('.track-card-link').forEach(btn => {
-                btn.addEventListener('click', () => openDetailModal(Number(btn.getAttribute('data-card-id'))));
+                btn.addEventListener('click', () => openDetailModal(Number(btn.getAttribute('data-card-id')), linkedIds));
             });
         } else {
             linkedWrap.classList.add('hidden');
@@ -1261,8 +1301,11 @@
         prevBtn.onclick = () => setTrackStep(track, stepIdx - 1);
 
         const isLast = stepIdx === track.steps.length - 1;
+        const isTrackCompleted = state.completedTracks.has(track.id);
         nextBtn.innerHTML = isLast
-            ? '<span>코스 완료!</span> <i class="fa-solid fa-check" aria-hidden="true"></i>'
+            ? (isTrackCompleted
+                ? '<span>완료됨</span> <i class="fa-solid fa-circle-check" aria-hidden="true"></i>'
+                : '<span>코스 완료!</span> <i class="fa-solid fa-check" aria-hidden="true"></i>')
             : '<span>다음 단계</span> <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>';
         nextBtn.onclick = () => {
             if (isLast) {
@@ -1274,6 +1317,38 @@
                 setTrackStep(track, stepIdx + 1);
             }
         };
+
+        const handoffEl = document.getElementById('trackCompleteHandoff');
+        if (handoffEl) {
+            if (isLast && isTrackCompleted) {
+                handoffEl.classList.remove('hidden');
+                handoffEl.classList.add('flex');
+                const currentIdx = curriculumTracks.findIndex(t => t.id === track.id);
+                const nextTrack = curriculumTracks.find((t, i) => i > currentIdx && !state.completedTracks.has(t.id))
+                    || curriculumTracks.find(t => !state.completedTracks.has(t.id))
+                    || curriculumTracks[(currentIdx + 1) % curriculumTracks.length];
+                const handoffNextBtn = document.getElementById('trackHandoffNextBtn');
+                const handoffTrapBtn = document.getElementById('trackHandoffTrapBtn');
+                if (handoffNextBtn && nextTrack && nextTrack.id !== track.id) {
+                    handoffNextBtn.classList.remove('hidden');
+                    handoffNextBtn.textContent = `다음 코스: ${nextTrack.title.replace(/^\d+\.\s*/, '')} →`;
+                    handoffNextBtn.onclick = () => {
+                        state.activeTrackId = nextTrack.id;
+                        state.simVariantIndex = 0;
+                        saveState();
+                        renderTracksView();
+                    };
+                } else if (handoffNextBtn) {
+                    handoffNextBtn.classList.add('hidden');
+                }
+                if (handoffTrapBtn) {
+                    handoffTrapBtn.onclick = () => switchView('traps');
+                }
+            } else {
+                handoffEl.classList.add('hidden');
+                handoffEl.classList.remove('flex');
+            }
+        }
 
         // Goals checklist
         const progressRatio = (stepIdx + 1) / track.steps.length;
@@ -1332,7 +1407,7 @@
         document.getElementById('trapPromptContext').textContent = trap.promptContext;
 
         const codeContainer = document.getElementById('trapCodeContainer');
-        codeContainer.innerHTML = trap.codeLines.map((line, i) => {
+        const codeLinesHtml = trap.codeLines.map((line, i) => {
             const lineNo = i + 1;
             const isMarked = state.trapMarkedLines.has(lineNo);
             const isBuggy = state.trapSubmitted && trap.buggyLines.includes(lineNo);
@@ -1344,12 +1419,13 @@
             }
             return `
                 <button type="button" data-line="${lineNo}"
-                    class="trap-code-line w-full text-left px-2 py-0.5 rounded flex items-start gap-3 transition cursor-pointer ${rowCls}">
+                    class="trap-code-line min-w-full w-max text-left px-2 py-0.5 rounded flex items-start gap-3 transition cursor-pointer ${rowCls}">
                     <span class="text-slate-600 select-none w-5 text-right shrink-0">${lineNo}</span>
                     <span class="whitespace-pre">${escapeHtml(line || ' ')}</span>
                 </button>
             `;
         }).join('');
+        codeContainer.innerHTML = `<div class="min-w-max flex flex-col gap-0.5">${codeLinesHtml}</div>`;
 
         codeContainer.querySelectorAll('.trap-code-line').forEach(btn => {
             btn.addEventListener('click', () => {
@@ -1415,12 +1491,12 @@
                 ? '<i class="fa-solid fa-circle-check"></i> 정확히 짚어냈습니다! 붉게 표시된 코드 줄이 핵심 원인입니다.'
                 : '<i class="fa-solid fa-circle-xmark"></i> 아쉽습니다. 붉게 표시된 코드 줄과 아래 해설을 확인해 보세요.';
 
-            document.getElementById('trapExplanation').textContent = trap.explanation;
+            document.getElementById('trapExplanation').innerHTML = formatInlineCode(trap.explanation);
             document.getElementById('trapFixCode').textContent = trap.fixCode;
 
             const relatedEl = document.getElementById('trapRelatedCards');
             relatedEl.innerHTML = trap.relatedCardIds.map(cid => {
-                const item = items.find(i => i.id === cid);
+                const item = itemsById.get(cid);
                 if (!item) return '';
                 return `
                     <button type="button" data-card-id="${item.id}"
@@ -1431,13 +1507,15 @@
             }).join('');
 
             relatedEl.querySelectorAll('.trap-card-link').forEach(btn => {
-                btn.addEventListener('click', () => openDetailModal(Number(btn.getAttribute('data-card-id'))));
+                btn.addEventListener('click', () => openDetailModal(Number(btn.getAttribute('data-card-id')), trap.relatedCardIds));
             });
 
             document.getElementById('trapCopyPromptBtn').onclick = () => {
                 const fullPrompt = `${trap.codeLines.join('\n')}\n\n[리뷰 요청]\n${trap.aiReviewPrompt}`;
                 copyToClipboard(fullPrompt).then(() => {
                     showToast('AI 리뷰 프롬프트 복사됨', '코드와 검증 요청이 클립보드에 복사되었습니다.');
+                }).catch(() => {
+                    showToast('복사에 실패했습니다', '브라우저 클립보드 권한을 확인해 주세요.', true);
                 });
             };
         } else {
@@ -1504,6 +1582,11 @@
         const heading = document.querySelector('header h1');
         if (heading) heading.textContent = `개발자 핵심 기본소양 ${total}선`;
         document.title = `개발자 핵심 기본소양 ${total}선`;
+        const footerSummary = document.getElementById('footerSummaryText');
+        if (footerSummary) {
+            const uniqueCatNames = [...new Set(items.map(i => i.catName))].join(' · ');
+            footerSummary.textContent = `3초 개발지식 · ${uniqueCatNames} 개발자 기본소양 ${total}선 웹앱`;
+        }
 
         const countsByCat = items.reduce((acc, it) => {
             acc[it.category] = (acc[it.category] || 0) + 1;
@@ -1528,6 +1611,9 @@
             const route = btn.getAttribute('data-route');
             if (route === 'stage1-course') {
                 state.activeTrackId = 'scaling-traffic';
+                switchView('tracks');
+            } else if (route === 'stage1-security') {
+                state.activeTrackId = 'web-defense';
                 switchView('tracks');
             } else if (route === 'stage2-course') {
                 state.activeTrackId = 'db-concurrency';
@@ -1554,6 +1640,7 @@
             }
             studyGuidePanel.classList.add('hidden');
             studyGuideBtn.setAttribute('aria-expanded', 'false');
+            try { localStorage.setItem(GUIDE_DISMISSED_KEY, '1'); } catch {}
         });
     });
 
@@ -1588,27 +1675,44 @@
     function importProgressJson(file) {
         if (!file) return;
         const reader = new FileReader();
+        reader.onerror = () => {
+            showToast('JSON 복원 실패', '파일을 읽는 중 오류가 발생했습니다.', true);
+        };
         reader.onload = () => {
             try {
-                const parsed = JSON.parse(String(reader.result || '{}'));
-                if (!parsed || typeof parsed !== 'object') throw new Error('Invalid JSON');
-                const validCardIds = new Set(items.map(i => i.id));
-                const validTrackIds = new Set((typeof curriculumTracks !== 'undefined' ? curriculumTracks : []).map(t => t.id));
+                const parsed = JSON.parse(String(reader.result || ''));
+                if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
+                    throw new Error('Invalid JSON object');
+                }
+                if (parsed.schemaVersion !== undefined && parsed.schemaVersion !== 1) {
+                    throw new Error('Unsupported schemaVersion');
+                }
+                const recognizedKeys = ['learned', 'bookmarked', 'completedTracks', 'trackStepByTrack', 'solvedTraps'];
+                const hasKnownField = recognizedKeys.some(k => Object.prototype.hasOwnProperty.call(parsed, k));
+                if (!hasKnownField) {
+                    throw new Error('Missing progress fields');
+                }
+
+                const tracks = typeof curriculumTracks !== 'undefined' ? curriculumTracks : [];
+                const tracksById = new Map(tracks.map(t => [t.id, t]));
                 const validTrapIds = new Set((typeof trapChallenges !== 'undefined' ? trapChallenges : []).map(t => t.id));
 
                 if (Array.isArray(parsed.learned)) {
-                    state.learnedCards = new Set(parsed.learned.filter(id => Number.isInteger(id) && validCardIds.has(id)));
+                    state.learnedCards = new Set(parsed.learned.filter(id => Number.isInteger(id) && itemsById.has(id)));
                 }
                 if (Array.isArray(parsed.bookmarked)) {
-                    state.bookmarkedCards = new Set(parsed.bookmarked.filter(id => Number.isInteger(id) && validCardIds.has(id)));
+                    state.bookmarkedCards = new Set(parsed.bookmarked.filter(id => Number.isInteger(id) && itemsById.has(id)));
                 }
                 if (Array.isArray(parsed.completedTracks)) {
-                    state.completedTracks = new Set(parsed.completedTracks.filter(id => validTrackIds.has(id)));
+                    state.completedTracks = new Set(parsed.completedTracks.filter(id => tracksById.has(id)));
                 }
-                if (parsed.trackStepByTrack && typeof parsed.trackStepByTrack === 'object') {
+                if (parsed.trackStepByTrack && typeof parsed.trackStepByTrack === 'object' && !Array.isArray(parsed.trackStepByTrack)) {
                     const cleanSteps = {};
                     for (const [k, v] of Object.entries(parsed.trackStepByTrack)) {
-                        if (validTrackIds.has(k) && Number.isInteger(v) && v >= 0) cleanSteps[k] = v;
+                        const tr = tracksById.get(k);
+                        if (tr && Number.isInteger(v) && v >= 0) {
+                            cleanSteps[k] = Math.min(v, Math.max(0, tr.steps.length - 1));
+                        }
                     }
                     state.trackStepByTrack = cleanSteps;
                 }
@@ -1663,6 +1767,8 @@
 
         copyToClipboard(report).then(() => {
             showToast('온보딩 이수 리포트 복사됨', 'Markdown 리포트가 클립보드에 복사되었습니다.');
+        }).catch(() => {
+            showToast('복사에 실패했습니다', '브라우저 클립보드 권한을 확인해 주세요.', true);
         });
     }
 
@@ -1680,11 +1786,21 @@
     // Initialize
     initTheme();
     syncDynamicCounts();
-    loadState();
+    const hasSavedState = loadState();
     updateFilterUI();
     updateProgress();
     render();
     if (state.activeView !== 'cards') {
         switchView(state.activeView);
+    }
+    // Auto-open onboarding guide on first clean visit for new developers
+    try {
+        const guideDismissed = localStorage.getItem(GUIDE_DISMISSED_KEY) === '1';
+        if (!hasSavedState && state.learnedCards.size === 0 && !guideDismissed && studyGuidePanel) {
+            studyGuidePanel.classList.remove('hidden');
+            studyGuideBtn.setAttribute('aria-expanded', 'true');
+        }
+    } catch {
+        // Ignore storage errors
     }
 })();

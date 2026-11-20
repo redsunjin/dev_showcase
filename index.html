@@ -16,7 +16,7 @@
     </script>
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>개발자 핵심 기본소양 152선</title>
+    <title>개발자 핵심 기본소양 167선</title>
     <link rel="icon" type="image/svg+xml" href="assets/icon.svg">
     <link rel="manifest" href="manifest.webmanifest">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -39,11 +39,11 @@
                     <div class="min-w-0">
                         <div class="flex flex-wrap items-center gap-1.5">
                             <span class="hidden sm:inline-block text-[10px] font-bold px-2 py-0.5 rounded bg-blue-500/20 text-blue-300 border border-blue-500/30">3초 개발지식 · 핵심 기본기</span>
-                            <span id="progressBadge" class="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">학습 0/152 (0%)</span>
+                            <span id="progressBadge" class="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">학습 0/167 (0%)</span>
                             <span id="bookmarkBadge" class="text-[10px] font-bold px-2 py-0.5 rounded bg-amber-500/15 text-amber-300 border border-amber-500/30">북마크 0</span>
                         </div>
                         <h1 class="text-base sm:text-xl font-bold bg-gradient-to-r from-white via-slate-200 to-slate-400 bg-clip-text text-transparent mt-0.5 truncate">
-                            개발자 핵심 기본소양 152선
+                            개발자 핵심 기본소양 167선
                         </h1>
                     </div>
                 </div>
@@ -126,7 +126,10 @@
                     </div>
                     <div class="flex flex-wrap gap-1.5">
                         <button type="button" data-route="stage1-course" class="onboarding-route-btn px-2.5 py-1.5 rounded-lg bg-emerald-600/20 hover:bg-emerald-600/30 border border-emerald-500/40 text-emerald-300 font-semibold transition cursor-pointer">
-                            코스 1·3 시작 →
+                            코스 1 (확장) →
+                        </button>
+                        <button type="button" data-route="stage1-security" class="onboarding-route-btn px-2.5 py-1.5 rounded-lg bg-cyan-600/20 hover:bg-cyan-600/30 border border-cyan-500/40 text-cyan-300 font-semibold transition cursor-pointer">
+                            코스 3 (보안) →
                         </button>
                         <button type="button" data-route="stage1-cards" class="onboarding-route-btn px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 font-medium transition cursor-pointer">
                             Lv.1 카드 필터
@@ -214,13 +217,13 @@
             <button type="button" role="tab" aria-selected="true" data-view="cards"
                 class="view-tab-btn px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-semibold whitespace-nowrap transition bg-blue-600 text-white shadow-md shadow-blue-600/20 cursor-pointer flex items-center gap-1.5">
                 <i class="fa-solid fa-layer-group" aria-hidden="true"></i>
-                <span id="cardsTabLabel">카드 152선</span>
+                <span id="cardsTabLabel">카드 167선</span>
             </button>
             <button type="button" role="tab" aria-selected="false" data-view="tracks"
                 class="view-tab-btn px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-medium whitespace-nowrap transition bg-slate-900 border border-slate-800 text-slate-300 hover:bg-slate-800 cursor-pointer flex items-center gap-1.5">
                 <i class="fa-solid fa-route text-emerald-400" aria-hidden="true"></i>
                 <span>커리큘럼 트랙</span>
-                <span id="coursesTabCount" class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">4코스</span>
+                <span id="coursesTabCount" class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">5코스</span>
             </button>
             <button type="button" role="tab" aria-selected="false" data-view="traps"
                 class="view-tab-btn px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-medium whitespace-nowrap transition bg-slate-900 border border-slate-800 text-slate-300 hover:bg-slate-800 cursor-pointer flex items-center gap-1.5">
@@ -237,7 +240,7 @@
             <!-- Category Tabs (Horizontal Scroll) -->
             <div class="flex items-center gap-1.5 sm:gap-2 overflow-x-auto no-scrollbar pb-0.5">
                 <button type="button" data-category="all" class="cat-btn px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl text-xs sm:text-sm font-semibold whitespace-nowrap transition bg-blue-600 text-white shadow-lg shadow-blue-600/20 cursor-pointer shrink-0">
-                    <i class="fa-solid fa-border-all mr-1 sm:mr-1.5" aria-hidden="true"></i> 전체 (152)
+                    <i class="fa-solid fa-border-all mr-1 sm:mr-1.5" aria-hidden="true"></i> 전체 (167)
                 </button>
                 <button type="button" data-category="web-security" class="cat-btn px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl text-xs sm:text-sm font-medium whitespace-nowrap transition bg-slate-900 border border-slate-800 text-slate-400 hover:text-slate-200 hover:bg-slate-800 cursor-pointer shrink-0">
                     <i class="fa-solid fa-shield-halved mr-1 text-cyan-400" aria-hidden="true"></i> 웹 보안 17
@@ -311,7 +314,7 @@
         <!-- View 1: Cheatsheet Cards (Default) -->
         <section id="cardsView" aria-label="학습 카드 목록">
             <div class="flex items-center justify-between mb-4 text-xs text-slate-400">
-                <span id="visibleCountText">현재 표시된 카드: 152개 / 전체 152개</span>
+                <span id="visibleCountText">현재 표시된 카드: 167개 / 전체 167개</span>
                 <button type="button" id="scrollTopBtn" class="hover:text-slate-200 transition cursor-pointer">
                     <i class="fa-solid fa-arrow-up mr-1" aria-hidden="true"></i> 맨 위로
                 </button>
@@ -341,7 +344,7 @@
                 <aside class="lg:col-span-3 xl:col-span-1 flex flex-col gap-2.5" aria-label="커리큘럼 코스 목록">
                     <div class="text-xs font-bold text-slate-400 uppercase tracking-wider px-1 flex items-center justify-between">
                         <span>코스 목록</span>
-                        <span id="trackOverallBadge" class="text-[11px] font-mono text-emerald-400">0 / 4 완료</span>
+                        <span id="trackOverallBadge" class="text-[11px] font-mono text-emerald-400">0 / 5 완료</span>
                     </div>
                     <div id="trackList" class="flex flex-col gap-2"></div>
                 </aside>
@@ -450,6 +453,21 @@
                                 <span>다음 단계</span> <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
                             </button>
                         </div>
+
+                        <!-- Post-course Handoff CTA -->
+                        <div id="trackCompleteHandoff" class="hidden flex-col gap-2 bg-emerald-950/30 border border-emerald-500/30 rounded-xl p-3">
+                            <div class="text-[11px] font-bold text-emerald-300 flex items-center gap-1.5">
+                                <i class="fa-solid fa-flag-checkered" aria-hidden="true"></i> 코스 완주! 다음 학습으로 이어가세요
+                            </div>
+                            <div class="flex flex-wrap gap-1.5">
+                                <button type="button" id="trackHandoffNextBtn" class="px-2.5 py-1.5 rounded-lg bg-emerald-600/25 hover:bg-emerald-600/35 border border-emerald-500/40 text-emerald-200 text-[11px] font-semibold transition cursor-pointer">
+                                    다음 코스 시작 →
+                                </button>
+                                <button type="button" id="trackHandoffTrapBtn" class="px-2.5 py-1.5 rounded-lg bg-rose-600/20 hover:bg-rose-600/30 border border-rose-500/40 text-rose-200 text-[11px] font-semibold transition cursor-pointer">
+                                    함정 찾기 연습 →
+                                </button>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Learning Goals Checklist -->
@@ -473,7 +491,7 @@
                     </h2>
                     <p class="text-xs text-slate-400 mt-0.5">AI가 생성한 코드·SQL·설정에서 실무 장애나 보안 사고를 일으키는 함정을 찾아보세요.</p>
                 </div>
-                <span id="trapProgressBadge" class="text-xs font-mono px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-700 text-emerald-300 self-start sm:self-auto">해결 0 / 10</span>
+                <span id="trapProgressBadge" class="text-xs font-mono px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-700 text-emerald-300 self-start sm:self-auto">해결 0 / 14</span>
             </div>
 
             <!-- Challenge Selector Pills -->
@@ -493,7 +511,7 @@
                         <h3 id="trapTitle" class="text-base sm:text-lg font-bold text-white"></h3>
                         <p id="trapPromptContext" class="text-xs text-slate-400 mt-1"></p>
                     </div>
-                    <div id="trapCodeContainer" class="bg-slate-950 border border-slate-800 rounded-xl p-3 font-mono text-xs overflow-x-auto flex flex-col gap-0.5"></div>
+                    <div id="trapCodeContainer" class="bg-slate-950 border border-slate-800 rounded-xl p-3 font-mono text-xs overflow-x-auto overscroll-x-contain"></div>
                 </div>
 
                 <!-- Right: Options & Explanation -->
@@ -537,7 +555,7 @@
 
     <!-- Footer -->
     <footer class="border-t border-slate-800/80 py-6 text-center text-xs text-slate-500 bg-slate-950">
-        <p>3초 개발지식 · 웹 보안 · DB · 자료구조 · SQL · OS/네트워크 · 설계 · 브라우저 · 테스트 · CI/CD · AI/에이전트 개발자 기본소양 152선 웹앱</p>
+        <p id="footerSummaryText">3초 개발지식 · 웹 보안 · DB · 자료구조 · SQL · OS/네트워크 · 설계 · 브라우저 · 테스트 · CI/CD · AI/에이전트 · Java/Spring 개발자 기본소양 167선 웹앱</p>
     </footer>
 
     <!-- Toast Notification -->

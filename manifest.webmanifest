@@ -1,7 +1,7 @@
 {
-  "name": "개발자 핵심 기본소양 152선",
-  "short_name": "개발자 152선",
-  "description": "웹 보안, DB, 자료구조, SQL, OS·네트워크, 설계·클린코드, 브라우저·FE, 테스트, CI/CD·DevOps, AI·LLM·에이전트 핵심 기본기 152선 학습 웹앱",
+  "name": "개발자 핵심 기본소양 167선",
+  "short_name": "개발자 167선",
+  "description": "웹 보안, DB, 자료구조, SQL, OS·네트워크, 설계·클린코드, 브라우저·FE, 테스트, CI/CD·DevOps, AI·LLM·에이전트, Java·Spring 핵심 기본기 167선 학습 웹앱",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#020617",
