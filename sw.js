@@ -1,4 +1,4 @@
-const CACHE_NAME = 'dev-showcase-v12';
+const CACHE_NAME = 'dev-showcase-v13';
 const APP_SHELL = [
   './',
   './index.html',
@@ -32,8 +32,10 @@ self.addEventListener('fetch', (event) => {
   event.respondWith(
     fetch(event.request)
       .then((res) => {
-        const clone = res.clone();
-        caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
+        if (res && res.ok && res.type === 'basic') {
+          const clone = res.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
+        }
         return res;
       })
       .catch(() => caches.match(event.request))

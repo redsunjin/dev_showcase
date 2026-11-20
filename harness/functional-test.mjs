@@ -54,6 +54,7 @@ assert.ok(html.includes('id="simPauseBtn"'), 'index.html missing simPauseBtn');
 assert.ok(html.includes('id="exportProgressBtn"'), 'index.html missing exportProgressBtn');
 assert.ok(html.includes('id="importProgressBtn"'), 'index.html missing importProgressBtn');
 assert.ok(html.includes('id="copyReportBtn"'), 'index.html missing copyReportBtn');
+assert.ok(html.includes('id="trackCompleteHandoff"'), 'index.html missing trackCompleteHandoff');
 assert.ok(!html.includes('치트시트'), 'index.html should use 카드 terminology instead of 치트시트');
 
 // 6. Verify curriculumTracks & trapChallenges dynamic integrity

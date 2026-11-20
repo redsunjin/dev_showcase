@@ -1,5 +1,5 @@
 // 커리큘럼 트랙(스토리 시뮬레이션) & 연습 모드(AI 코드·설계 함정 찾기) 데이터
-// 연결되는 카드 ID는 src/data.js의 152개 items ID와 1:1 매칭됩니다.
+// 연결되는 카드 ID는 src/data.js의 167개 items ID와 1:1 매칭됩니다.
 
 const curriculumTracks = [
     {
@@ -476,7 +476,7 @@ const curriculumTracks = [
                 cardIds: [22],
                 story: [
                     '조회 성능은 완벽해졌는데, 한정판 1개짜리 상품에 두 사용자가 0.001초 차이로 결제를 눌러 둘 다 성공해 버렸습니다(Lost Update).',
-                    '두 트랜잭션이 동시에 `stock = 1`을 읽은 뒤 각자 `stock - 1 = 0`을 덮어쓰면서 실제 재고가 음수가 되는 동시성 버그입니다.'
+                    '두 트랜잭션이 동시에 `stock = 1`을 읽은 뒤 각자 `stock - 1 = 0`으로 덮어쓰면서(차감 1건 유실), DB에는 0으로 남지만 실제 주문은 2건이 승인되어 초과 판매(논리적 재고 -1)가 발생하는 동시성 버그입니다.'
                 ],
                 whyLimit: '단순 `SELECT → 애플리케이션 if 검증 → UPDATE` 구조는 동시 요청 사이 간격(Race Window)을 전혀 막지 못합니다.',
                 takeaway: '공유 자원(재고·잔액·좌석)을 수정할 때는 반드시 DB 락 또는 조건부 원자적 UPDATE로 정합성을 보호해야 합니다.',
@@ -1122,7 +1122,7 @@ const curriculumTracks = [
                 cardIds: [162, 21],
                 story: [
                     '주문 목록 100건을 조회해 DTO로 변환할 때, 각 주문의 회원(`@ManyToOne`)이나 상품 목록(`@OneToMany`)에 접근하면서 1 + 100번의 추가 SQL이 쏟아집니다.',
-                    '모든 연관관계는 `FetchType.LAZY`로 통일하고, 목록 조회 시 Fetch Join이나 `default_batch_fetch_size`(IN 절 일괄 조회)로 쿼리를 1~2회로 줄입니다.'
+                    '모든 연관관계는 `FetchType.LAZY`로 통일하고, 목록 조회 시 Fetch Join(`@ManyToOne`)이나 `default_batch_fetch_size`(`@OneToMany` 페이징 시 인메모리 OOM 방지)로 쿼리를 1~2회로 줄입니다.'
                 ],
                 takeaway: '`@ManyToOne`의 기본값은 EAGER이므로 반드시 LAZY로 명시하고, 조회 쿼리에서는 Fetch Join 또는 BatchSize로 N+1을 제거합니다.',
                 metrics: { queries: '2 / req', p95: '72 ms', error: '0%', dbCpu: '24%' },
@@ -1314,7 +1314,7 @@ const trapChallenges = [
         id: 'trap-2',
         category: 'SQL 함정',
         catCls: 'bg-rose-500/10 text-rose-400 border-rose-500/20',
-        title: 'AI가 짜준 2026년 미주문 회원 조회 SQL',
+        title: 'AI가 짜준 2026년 블랙리스트 제외 회원 조회 SQL',
         promptContext: 'AI에게 "2026년에 가입한 회원 중 black_list에 없는 회원을 조회해줘"라고 요청한 쿼리입니다.',
         language: 'SQL',
         codeLines: [
@@ -1538,7 +1538,7 @@ const trapChallenges = [
         ],
         answerId: 'a',
         explanation: '2번 줄처럼 ENV에 비밀번호를 넣으면 이미지 레이어에 영구 노출됩니다. 3~4번 줄은 package.json을 먼저 복사하지 않아 소스 수정마다 npm install 캐시가 깨집니다. 8번 줄은 :latest 태그로 버전 재현이 어렵고 readinessProbe가 없어 무중단 배포 중 502가 발생할 수 있습니다.',
-        fixCode: 'COPY package*.json ./ && RUN npm ci --omit=dev\nCOPY . .\n# 시크릿은 K8s Secret/Vault 주입, 고정 이미지 태그(:v1.4.2) + readinessProbe 설정',
+        fixCode: 'COPY package*.json ./\nRUN npm ci --omit=dev\nCOPY . .\n# 시크릿은 K8s Secret/Vault 주입, 고정 이미지 태그(:v1.4.2) + readinessProbe 설정',
         relatedCardIds: [124, 126, 129],
         aiReviewPrompt: '이 Dockerfile과 K8s 설정에서 시크릿 노출, Docker 빌드 캐시 무효화, 이미지 불변성(:latest), Readiness Probe 누락 문제를 점검하고 프로덕션 베스트 프랙티스로 고쳐줘.'
     },
@@ -1660,7 +1660,7 @@ const trapChallenges = [
         ],
         answerId: 'a',
         explanation: '1번 줄 `@Transactional` 안에서 5번 줄의 느린 외부 HTTP API를 호출하면 응답이 올 때까지 DB 커넥션과 행 락을 계속 점유합니다. 트래픽이 몰리면 HikariCP 커넥션 풀이 순식간에 고갈되어 전체 서비스가 멈춥니다.',
-        fixCode: '// 1) spring.jpa.open-in-view: false 설정\n// 2) DB 저장 트랜잭션 커밋 후(@TransactionalEventListener(AFTER_COMMIT)) 비동기·외부 알림 호출',
+        fixCode: '// 1) 근본 해결: DB 저장 트랜잭션 커밋 후(@TransactionalEventListener(AFTER_COMMIT)) 외부 알림을 비동기 분리\n// 2) 보완 설정: spring.jpa.open-in-view: false로 컨트롤러/뷰 구간 커넥션 장기 점유 차단',
         relatedCardIds: [163, 164, 87],
         aiReviewPrompt: '이 코드에서 @Transactional 내부 외부 HTTP 호출과 OSIV가 HikariCP 커넥션 풀 고갈을 일으키는 원인을 분석하고, 커밋 이후 이벤트 기반 비동기 처리로 분리해줘.'
     },

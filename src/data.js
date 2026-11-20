@@ -1,4 +1,4 @@
-// 개발자 핵심 기본소양 152선 데이터 및 인포그래픽 빌더
+// 개발자 핵심 기본소양 167선 데이터 및 인포그래픽 빌더
 // 제작 규칙: harness/CARD_AUTHORING_GUIDE.md
 
 const items = [
@@ -62,7 +62,7 @@ const items = [
         badgeColor: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20',
         level: 2,
         title: '07. CORS', subtitle: '교차 출처 리소스 공유',
-        diagram: 'OPTIONS(사전 요청) → Allow-Origin: a.com → PUT /items 응답 읽기 허용',
+        diagram: 'OPTIONS(사전 요청) → Allow-Origin: https://a.com → PUT /items 응답 읽기 허용',
         concept: 'SOP 제한 환경에서 서버가 명시적으로 허용한 출처에 한해 교차 출처 응답을 공유하는 표준.',
         defense: '단순 요청(Simple Request)은 사전 요청(Preflight) 생략 가능'
     },
@@ -236,7 +236,7 @@ const items = [
         level: 2,
         title: '09. MVCC', subtitle: '다중 버전 동시성 제어',
         diagram: '한 행의 여러 버전 [v1 ← v2 ← v3] ➔ 스냅샷 A는 v1, 스냅샷 B는 v3 조회',
-        concept: '데이터 수정 시 이전 버전을 Undo 영역에 남겨, 읽기 작업이 락 대기 없이 일관된 스냅샷을 읽음.',
+        concept: '데이터 수정 시 이전 버전을 별도 유지(InnoDB Undo 로그·PostgreSQL 다중 튜플 등)해, 읽기 작업이 락 대기 없이 일관된 스냅샷을 읽음.',
         defense: '트랜잭션 격리 수준(Isolation Level)의 가시성 규칙에 따라 읽을 행 버전을 선택'
     },
     {
@@ -621,7 +621,7 @@ const items = [
         title: '06. TCP 3-Way & 4-Way Handshake', subtitle: '연결 수립과 연결 종료',
         diagram: '연결: SYN → SYN+ACK → ACK | 종료: FIN → ACK → FIN → ACK(TIME_WAIT)',
         concept: '통신 전 양쪽의 송수신 준비를 확인하는 3단계와, 남은 패킷 유실을 막기 위한 4단계 종료 절차.',
-        defense: '종료 측의 TIME_WAIT 상태는 지연 도착 패킷 유실 방지용이며, 과도하면 포트 고갈 유발 가능'
+        defense: '종료 측의 TIME_WAIT 상태는 마지막 ACK 재전송 보장 및 이전 연결의 지연 패킷이 새 연결에 섞이는 것을 방지하며, 과도하면 포트 고갈 유발 가능'
     },
     {
         id: 67, category: 'os-network', catName: 'OS·네트워크',
@@ -647,7 +647,7 @@ const items = [
         level: 3,
         title: '09. 세션 vs JWT 토큰 인증', subtitle: 'Stateful Session vs Stateless JWT',
         diagram: '세션(서버 저장소 조회 · 즉시 무효화) vs JWT(서명 검증 · 서버 무상태 확장 유리)',
-        concept: '세션은 서버 메모리에 상태를 유지하고, JWT는 사용자 정보를 암호화 서명해 클라이언트가 보관.',
+        concept: '세션은 서버 저장소에 상태를 유지하고, JWT는 사용자 정보를 Base64URL 인코딩 후 서명(무결성 검증·암호화 아님)해 클라이언트가 보관.',
         defense: 'JWT는 탈취 시 만료 전 강제 폐기가 어렵기 때문에 짧은 Access Token + Refresh Token 조합 사용'
     },
     {
@@ -655,7 +655,7 @@ const items = [
         badgeColor: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
         level: 2,
         title: '10. RESTful API 설계 & 멱등성', subtitle: 'HTTP Methods & Idempotency',
-        diagram: '멱등성 O: GET, PUT, DELETE (여러 번 호출해도 동일) | 멱등성 X: POST (중복 생성)',
+        diagram: '멱등성 O: GET, PUT, DELETE (여러 번 호출해도 서버 상태 동일) | 멱등성 X: POST (중복 생성)',
         concept: '자원(URI)과 행위(HTTP Method)를 명확히 표현하며, 네트워크 재시도 시 안전성을 판단하는 멱등성 개념.',
         defense: '결제 등 POST 요청의 중복 실행을 막기 위해 클라이언트가 고유 Idempotency-Key를 헤더로 전송'
     },
@@ -1397,7 +1397,7 @@ const items = [
         level: 1,
         title: '01. JVM 메모리 구조와 GC', subtitle: 'Heap · Stack · Metaspace & Stop-The-World',
         diagram: 'Stack(스레드별 프레임) | Heap(Young·Old 객체·GC 대상) | Metaspace(클래스 메타)',
-        concept: 'JVM은 스레드별 Stack과 공유 Heap·Metaspace로 메모리를 관리하며, GC가 참조되지 않은 Heap 객체를 회수할 때 일시 정지(Stop-The-World)가 발생.',
+        concept: 'JVM은 스레드별 Stack과 공유 Heap·Metaspace로 메모리를 관리하며, GC가 GC Root에서 도달할 수 없는(Unreachable) Heap 객체를 회수할 때 일시 정지(Stop-The-World)가 발생.',
         defense: '대용량 객체 무분별 적재나 메모리 누수는 Full GC·STW 급증으로 이어지므로 힙 크기와 GC 로그(G1GC/ZGC)를 모니터링'
     },
     {
@@ -1434,7 +1434,7 @@ const items = [
         title: '05. 생성자 주입 vs 필드 주입', subtitle: 'Constructor Injection vs @Autowired Field',
         diagram: 'private final Repo repo; + 생성자 주입 (불변·순환참조 탐지·테스트 용이)',
         concept: '생성자 주입은 의존성을 final로 고정하고 객체 생성 시점에 누락·순환 참조를 즉시 발견할 수 있는 Spring 공식 권장 방식.',
-        defense: '필드 주입(@Autowired)은 Spring 컨테이너 없이 순수 단위 테스트가 어렵고 순환 의존성을 숨기므로 생성자 주입을 기본으로 사용'
+        defense: '필드 주입(@Autowired)은 Spring 컨테이너 없이 순수 단위 테스트가 어렵고 final 불변성을 보장할 수 없으므로(구버전·설정 시 순환 참조 은닉) 생성자 주입을 기본으로 사용'
     },
     {
         id: 158, category: 'java-spring', catName: 'Java·Spring',
@@ -1443,7 +1443,7 @@ const items = [
         title: '06. Spring MVC 요청 흐름 (Filter vs Interceptor)', subtitle: 'Servlet Filter → DispatcherServlet → Interceptor',
         diagram: 'HTTP 요청 ➔ Servlet Filter ➔ DispatcherServlet ➔ HandlerInterceptor ➔ Controller',
         concept: 'Filter는 서블릿 컨테이너 영역에서 인코딩·보안·로깅을 처리하고, Interceptor는 Spring MVC 영역에서 컨트롤러 핸들러 전후의 인증·공통 로직을 처리.',
-        defense: 'Spring Bean 접근이나 핸들러 메서드 정보(@Annotation)가 필요하면 Interceptor, 전역 요청 래핑·보안 필터링은 Filter에 배치'
+        defense: '컨트롤러 핸들러 정보(@Annotation)·@ControllerAdvice 예외 처리 등 MVC 컨텍스트가 필요하면 Interceptor, 전역 요청/응답 래핑·보안 필터링은 Filter에 배치'
     },
     {
         id: 159, category: 'java-spring', catName: 'Java·Spring',
@@ -1469,7 +1469,7 @@ const items = [
         level: 2,
         title: '09. JPA 영속성 컨텍스트와 변경 감지', subtitle: 'Persistence Context & Dirty Checking',
         diagram: '엔티티 조회 → 1차 캐시·스냅샷 보관 → 필드 수정 → Flush 시점 자동 UPDATE',
-        concept: '영속성 컨텍스트는 트랜잭션 내 엔티티를 1차 캐시로 관리하며, 커밋/Flush 시점에 최초 스냅샷과 비교해 바뀐 필드만 자동으로 UPDATE(Dirty Checking).',
+        concept: '영속성 컨텍스트는 트랜잭션 내 엔티티를 1차 캐시로 관리하며, 커밋/Flush 시점에 최초 스냅샷과 비교해 변경이 감지되면 자동으로 UPDATE SQL을 실행(Dirty Checking, 기본은 전체 컬럼 갱신·필요 시 @DynamicUpdate).',
         defense: '읽기 전용 조회는 @Transactional(readOnly = true)를 지정해 스냅샷 복사와 변경 감지 비용을 생략하고 메모리 사용량을 절감'
     },
     {
@@ -1495,7 +1495,7 @@ const items = [
         badgeColor: 'bg-lime-500/10 text-lime-400 border-lime-500/20',
         level: 3,
         title: '12. HikariCP 커넥션 풀 사이징', subtitle: 'Connection Pool Tuning & Contention',
-        diagram: '최적 풀 크기 ≈ (CPU 코어 × 2) + 디스크 수 — 무조건 키우면 DB 컨텍스트 스위칭 폭증',
+        diagram: '권장 풀 크기 ≈ (DB CPU 코어 × 2) + 유효 디스크(HDD 기준·다중 앱 합산 · SSD는 실측 튜닝)',
         concept: 'DB 커넥션 풀은 미리 열어둔 연결을 재사용해 핸드셰이크 비용을 줄이지만, 풀을 과도하게 키우면 DB CPU 경합과 메모리 낭비로 처리량이 오히려 하락.',
         defense: '풀 크기 확대보다 느린 쿼리·트랜잭션 내 외부 API 호출 제거가 우선이며, connectionTimeout과 leakDetectionThreshold로 점유 누수를 탐지'
     },
@@ -1567,8 +1567,7 @@ const ui = {
         </div>`
 };
 
-function getInfographic(id) {
-    const map = {
+const INFOGRAPHIC_MAP = {
         // --- Web Security 1~15 ---
         1: ui.vflow([
             ui.code('&lt;script&gt;steal()&lt;/script&gt;', 'text-rose-300 border-rose-500/40'),
@@ -1611,8 +1610,8 @@ function getInfographic(id) {
             ])
         ]),
         7: ui.vflow([
-            ui.flow([`<span class="node-pill">a.com</span>`, `<span class="badge-info">1. OPTIONS 사전요청</span>`, `<span class="node-pill">api.b.com</span>`]),
-            ui.code('2. Access-Control-Allow-Origin: a.com', 'text-emerald-300 border-emerald-500/30'),
+            ui.flow([`<span class="node-pill">https://a.com</span>`, `<span class="badge-info">1. OPTIONS 사전요청</span>`, `<span class="node-pill">api.b.com</span>`]),
+            ui.code('2. Access-Control-Allow-Origin: https://a.com', 'text-emerald-300 border-emerald-500/30'),
             `<span class="badge-ok">3. PUT /items 본 요청 & 응답 읽기 허용</span>`
         ]),
         8: ui.vs(
@@ -1985,7 +1984,7 @@ function getInfographic(id) {
         ),
         70: ui.vflow([
             ui.rows([
-                ['GET · PUT · DELETE', '멱등성 O (여러 번 호출해도 동일)', 'badge-ok'],
+                ['GET · PUT · DELETE', '멱등성 O (서버 상태 동일)', 'badge-ok'],
                 ['POST (결제 · 주문 생성)', '멱등성 X (재시도 시 중복 발생)', 'badge-err']
             ]),
             `<span class="text-[10px] text-slate-400">중복 방지: 헤더에 고유 Idempotency-Key 포함</span>`
@@ -2544,8 +2543,8 @@ function getInfographic(id) {
             `<span class="text-[10px] text-slate-400">equals만 재정의하면 버킷 불일치로 키 조회 실패</span>`
         ]),
         155: ui.vs(
-            '루프 내 String + 연산', ['매 반복 새 배열 복사', 'O(N²) 시간·GC 부담'], 'text-rose-400',
-            'StringBuilder.append', ['가변 버퍼 재사용', 'O(N) 시간·메모리 절감'], 'text-emerald-400'
+            '<span class="text-rose-400">루프 내 String + 연산</span>', ['매 반복 새 배열 복사', 'O(N²) 시간·GC 부담'], 'border-rose-500/30',
+            '<span class="text-emerald-400">StringBuilder.append</span>', ['가변 버퍼 재사용', 'O(N) 시간·메모리 절감'], 'border-emerald-500/30'
         ),
         156: ui.vflow([
             ui.flow([
@@ -2556,8 +2555,8 @@ function getInfographic(id) {
             `<span class="text-[10px] text-slate-400">Service·Controller Bean은 반드시 무상태(Stateless) 유지</span>`
         ]),
         157: ui.vs(
-            '생성자 주입 (권장)', ['final 불변성 보장', '순환 참조 시작 시 탐지', '순수 단위 테스트 용이'], 'text-emerald-400',
-            '필드 주입 (@Autowired)', ['final 불가·결합도 높음', '테스트 시 리플렉션 필요'], 'text-rose-400'
+            '<span class="text-emerald-400">생성자 주입 (권장)</span>', ['final 불변성 보장', '순환 참조 시작 시 탐지', '순수 단위 테스트 용이'], 'border-emerald-500/30',
+            '<span class="text-rose-400">필드 주입 (@Autowired)</span>', ['final 불가·결합도 높음', '테스트 시 리플렉션 필요'], 'border-rose-500/30'
         ),
         158: ui.flow([
             `<span class="node-pill">Filter (서블릿)</span>`,
@@ -2566,8 +2565,8 @@ function getInfographic(id) {
             `<span class="node-pill">Controller</span>`
         ]),
         159: ui.vs(
-            '외부 Bean 호출', ['프록시 객체 경유', '@Transactional 정상 동작'], 'text-emerald-400',
-            '내부 this.method()', ['프록시 우회 (Self-Invocation)', 'AOP 트랜잭션 미적용'], 'text-rose-400'
+            '<span class="text-emerald-400">외부 Bean 호출</span>', ['프록시 객체 경유', '@Transactional 정상 동작'], 'border-emerald-500/30',
+            '<span class="text-rose-400">내부 this.method()</span>', ['프록시 우회 (Self-Invocation)', 'AOP 트랜잭션 미적용'], 'border-rose-500/30'
         ),
         160: ui.rows([
             ['RuntimeException / Error', '기본 자동 롤백 (Rollback)', 'badge-ok'],
@@ -2580,7 +2579,7 @@ function getInfographic(id) {
                 `<span class="badge-info">엔티티 필드 수정</span>`,
                 `<span class="badge-ok">Flush → 자동 UPDATE</span>`
             ]),
-            `<span class="text-[10px] text-slate-400">읽기 전용은 readOnly=true로 스냅샷·변경 감지 생략</span>`
+            `<span class="text-[10px] text-slate-400">기본은 전체 컬럼 UPDATE(@DynamicUpdate 선택) · 조회는 readOnly=true</span>`
         ]),
         162: ui.rows([
             ['@ManyToOne / @OneToOne', '기본 EAGER → LAZY 명시 필수', 'badge-err'],
@@ -2588,12 +2587,12 @@ function getInfographic(id) {
             ['세션 종료 후 접근', 'LazyInitializationException', 'badge-warn']
         ]),
         163: ui.vs(
-            'OSIV = true (기본)', ['뷰까지 커넥션 점유', '외부 API 대기 시 풀 고갈'], 'text-rose-400',
-            'OSIV = false (운영 권장)', ['트랜잭션 종료 즉시 반납', '높은 트래픽 안정성 확보'], 'text-emerald-400'
+            '<span class="text-rose-400">OSIV = true (기본)</span>', ['뷰까지 커넥션 점유', '외부 API 대기 시 풀 고갈'], 'border-rose-500/30',
+            '<span class="text-emerald-400">OSIV = false (운영 권장)</span>', ['트랜잭션 종료 즉시 반납', '높은 트래픽 안정성 확보'], 'border-emerald-500/30'
         ),
         164: ui.vflow([
-            ui.code('권장 풀 크기 ≈ (CPU 코어 × 2) + 디스크 수', 'text-emerald-300'),
-            `<span class="text-[10px] text-slate-400">풀 과다 확대 시 DB 컨텍스트 스위칭 증가 · 쿼리 최적화 우선</span>`
+            ui.code('권장 풀 크기 ≈ (DB CPU 코어 × 2) + 유효 디스크(HDD)', 'text-emerald-300 border-emerald-500/30'),
+            `<span class="text-[10px] text-slate-400">다중 앱 서버 합산 기준 · SSD는 실측 튜닝 · 쿼리 최적화 우선</span>`
         ]),
         165: ui.vflow([
             ui.flow([
@@ -2610,9 +2609,11 @@ function getInfographic(id) {
             `<span class="node-pill">Controller</span>`
         ]),
         167: ui.vs(
-            'Virtual Thread (Java 21+)', ['I/O 대기 시 캐리어 언마운트', '수만 동시 요청 경량 처리'], 'text-emerald-400',
-            'Platform OS Thread', ['스레드당 1MB 스택 고정', '대량 I/O 대기 시 자원 한계'], 'text-amber-300'
+            '<span class="text-emerald-400">Virtual Thread (Java 21+)</span>', ['I/O 대기 시 캐리어 언마운트', '수만 동시 요청 경량 처리'], 'border-emerald-500/30',
+            '<span class="text-amber-300">Platform OS Thread</span>', ['스레드당 1MB 스택 고정', '대량 I/O 대기 시 자원 한계'], 'border-amber-500/30'
         )
-    };
-    return map[id] || '';
+};
+
+function getInfographic(id) {
+    return INFOGRAPHIC_MAP[id] || '';
 }

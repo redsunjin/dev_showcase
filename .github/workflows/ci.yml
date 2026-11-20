@@ -20,6 +20,7 @@ jobs:
 
       - name: Syntax check JavaScript files
         run: |
+          node --check src/data.js
           node --check src/app.js
           node --check src/curriculum.js
           node --check sw.js
