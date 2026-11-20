@@ -1522,6 +1522,155 @@
         });
     }
 
+    // --- Onboarding Stage Shortcuts & JSON Progress Backup / Report ---
+    document.querySelectorAll('.onboarding-route-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const route = btn.getAttribute('data-route');
+            if (route === 'stage1-course') {
+                state.activeTrackId = 'scaling-traffic';
+                switchView('tracks');
+            } else if (route === 'stage2-course') {
+                state.activeTrackId = 'db-concurrency';
+                switchView('tracks');
+            } else if (route === 'stage3-course') {
+                state.activeTrackId = 'ai-agent-prod';
+                switchView('tracks');
+            } else if (route === 'stage2-traps') {
+                switchView('traps');
+            } else if (route === 'stage1-cards' || route === 'stage2-cards' || route === 'stage3-cards') {
+                state.currentCategory = 'all';
+                state.statusFilter = 'all';
+                state.levelFilter = route === 'stage1-cards' ? '1' : route === 'stage2-cards' ? '2' : '3';
+                saveState();
+                updateFilterUI();
+                switchView('cards');
+                render();
+            }
+            studyGuidePanel.classList.add('hidden');
+            studyGuideBtn.setAttribute('aria-expanded', 'false');
+        });
+    });
+
+    const exportProgressBtn = document.getElementById('exportProgressBtn');
+    const importProgressBtn = document.getElementById('importProgressBtn');
+    const importProgressInput = document.getElementById('importProgressInput');
+    const copyReportBtn = document.getElementById('copyReportBtn');
+
+    function exportProgressJson() {
+        const payload = {
+            schemaVersion: 1,
+            exportedAt: new Date().toISOString(),
+            learned: Array.from(state.learnedCards).sort((a, b) => a - b),
+            bookmarked: Array.from(state.bookmarkedCards).sort((a, b) => a - b),
+            completedTracks: Array.from(state.completedTracks),
+            trackStepByTrack: state.trackStepByTrack,
+            solvedTraps: Array.from(state.solvedTraps)
+        };
+        const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        const dateStr = new Date().toISOString().slice(0, 10);
+        a.href = url;
+        a.download = `dev-showcase-progress-${dateStr}.json`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+        showToast('진도 JSON 백업 완료', `학습 완료 ${payload.learned.length}건, 코스 ${payload.completedTracks.length}개, 함정 ${payload.solvedTraps.length}건이 저장되었습니다.`);
+    }
+
+    function importProgressJson(file) {
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = () => {
+            try {
+                const parsed = JSON.parse(String(reader.result || '{}'));
+                if (!parsed || typeof parsed !== 'object') throw new Error('Invalid JSON');
+                const validCardIds = new Set(items.map(i => i.id));
+                const validTrackIds = new Set((typeof curriculumTracks !== 'undefined' ? curriculumTracks : []).map(t => t.id));
+                const validTrapIds = new Set((typeof trapChallenges !== 'undefined' ? trapChallenges : []).map(t => t.id));
+
+                if (Array.isArray(parsed.learned)) {
+                    state.learnedCards = new Set(parsed.learned.filter(id => Number.isInteger(id) && validCardIds.has(id)));
+                }
+                if (Array.isArray(parsed.bookmarked)) {
+                    state.bookmarkedCards = new Set(parsed.bookmarked.filter(id => Number.isInteger(id) && validCardIds.has(id)));
+                }
+                if (Array.isArray(parsed.completedTracks)) {
+                    state.completedTracks = new Set(parsed.completedTracks.filter(id => validTrackIds.has(id)));
+                }
+                if (parsed.trackStepByTrack && typeof parsed.trackStepByTrack === 'object') {
+                    const cleanSteps = {};
+                    for (const [k, v] of Object.entries(parsed.trackStepByTrack)) {
+                        if (validTrackIds.has(k) && Number.isInteger(v) && v >= 0) cleanSteps[k] = v;
+                    }
+                    state.trackStepByTrack = cleanSteps;
+                }
+                if (Array.isArray(parsed.solvedTraps)) {
+                    state.solvedTraps = new Set(parsed.solvedTraps.filter(id => validTrapIds.has(id)));
+                }
+
+                saveState();
+                updateProgress();
+                render();
+                if (state.activeView === 'tracks') renderTracksView();
+                if (state.activeView === 'traps') renderTrapsView();
+                showToast('진도 JSON 복원 완료', `학습 ${state.learnedCards.size}건 · 코스 ${state.completedTracks.size}개 · 함정 ${state.solvedTraps.size}건을 불러왔습니다.`);
+            } catch {
+                showToast('JSON 복원 실패', '올바른 학습 진도 JSON 파일인지 확인해 주세요.', true);
+            }
+        };
+        reader.readAsText(file);
+    }
+
+    function copyOnboardingReport() {
+        const totalCards = items.length;
+        const learnedCount = state.learnedCards.size;
+        const pct = totalCards ? Math.round((learnedCount / totalCards) * 100) : 0;
+
+        const levelLines = [1, 2, 3].map(lv => {
+            const group = items.filter(i => i.level === lv);
+            const done = group.filter(i => state.learnedCards.has(i.id)).length;
+            const lvPct = group.length ? Math.round((done / group.length) * 100) : 0;
+            return `- ${LEVEL_META[lv].label}: ${done} / ${group.length} (${lvPct}%)`;
+        });
+
+        const tracks = typeof curriculumTracks !== 'undefined' ? curriculumTracks : [];
+        const trackLines = tracks.map(t => {
+            const done = state.completedTracks.has(t.id);
+            const step = (state.trackStepByTrack[t.id] || 0) + 1;
+            return `- [${done ? 'x' : ' '}] ${t.title} (${done ? '완료' : `${step}/${t.steps.length}단계`})`;
+        });
+
+        const trapsTotal = typeof trapChallenges !== 'undefined' ? trapChallenges.length : 0;
+        const report = [
+            `## 개발자 핵심 기본소양 온보딩 이수 현황 (${new Date().toISOString().slice(0, 10)})`,
+            '',
+            `### 1. 학습 카드 진도: ${learnedCount} / ${totalCards} (${pct}%) · 북마크 ${state.bookmarkedCards.size}개`,
+            ...levelLines,
+            '',
+            `### 2. 커리큘럼 코스: ${state.completedTracks.size} / ${tracks.length} 완료`,
+            ...trackLines,
+            '',
+            `### 3. 연습: AI 함정 찾기: ${state.solvedTraps.size} / ${trapsTotal} 해결`
+        ].join('\n');
+
+        copyToClipboard(report).then(() => {
+            showToast('온보딩 이수 리포트 복사됨', 'Markdown 리포트가 클립보드에 복사되었습니다.');
+        });
+    }
+
+    if (exportProgressBtn) exportProgressBtn.addEventListener('click', exportProgressJson);
+    if (importProgressBtn && importProgressInput) {
+        importProgressBtn.addEventListener('click', () => importProgressInput.click());
+        importProgressInput.addEventListener('change', (e) => {
+            const file = e.target.files?.[0];
+            importProgressJson(file);
+            importProgressInput.value = '';
+        });
+    }
+    if (copyReportBtn) copyReportBtn.addEventListener('click', copyOnboardingReport);
+
     // Initialize
     initTheme();
     syncDynamicCounts();

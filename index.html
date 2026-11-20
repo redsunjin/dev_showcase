@@ -75,10 +75,10 @@
                         <span id="modeText">암기 모드 OFF</span>
                     </button>
 
-                    <button type="button" id="studyGuideBtn" aria-expanded="false" aria-controls="studyGuidePanel" title="정리방법 가이드"
+                    <button type="button" id="studyGuideBtn" aria-expanded="false" aria-controls="studyGuidePanel" title="온보딩 가이드 및 진도 백업"
                         class="bg-indigo-600/20 border border-indigo-500/40 hover:bg-indigo-600/30 text-indigo-300 px-2.5 sm:px-3 py-2 rounded-xl text-xs sm:text-sm font-medium transition flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap">
-                        <i class="fa-solid fa-lightbulb" aria-hidden="true"></i>
-                        <span class="hidden sm:inline">정리방법</span>
+                        <i class="fa-solid fa-compass" aria-hidden="true"></i>
+                        <span class="hidden sm:inline">온보딩·백업</span>
                     </button>
 
                     <button type="button" id="themeToggleBtn" aria-pressed="false" title="라이트 모드로 전환" aria-label="라이트 모드로 전환"
@@ -100,29 +100,106 @@
         </div>
     </header>
 
-    <!-- Study Method Collapsible Banner -->
-    <section id="studyGuidePanel" class="hidden bg-indigo-950/40 border-b border-indigo-500/30" aria-label="학습 가이드">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5">
-            <div class="flex items-start justify-between mb-3">
-                <h2 class="text-base font-bold text-indigo-300 flex items-center gap-2">
-                    <i class="fa-solid fa-graduation-cap" aria-hidden="true"></i> 개발자 필수 기본소양 152개 완벽 체화 가이드
-                </h2>
-                <button type="button" id="closeStudyGuideBtn" class="text-slate-400 hover:text-white text-sm cursor-pointer">
+    <!-- Onboarding Guide & Progress Backup Collapsible Banner -->
+    <section id="studyGuidePanel" class="hidden bg-indigo-950/40 border-b border-indigo-500/30" aria-label="초보 개발자 온보딩 가이드 및 진도 백업">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 flex flex-col gap-4">
+            <div class="flex items-start justify-between gap-3">
+                <div>
+                    <h2 class="text-base font-bold text-indigo-300 flex items-center gap-2">
+                        <i class="fa-solid fa-graduation-cap" aria-hidden="true"></i> 초보 개발자 단계별 온보딩 추천 루트
+                    </h2>
+                    <p class="text-xs text-slate-400 mt-0.5">주차에 얽매이지 않고 자신의 속도에 맞춰 <strong>입문(Stage 1) → 실무(Stage 2) → 심화(Stage 3)</strong> 순서로 체화하세요.</p>
+                </div>
+                <button type="button" id="closeStudyGuideBtn" class="text-slate-400 hover:text-white text-sm cursor-pointer shrink-0">
                     <i class="fa-solid fa-xmark" aria-hidden="true"></i> 닫기
                 </button>
             </div>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
-                <div class="bg-slate-900/80 border border-slate-800 p-3.5 rounded-xl">
-                    <div class="font-bold text-cyan-400 mb-1">1단계: 3초 개발지식 — 직관적 원리 매칭</div>
-                    <p class="text-slate-300 leading-relaxed">탄탄한 기본기는 핵심 원리를 즉시 떠올리는 데서 시작합니다. 각 카드의 <strong>[핵심 도식/코드]</strong> 박스를 보며 "어떤 문제를 해결하는 개념인가?"를 3초 안에 그려보세요.</p>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-3.5 text-xs">
+                <div class="bg-slate-900/80 border border-slate-800 p-3.5 rounded-xl flex flex-col justify-between gap-3">
+                    <div>
+                        <div class="flex items-center justify-between gap-2 mb-1.5">
+                            <span class="font-bold text-emerald-400">Stage 1 · 입문 기초 (Lv.1)</span>
+                            <span class="text-[10px] px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">첫 시작</span>
+                        </div>
+                        <p class="text-slate-300 leading-relaxed">웹 요청·보안·확장의 큰 그림을 코스로 먼저 본 뒤, <strong>Lv.1 입문·필수 카드</strong>를 3초 암기 모드로 1회독합니다.</p>
+                    </div>
+                    <div class="flex flex-wrap gap-1.5">
+                        <button type="button" data-route="stage1-course" class="onboarding-route-btn px-2.5 py-1.5 rounded-lg bg-emerald-600/20 hover:bg-emerald-600/30 border border-emerald-500/40 text-emerald-300 font-semibold transition cursor-pointer">
+                            코스 1·3 시작 →
+                        </button>
+                        <button type="button" data-route="stage1-cards" class="onboarding-route-btn px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 font-medium transition cursor-pointer">
+                            Lv.1 카드 필터
+                        </button>
+                    </div>
                 </div>
-                <div class="bg-slate-900/80 border border-slate-800 p-3.5 rounded-xl">
-                    <div class="font-bold text-emerald-400 mb-1">2단계: 비교(VS)를 통한 트레이드오프 이해</div>
-                    <p class="text-slate-300 leading-relaxed">정규화 vs 반정규화, 낙관적 락 vs 비관적 락, WHERE vs HAVING, IN vs EXISTS처럼 <strong>대비되는 쌍</strong>으로 묶어 실무 설계 시 어떤 선택이 유리한지 비교하세요.</p>
+
+                <div class="bg-slate-900/80 border border-slate-800 p-3.5 rounded-xl flex flex-col justify-between gap-3">
+                    <div>
+                        <div class="flex items-center justify-between gap-2 mb-1.5">
+                            <span class="font-bold text-amber-400">Stage 2 · 실무 핵심 (Lv.2)</span>
+                            <span class="text-[10px] px-2 py-0.5 rounded bg-amber-500/15 text-amber-300 border border-amber-500/30">코드 리뷰</span>
+                        </div>
+                        <p class="text-slate-300 leading-relaxed">DB 병목·동시성 코스와 <strong>Lv.2 실무 카드</strong>로 트레이드오프를 익히고, <strong>함정 찾기 연습</strong>으로 실무 장애 감각을 점검합니다.</p>
+                    </div>
+                    <div class="flex flex-wrap gap-1.5">
+                        <button type="button" data-route="stage2-course" class="onboarding-route-btn px-2.5 py-1.5 rounded-lg bg-amber-600/20 hover:bg-amber-600/30 border border-amber-500/40 text-amber-300 font-semibold transition cursor-pointer">
+                            DB·동시성 코스 →
+                        </button>
+                        <button type="button" data-route="stage2-traps" class="onboarding-route-btn px-2.5 py-1.5 rounded-lg bg-rose-600/20 hover:bg-rose-600/30 border border-rose-500/40 text-rose-300 font-semibold transition cursor-pointer">
+                            함정 찾기 연습
+                        </button>
+                        <button type="button" data-route="stage2-cards" class="onboarding-route-btn px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 font-medium transition cursor-pointer">
+                            Lv.2 카드
+                        </button>
+                    </div>
                 </div>
-                <div class="bg-slate-900/80 border border-slate-800 p-3.5 rounded-xl">
-                    <div class="font-bold text-amber-400 mb-1">3단계: 암기 모드 · 집중 퀴즈로 메타인지 점검</div>
-                    <p class="text-slate-300 leading-relaxed"><strong>[집중 퀴즈]</strong>나 <strong>[암기 모드]</strong>로 키워드만 보고 설명해 본 뒤 확인하세요. 학습 완료 체크(✓)와 북마크(★)는 브라우저에 자동 저장됩니다.</p>
+
+                <div class="bg-slate-900/80 border border-slate-800 p-3.5 rounded-xl flex flex-col justify-between gap-3">
+                    <div>
+                        <div class="flex items-center justify-between gap-2 mb-1.5">
+                            <span class="font-bold text-purple-400">Stage 3 · 심화·AI 시대 (Lv.3)</span>
+                            <span class="text-[10px] px-2 py-0.5 rounded bg-purple-500/15 text-purple-300 border border-purple-500/30">아키텍처</span>
+                        </div>
+                        <p class="text-slate-300 leading-relaxed">AI 에이전트 프로덕션 코스와 <strong>Lv.3 심화 카드</strong>를 학습하고, 각 카드의 AI 프롬프트 복사로 팀 맥락에 맞게 심화합니다.</p>
+                    </div>
+                    <div class="flex flex-wrap gap-1.5">
+                        <button type="button" data-route="stage3-course" class="onboarding-route-btn px-2.5 py-1.5 rounded-lg bg-purple-600/20 hover:bg-purple-600/30 border border-purple-500/40 text-purple-300 font-semibold transition cursor-pointer">
+                            AI 에이전트 코스 →
+                        </button>
+                        <button type="button" data-route="stage3-cards" class="onboarding-route-btn px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 font-medium transition cursor-pointer">
+                            Lv.3 카드 필터
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Progress JSON Backup / Restore & Markdown Report -->
+            <div class="bg-slate-900/70 border border-slate-800 rounded-xl p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div class="text-xs">
+                    <div class="font-bold text-slate-200 flex items-center gap-1.5">
+                        <i class="fa-solid fa-file-code text-blue-400" aria-hidden="true"></i>
+                        학습 진도 JSON 백업 · 복원 및 온보딩 리포트 공유
+                    </div>
+                    <p class="text-slate-400 mt-0.5">기기 변경·브라우저 초기화에 대비해 진도를 JSON으로 백업하거나, 멘토·팀장에게 Markdown 이수 현황을 공유하세요.</p>
+                </div>
+                <div class="flex flex-wrap items-center gap-2 shrink-0">
+                    <button type="button" id="exportProgressBtn"
+                        class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 text-xs font-medium transition cursor-pointer flex items-center gap-1.5">
+                        <i class="fa-solid fa-download text-blue-400" aria-hidden="true"></i>
+                        <span>JSON 내보내기</span>
+                    </button>
+                    <button type="button" id="importProgressBtn"
+                        class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 text-xs font-medium transition cursor-pointer flex items-center gap-1.5">
+                        <i class="fa-solid fa-upload text-emerald-400" aria-hidden="true"></i>
+                        <span>JSON 가져오기</span>
+                    </button>
+                    <input type="file" id="importProgressInput" accept="application/json,.json" class="hidden" aria-label="진도 JSON 파일 선택">
+                    <button type="button" id="copyReportBtn"
+                        class="px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold transition cursor-pointer flex items-center gap-1.5">
+                        <i class="fa-solid fa-clipboard-check" aria-hidden="true"></i>
+                        <span>이수 리포트 복사</span>
+                    </button>
                 </div>
             </div>
         </div>
