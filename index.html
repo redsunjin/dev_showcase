@@ -14,6 +14,7 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="assets/styles.css">
     <script src="src/data.js" defer></script>
+    <script src="src/curriculum.js" defer></script>
     <script src="src/app.js" defer></script>
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col selection:bg-blue-500 selection:text-white">
@@ -113,8 +114,31 @@
         </div>
     </section>
 
+    <!-- Primary Mode Tabs (Cheatsheet / Curriculum Tracks / Trap Review) -->
+    <div class="bg-slate-900/70 border-b border-slate-800/80">
+        <div class="max-w-7xl mx-auto px-3.5 sm:px-6 lg:px-8 py-2 flex items-center gap-2 overflow-x-auto no-scrollbar" role="tablist" aria-label="학습 모드 전환">
+            <button type="button" role="tab" aria-selected="true" data-view="cards"
+                class="view-tab-btn px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-semibold whitespace-nowrap transition bg-blue-600 text-white shadow-md shadow-blue-600/20 cursor-pointer flex items-center gap-1.5">
+                <i class="fa-solid fa-layer-group" aria-hidden="true"></i>
+                <span>치트시트 152선</span>
+            </button>
+            <button type="button" role="tab" aria-selected="false" data-view="tracks"
+                class="view-tab-btn px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-medium whitespace-nowrap transition bg-slate-900 border border-slate-800 text-slate-300 hover:bg-slate-800 cursor-pointer flex items-center gap-1.5">
+                <i class="fa-solid fa-route text-emerald-400" aria-hidden="true"></i>
+                <span>커리큘럼 트랙</span>
+                <span class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">4코스</span>
+            </button>
+            <button type="button" role="tab" aria-selected="false" data-view="traps"
+                class="view-tab-btn px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-medium whitespace-nowrap transition bg-slate-900 border border-slate-800 text-slate-300 hover:bg-slate-800 cursor-pointer flex items-center gap-1.5">
+                <i class="fa-solid fa-bug-slash text-rose-400" aria-hidden="true"></i>
+                <span>연습: 함정 찾기</span>
+                <span class="text-[10px] px-1.5 py-0.5 rounded bg-rose-500/20 text-rose-300 border border-rose-500/30">AI 리뷰</span>
+            </button>
+        </div>
+    </div>
+
     <!-- Navigation Categories & Status Filters -->
-    <nav class="bg-slate-900/40 border-b border-slate-800/80" aria-label="카테고리 및 난이도·상태 필터">
+    <nav id="cardsFilterNav" class="bg-slate-900/40 border-b border-slate-800/80" aria-label="카테고리 및 난이도·상태 필터">
         <div class="max-w-7xl mx-auto px-3.5 sm:px-6 lg:px-8 flex flex-col py-2.5 sm:py-3 gap-2">
             <!-- Category Tabs (Horizontal Scroll) -->
             <div class="flex items-center gap-1.5 sm:gap-2 overflow-x-auto no-scrollbar pb-0.5">
@@ -187,28 +211,195 @@
 
     <!-- Main Container -->
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-7 w-full flex-1">
-        <div class="flex items-center justify-between mb-4 text-xs text-slate-400">
-            <span id="visibleCountText">현재 표시된 카드: 152개 / 전체 152개</span>
-            <button type="button" id="scrollTopBtn" class="hover:text-slate-200 transition cursor-pointer">
-                <i class="fa-solid fa-arrow-up mr-1" aria-hidden="true"></i> 맨 위로
-            </button>
-        </div>
-
-        <div id="cardGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 pb-12">
-            <!-- Cards injected via src/app.js -->
-        </div>
-
-        <!-- Empty State -->
-        <div id="emptyState" class="hidden flex-col items-center justify-center py-20 text-center">
-            <div class="bg-slate-900 border border-slate-800 rounded-full p-4 mb-4 text-slate-500 text-2xl">
-                <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+        <!-- View 1: Cheatsheet Cards (Default) -->
+        <section id="cardsView" aria-label="치트시트 카드 목록">
+            <div class="flex items-center justify-between mb-4 text-xs text-slate-400">
+                <span id="visibleCountText">현재 표시된 카드: 152개 / 전체 152개</span>
+                <button type="button" id="scrollTopBtn" class="hover:text-slate-200 transition cursor-pointer">
+                    <i class="fa-solid fa-arrow-up mr-1" aria-hidden="true"></i> 맨 위로
+                </button>
             </div>
-            <h3 class="text-lg font-semibold text-slate-300">조건에 맞는 카드가 없습니다</h3>
-            <p class="text-sm text-slate-500 mt-1">검색어를 지우거나 다른 카테고리·상태 필터를 선택해 보세요.</p>
-            <button type="button" id="resetFiltersBtn" class="mt-4 px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium transition cursor-pointer">
-                필터 초기화
-            </button>
-        </div>
+
+            <div id="cardGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 pb-12">
+                <!-- Cards injected via src/app.js -->
+            </div>
+
+            <!-- Empty State -->
+            <div id="emptyState" class="hidden flex-col items-center justify-center py-20 text-center">
+                <div class="bg-slate-900 border border-slate-800 rounded-full p-4 mb-4 text-slate-500 text-2xl">
+                    <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+                </div>
+                <h3 class="text-lg font-semibold text-slate-300">조건에 맞는 카드가 없습니다</h3>
+                <p class="text-sm text-slate-500 mt-1">검색어를 지우거나 다른 카테고리·상태 필터를 선택해 보세요.</p>
+                <button type="button" id="resetFiltersBtn" class="mt-4 px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium transition cursor-pointer">
+                    필터 초기화
+                </button>
+            </div>
+        </section>
+
+        <!-- View 2: Curriculum Tracks (Story Simulation) -->
+        <section id="tracksView" class="hidden pb-12" aria-label="커리큘럼 트랙 시뮬레이션">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+                <!-- Left: Track Selector -->
+                <aside class="lg:col-span-3 flex flex-col gap-2.5" aria-label="커리큘럼 코스 목록">
+                    <div class="text-xs font-bold text-slate-400 uppercase tracking-wider px-1 flex items-center justify-between">
+                        <span>코스 선택</span>
+                        <span id="trackOverallBadge" class="text-[11px] font-mono text-emerald-400">0 / 4 완료</span>
+                    </div>
+                    <div id="trackList" class="flex flex-col gap-2"></div>
+                </aside>
+
+                <!-- Center: Simulation Canvas & Timeline -->
+                <div class="lg:col-span-5 flex flex-col gap-4">
+                    <div class="glass-card border border-slate-800 rounded-2xl p-4 sm:p-5 flex flex-col gap-4">
+                        <div class="flex items-start justify-between gap-2">
+                            <div>
+                                <div class="flex items-center gap-2 flex-wrap">
+                                    <span id="trackBadge" class="text-[11px] px-2 py-0.5 rounded-full border font-semibold"></span>
+                                    <span id="trackDuration" class="text-[11px] text-slate-400 font-mono"></span>
+                                </div>
+                                <h2 id="trackTitle" class="text-lg font-bold text-white mt-1.5"></h2>
+                                <p id="trackSubtitle" class="text-xs text-slate-400 mt-0.5"></p>
+                            </div>
+                        </div>
+
+                        <!-- Live Metrics Bar -->
+                        <div id="trackMetricsBar" class="grid grid-cols-2 sm:grid-cols-4 gap-2"></div>
+
+                        <!-- Architecture Diagram Canvas -->
+                        <div id="trackDiagramCanvas" class="info-canvas rounded-xl p-4 min-h-[190px] flex flex-col items-center justify-center gap-3"></div>
+
+                        <!-- Step Timeline -->
+                        <div class="border-t border-slate-800 pt-3">
+                            <div class="text-[11px] text-slate-400 mb-2 flex items-center justify-between">
+                                <span>이 트랙의 단계</span>
+                                <span id="trackTimelineCount" class="font-mono">1 / 6</span>
+                            </div>
+                            <div id="trackTimeline" class="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right: Story Narrative, Linked Card & Learning Goals -->
+                <div class="lg:col-span-4 flex flex-col gap-4">
+                    <div class="glass-card border border-slate-800 rounded-2xl p-4 sm:p-5 flex flex-col gap-3.5">
+                        <div class="flex items-center justify-between">
+                            <span id="trackStepCounter" class="text-xs font-mono text-slate-400">1 / 6단계</span>
+                            <span id="trackStepTag" class="text-[11px] font-bold px-2 py-0.5 rounded-md bg-blue-500/20 text-blue-300 border border-blue-500/30"></span>
+                        </div>
+                        <h3 id="trackStepTitle" class="text-base sm:text-lg font-bold text-white leading-snug"></h3>
+                        <p id="trackStepStory" class="text-sm text-slate-300 leading-relaxed"></p>
+
+                        <div class="bg-indigo-950/40 border border-indigo-500/30 rounded-xl p-3.5">
+                            <div class="text-[11px] font-bold text-indigo-300 mb-1 flex items-center gap-1.5">
+                                <i class="fa-solid fa-lightbulb" aria-hidden="true"></i> 핵심 원리
+                            </div>
+                            <p id="trackStepTakeaway" class="text-xs text-slate-200 leading-relaxed"></p>
+                        </div>
+
+                        <!-- Linked Cheatsheet Card -->
+                        <button type="button" id="trackLinkedCardBtn"
+                            class="w-full text-left bg-slate-900/90 hover:bg-slate-800 border border-slate-700 hover:border-blue-500/50 rounded-xl p-3 transition flex items-center justify-between gap-2 cursor-pointer group">
+                            <div class="min-w-0">
+                                <div class="text-[10px] font-bold text-blue-400 uppercase">연결된 치트시트 카드</div>
+                                <div id="trackLinkedCardTitle" class="text-xs font-semibold text-white truncate mt-0.5"></div>
+                            </div>
+                            <span class="text-xs text-slate-400 group-hover:text-blue-300 shrink-0">도식 보기 <i class="fa-solid fa-arrow-up-right-from-square ml-1" aria-hidden="true"></i></span>
+                        </button>
+
+                        <div class="flex items-center gap-2 pt-1">
+                            <button type="button" id="trackPrevBtn"
+                                class="px-3.5 py-2 rounded-xl bg-slate-900 border border-slate-700 hover:bg-slate-800 text-slate-300 text-xs font-medium transition cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed">
+                                <i class="fa-solid fa-arrow-left mr-1" aria-hidden="true"></i> 뒤로
+                            </button>
+                            <button type="button" id="trackNextBtn"
+                                class="flex-1 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold transition cursor-pointer flex items-center justify-center gap-1.5">
+                                <span>다음 단계</span> <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Learning Goals Checklist -->
+                    <div class="glass-card border border-slate-800 rounded-2xl p-4">
+                        <div class="text-xs font-bold text-slate-300 mb-2.5 flex items-center gap-1.5">
+                            <i class="fa-solid fa-list-check text-emerald-400" aria-hidden="true"></i> 배울 내용
+                        </div>
+                        <ul id="trackGoalsList" class="flex flex-col gap-2 text-xs text-slate-300"></ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- View 3: Practice Mode (AI Code/Design Trap Finder) -->
+        <section id="trapsView" class="hidden pb-12" aria-label="AI 코드 및 설계 함정 찾기 연습">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
+                <div>
+                    <h2 class="text-lg font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-bug-slash text-rose-400" aria-hidden="true"></i>
+                        AI 코드·설계 리뷰: 숨은 함정 찾기
+                    </h2>
+                    <p class="text-xs text-slate-400 mt-0.5">AI가 생성한 코드·SQL·설정에서 실무 장애나 보안 사고를 일으키는 함정을 찾아보세요.</p>
+                </div>
+                <span id="trapProgressBadge" class="text-xs font-mono px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-700 text-emerald-300 self-start sm:self-auto">해결 0 / 10</span>
+            </div>
+
+            <!-- Challenge Selector Pills -->
+            <div id="trapSelectorList" class="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-3 mb-4"></div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+                <!-- Left: Code / Design Snippet -->
+                <div class="lg:col-span-7 glass-card border border-slate-800 rounded-2xl p-4 sm:p-5 flex flex-col gap-3.5">
+                    <div class="flex items-center justify-between gap-2 flex-wrap">
+                        <div class="flex items-center gap-2">
+                            <span id="trapCatBadge" class="text-[11px] px-2.5 py-0.5 rounded-full border font-semibold"></span>
+                            <span id="trapLangBadge" class="text-[11px] font-mono text-slate-400"></span>
+                        </div>
+                        <span class="text-[11px] text-slate-400">의심되는 코드 줄을 클릭해 표시할 수 있습니다</span>
+                    </div>
+                    <div>
+                        <h3 id="trapTitle" class="text-base sm:text-lg font-bold text-white"></h3>
+                        <p id="trapPromptContext" class="text-xs text-slate-400 mt-1"></p>
+                    </div>
+                    <div id="trapCodeContainer" class="bg-slate-950 border border-slate-800 rounded-xl p-3 font-mono text-xs overflow-x-auto flex flex-col gap-0.5"></div>
+                </div>
+
+                <!-- Right: Options & Explanation -->
+                <div class="lg:col-span-5 glass-card border border-slate-800 rounded-2xl p-4 sm:p-5 flex flex-col gap-4">
+                    <div class="text-xs font-bold text-slate-200">이 코드/설계의 가장 치명적인 함정은 무엇일까요?</div>
+                    <div id="trapOptionsList" class="flex flex-col gap-2"></div>
+
+                    <div class="flex items-center gap-2">
+                        <button type="button" id="trapSubmitBtn"
+                            class="flex-1 py-2.5 px-4 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs sm:text-sm font-semibold transition cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed">
+                            리뷰 제출하기
+                        </button>
+                        <button type="button" id="trapNextBtn"
+                            class="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs sm:text-sm font-medium transition cursor-pointer">
+                            다음 문제 <i class="fa-solid fa-arrow-right ml-1" aria-hidden="true"></i>
+                        </button>
+                    </div>
+
+                    <!-- Feedback & Fix Area (Shown after submit) -->
+                    <div id="trapResultArea" class="hidden flex-col gap-3 border-t border-slate-800 pt-4">
+                        <div id="trapResultBanner" class="rounded-xl p-3 text-xs font-semibold flex items-center gap-2"></div>
+                        <p id="trapExplanation" class="text-xs text-slate-300 leading-relaxed"></p>
+                        <div>
+                            <div class="text-[11px] font-bold text-emerald-400 mb-1">개선 방향</div>
+                            <pre id="trapFixCode" class="bg-slate-950 border border-slate-800 rounded-xl p-3 text-[11px] font-mono text-emerald-300 overflow-x-auto whitespace-pre-wrap"></pre>
+                        </div>
+                        <div>
+                            <div class="text-[11px] font-bold text-slate-400 mb-1.5">관련 치트시트 카드</div>
+                            <div id="trapRelatedCards" class="flex flex-wrap gap-1.5"></div>
+                        </div>
+                        <button type="button" id="trapCopyPromptBtn"
+                            class="w-full py-2 px-3 rounded-xl bg-slate-900 hover:bg-purple-600/20 border border-slate-700 hover:border-purple-500/50 text-slate-200 hover:text-purple-300 text-xs font-medium transition flex items-center justify-center gap-1.5 cursor-pointer">
+                            <i class="fa-solid fa-wand-magic-sparkles text-purple-400" aria-hidden="true"></i>
+                            <span>AI 코드 리뷰 검증 프롬프트 복사</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
     </main>
 
     <!-- Footer -->

@@ -1,10 +1,11 @@
-const CACHE_NAME = 'dev-showcase-v5';
+const CACHE_NAME = 'dev-showcase-v6';
 const APP_SHELL = [
   './',
   './index.html',
   './assets/styles.css',
   './assets/icon.svg',
   './src/data.js',
+  './src/curriculum.js',
   './src/app.js',
   './manifest.webmanifest'
 ];
