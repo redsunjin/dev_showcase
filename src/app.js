@@ -1532,6 +1532,9 @@
             } else if (route === 'stage2-course') {
                 state.activeTrackId = 'db-concurrency';
                 switchView('tracks');
+            } else if (route === 'stage2-spring') {
+                state.activeTrackId = 'spring-jpa-troubleshooting';
+                switchView('tracks');
             } else if (route === 'stage3-course') {
                 state.activeTrackId = 'ai-agent-prod';
                 switchView('tracks');
@@ -1540,6 +1543,9 @@
             } else if (route === 'stage1-cards' || route === 'stage2-cards' || route === 'stage3-cards') {
                 state.currentCategory = 'all';
                 state.statusFilter = 'all';
+                state.searchQuery = '';
+                searchInput.value = '';
+                clearSearchBtn.classList.add('hidden');
                 state.levelFilter = route === 'stage1-cards' ? '1' : route === 'stage2-cards' ? '2' : '3';
                 saveState();
                 updateFilterUI();

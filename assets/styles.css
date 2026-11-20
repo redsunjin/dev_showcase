@@ -334,6 +334,11 @@ html.light .text-fuchsia-400 {
     color: #a21caf !important;
 }
 
+html.light .text-lime-300,
+html.light .text-lime-400 {
+    color: #4d7c0f !important;
+}
+
 html.light #toastNotification {
     background-color: rgba(255, 255, 255, 0.96) !important;
     color: #0f172a !important;
