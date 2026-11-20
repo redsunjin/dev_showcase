@@ -1,6 +1,20 @@
 // 개발자 핵심 기본소양 167선 데이터 및 인포그래픽 빌더
 // 제작 규칙: harness/CARD_AUTHORING_GUIDE.md
 
+const CATEGORY_REGISTRY = [
+    { id: 'web-security', name: '웹 보안', shortName: '웹 보안', icon: 'fa-solid fa-shield-halved', iconCls: 'text-cyan-400', badgeColor: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20' },
+    { id: 'database', name: '데이터베이스', shortName: 'DB', icon: 'fa-solid fa-database', iconCls: 'text-emerald-400', badgeColor: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' },
+    { id: 'data-structure', name: '자료구조', shortName: '자료구조', icon: 'fa-solid fa-diagram-project', iconCls: 'text-purple-400', badgeColor: 'bg-purple-500/10 text-purple-400 border-purple-500/20' },
+    { id: 'sql-traps', name: 'SQL 함정', shortName: 'SQL', icon: 'fa-solid fa-triangle-exclamation', iconCls: 'text-rose-400', badgeColor: 'bg-rose-500/10 text-rose-400 border-rose-500/20' },
+    { id: 'os-network', name: 'OS·네트워크', shortName: 'OS·네트워크', icon: 'fa-solid fa-network-wired', iconCls: 'text-amber-400', badgeColor: 'bg-amber-500/10 text-amber-400 border-amber-500/20' },
+    { id: 'architecture', name: '설계·클린코드', shortName: '설계·클린코드', icon: 'fa-solid fa-cubes', iconCls: 'text-indigo-400', badgeColor: 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20' },
+    { id: 'frontend', name: '브라우저·FE', shortName: '브라우저·FE', icon: 'fa-brands fa-js', iconCls: 'text-sky-400', badgeColor: 'bg-sky-500/10 text-sky-400 border-sky-500/20' },
+    { id: 'testing', name: '테스트', shortName: '테스트', icon: 'fa-solid fa-vial-circle-check', iconCls: 'text-fuchsia-400', badgeColor: 'bg-fuchsia-500/10 text-fuchsia-400 border-fuchsia-500/20' },
+    { id: 'devops', name: 'CI/CD·DevOps', shortName: 'CI/CD·DevOps', icon: 'fa-solid fa-gears', iconCls: 'text-orange-400', badgeColor: 'bg-orange-500/10 text-orange-400 border-orange-500/20' },
+    { id: 'ai-agent', name: 'AI·LLM·에이전트', shortName: 'AI·LLM·에이전트', icon: 'fa-solid fa-robot', iconCls: 'text-teal-400', badgeColor: 'bg-teal-500/10 text-teal-400 border-teal-500/20' },
+    { id: 'java-spring', name: 'Java·Spring', shortName: 'Java·Spring', icon: 'fa-solid fa-mug-hot', iconCls: 'text-lime-400', badgeColor: 'bg-lime-500/10 text-lime-400 border-lime-500/20' }
+];
+
 const items = [
     // --- Web Security (15) ---
     {

@@ -2,7 +2,8 @@ import fs from 'node:fs';
 import assert from 'node:assert/strict';
 
 const dataCode = fs.readFileSync('src/data.js', 'utf8');
-const { items, getInfographic } = new Function(dataCode + '; return { items, getInfographic };')();
+const { CATEGORY_REGISTRY, items, getInfographic } = new Function(dataCode + '; return { CATEGORY_REGISTRY, items, getInfographic };')();
+assert.ok(Array.isArray(CATEGORY_REGISTRY) && CATEGORY_REGISTRY.length >= 10, 'CATEGORY_REGISTRY must define at least 10 categories');
 
 // 1. Verify card baseline & dynamic invariants (extensible as new cards/categories are added)
 assert.ok(items.length >= 152, `Expected at least 152 total items (got ${items.length})`);
@@ -55,6 +56,9 @@ assert.ok(html.includes('id="exportProgressBtn"'), 'index.html missing exportPro
 assert.ok(html.includes('id="importProgressBtn"'), 'index.html missing importProgressBtn');
 assert.ok(html.includes('id="copyReportBtn"'), 'index.html missing copyReportBtn');
 assert.ok(html.includes('id="trackCompleteHandoff"'), 'index.html missing trackCompleteHandoff');
+assert.ok(html.includes('id="categoryTabsContainer"'), 'index.html missing categoryTabsContainer');
+assert.ok(html.includes('id="trackSearchInput"'), 'index.html missing trackSearchInput');
+assert.ok(html.includes('id="trapFilterBar"'), 'index.html missing trapFilterBar');
 assert.ok(!html.includes('치트시트'), 'index.html should use 카드 terminology instead of 치트시트');
 
 // 6. Verify curriculumTracks & trapChallenges dynamic integrity
@@ -63,6 +67,7 @@ const { curriculumTracks, trapChallenges } = new Function(curriculumCode + '; re
 const validIds = new Set(items.map(i => i.id));
 assert.ok(curriculumTracks.length >= 4, `Expected >= 4 curriculum tracks (got ${curriculumTracks.length})`);
 for (const tr of curriculumTracks) {
+    assert.ok([1, 2, 3].includes(tr.stage), `Track ${tr.id} must define stage 1, 2, or 3`);
     assert.ok(tr.steps.length >= 8, `Track ${tr.id} must have >= 8 steps`);
     let hasVariant = false;
     for (const st of tr.steps) {

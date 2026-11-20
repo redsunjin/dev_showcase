@@ -237,43 +237,10 @@
     <!-- Navigation Categories & Status Filters -->
     <nav id="cardsFilterNav" class="bg-slate-900/40 border-b border-slate-800/80" aria-label="카테고리 및 난이도·상태 필터">
         <div class="max-w-7xl mx-auto px-3.5 sm:px-6 lg:px-8 flex flex-col py-2.5 sm:py-3 gap-2">
-            <!-- Category Tabs (Horizontal Scroll) -->
-            <div class="flex items-center gap-1.5 sm:gap-2 overflow-x-auto no-scrollbar pb-0.5">
+            <!-- Category Tabs (Horizontal Scroll, rendered dynamically from CATEGORY_REGISTRY) -->
+            <div id="categoryTabsContainer" class="flex items-center gap-1.5 sm:gap-2 overflow-x-auto no-scrollbar pb-0.5">
                 <button type="button" data-category="all" class="cat-btn px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl text-xs sm:text-sm font-semibold whitespace-nowrap transition bg-blue-600 text-white shadow-lg shadow-blue-600/20 cursor-pointer shrink-0">
                     <i class="fa-solid fa-border-all mr-1 sm:mr-1.5" aria-hidden="true"></i> 전체 (167)
-                </button>
-                <button type="button" data-category="web-security" class="cat-btn px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl text-xs sm:text-sm font-medium whitespace-nowrap transition bg-slate-900 border border-slate-800 text-slate-400 hover:text-slate-200 hover:bg-slate-800 cursor-pointer shrink-0">
-                    <i class="fa-solid fa-shield-halved mr-1 text-cyan-400" aria-hidden="true"></i> 웹 보안 17
-                </button>
-                <button type="button" data-category="database" class="cat-btn px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl text-xs sm:text-sm font-medium whitespace-nowrap transition bg-slate-900 border border-slate-800 text-slate-400 hover:text-slate-200 hover:bg-slate-800 cursor-pointer shrink-0">
-                    <i class="fa-solid fa-database mr-1 text-emerald-400" aria-hidden="true"></i> DB 15
-                </button>
-                <button type="button" data-category="data-structure" class="cat-btn px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl text-xs sm:text-sm font-medium whitespace-nowrap transition bg-slate-900 border border-slate-800 text-slate-400 hover:text-slate-200 hover:bg-slate-800 cursor-pointer shrink-0">
-                    <i class="fa-solid fa-diagram-project mr-1 text-purple-400" aria-hidden="true"></i> 자료구조 15
-                </button>
-                <button type="button" data-category="sql-traps" class="cat-btn px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl text-xs sm:text-sm font-medium whitespace-nowrap transition bg-slate-900 border border-slate-800 text-slate-400 hover:text-slate-200 hover:bg-slate-800 cursor-pointer shrink-0">
-                    <i class="fa-solid fa-triangle-exclamation mr-1 text-rose-400" aria-hidden="true"></i> SQL 15
-                </button>
-                <button type="button" data-category="os-network" class="cat-btn px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl text-xs sm:text-sm font-medium whitespace-nowrap transition bg-slate-900 border border-slate-800 text-slate-400 hover:text-slate-200 hover:bg-slate-800 cursor-pointer shrink-0">
-                    <i class="fa-solid fa-network-wired mr-1 text-amber-400" aria-hidden="true"></i> OS·네트워크 15
-                </button>
-                <button type="button" data-category="architecture" class="cat-btn px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl text-xs sm:text-sm font-medium whitespace-nowrap transition bg-slate-900 border border-slate-800 text-slate-400 hover:text-slate-200 hover:bg-slate-800 cursor-pointer shrink-0">
-                    <i class="fa-solid fa-cubes mr-1 text-indigo-400" aria-hidden="true"></i> 설계·클린코드 15
-                </button>
-                <button type="button" data-category="frontend" class="cat-btn px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl text-xs sm:text-sm font-medium whitespace-nowrap transition bg-slate-900 border border-slate-800 text-slate-400 hover:text-slate-200 hover:bg-slate-800 cursor-pointer shrink-0">
-                    <i class="fa-brands fa-js mr-1 text-sky-400" aria-hidden="true"></i> 브라우저·FE 15
-                </button>
-                <button type="button" data-category="testing" class="cat-btn px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl text-xs sm:text-sm font-medium whitespace-nowrap transition bg-slate-900 border border-slate-800 text-slate-400 hover:text-slate-200 hover:bg-slate-800 cursor-pointer shrink-0">
-                    <i class="fa-solid fa-vial-circle-check mr-1 text-fuchsia-400" aria-hidden="true"></i> 테스트 15
-                </button>
-                <button type="button" data-category="devops" class="cat-btn px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl text-xs sm:text-sm font-medium whitespace-nowrap transition bg-slate-900 border border-slate-800 text-slate-400 hover:text-slate-200 hover:bg-slate-800 cursor-pointer shrink-0">
-                    <i class="fa-solid fa-gears mr-1 text-orange-400" aria-hidden="true"></i> CI/CD·DevOps 15
-                </button>
-                <button type="button" data-category="ai-agent" class="cat-btn px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl text-xs sm:text-sm font-medium whitespace-nowrap transition bg-slate-900 border border-slate-800 text-slate-400 hover:text-slate-200 hover:bg-slate-800 cursor-pointer shrink-0">
-                    <i class="fa-solid fa-robot mr-1 text-teal-400" aria-hidden="true"></i> AI·LLM·에이전트 15
-                </button>
-                <button type="button" data-category="java-spring" class="cat-btn px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl text-xs sm:text-sm font-medium whitespace-nowrap transition bg-slate-900 border border-slate-800 text-slate-400 hover:text-slate-200 hover:bg-slate-800 cursor-pointer shrink-0">
-                    <i class="fa-solid fa-mug-hot mr-1 text-lime-400" aria-hidden="true"></i> Java·Spring 15
                 </button>
             </div>
 
@@ -340,13 +307,25 @@
         <!-- View 2: Curriculum Tracks (Story Simulation) -->
         <section id="tracksView" class="hidden pb-12" aria-label="커리큘럼 트랙 시뮬레이션">
             <div class="grid grid-cols-1 xl:grid-cols-[230px_minmax(0,1fr)_350px] lg:grid-cols-12 gap-5 items-start">
-                <!-- Left: Track Selector -->
+                <!-- Left: Track Selector (Stage-grouped, searchable, collapsible on mobile) -->
                 <aside class="lg:col-span-3 xl:col-span-1 flex flex-col gap-2.5" aria-label="커리큘럼 코스 목록">
-                    <div class="text-xs font-bold text-slate-400 uppercase tracking-wider px-1 flex items-center justify-between">
+                    <div class="text-xs font-bold text-slate-400 uppercase tracking-wider px-1 flex items-center justify-between gap-2">
                         <span>코스 목록</span>
                         <span id="trackOverallBadge" class="text-[11px] font-mono text-emerald-400">0 / 5 완료</span>
                     </div>
-                    <div id="trackList" class="flex flex-col gap-2"></div>
+                    <button type="button" id="mobileTrackToggleBtn" aria-expanded="false" aria-controls="trackSidebarBody"
+                        class="lg:hidden w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-800 text-slate-200 text-xs font-semibold flex items-center justify-between gap-2 cursor-pointer">
+                        <span id="mobileTrackCurrentLabel" class="truncate">코스 선택</span>
+                        <i id="mobileTrackToggleIcon" class="fa-solid fa-chevron-down text-slate-400 text-[11px] shrink-0" aria-hidden="true"></i>
+                    </button>
+                    <div id="trackSidebarBody" class="hidden lg:flex flex-col gap-2">
+                        <div class="relative">
+                            <i class="fa-solid fa-magnifying-glass absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-500 text-[11px] pointer-events-none" aria-hidden="true"></i>
+                            <input type="search" id="trackSearchInput" aria-label="코스 검색" placeholder="코스 검색..."
+                                class="w-full bg-slate-950/80 border border-slate-800 rounded-xl pl-7 pr-2.5 py-1.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-blue-500 transition">
+                        </div>
+                        <div id="trackList" class="flex flex-col gap-3 lg:max-h-[calc(100vh-14rem)] lg:overflow-y-auto pr-0.5"></div>
+                    </div>
                 </aside>
 
                 <!-- Center: Wide Simulation Canvas & Stepper -->
@@ -494,7 +473,12 @@
                 <span id="trapProgressBadge" class="text-xs font-mono px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-700 text-emerald-300 self-start sm:self-auto">해결 0 / 14</span>
             </div>
 
-            <!-- Challenge Selector Pills -->
+            <!-- Trap Filter & Challenge Selector Pills -->
+            <div class="flex flex-wrap items-center gap-1.5 mb-2" id="trapFilterBar" role="group" aria-label="함정 상태 필터">
+                <button type="button" data-trap-filter="all" class="trap-filter-btn px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-slate-800 text-white border border-slate-600 cursor-pointer">전체</button>
+                <button type="button" data-trap-filter="unsolved" class="trap-filter-btn px-2.5 py-1 rounded-lg text-[11px] font-medium bg-slate-900 text-slate-400 border border-slate-800 hover:text-slate-200 cursor-pointer">미해결</button>
+                <button type="button" data-trap-filter="solved" class="trap-filter-btn px-2.5 py-1 rounded-lg text-[11px] font-medium bg-slate-900 text-slate-400 border border-slate-800 hover:text-emerald-300 cursor-pointer">해결 완료</button>
+            </div>
             <div id="trapSelectorList" class="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-3 mb-4"></div>
 
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">

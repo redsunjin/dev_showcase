@@ -28,9 +28,11 @@
         quizKnownCount: 0,
         activeView: 'cards', // 'cards' | 'tracks' | 'traps'
         activeTrackId: typeof curriculumTracks !== 'undefined' && curriculumTracks.length ? curriculumTracks[0].id : '',
+        trackSearchQuery: '',
         trackStepByTrack: {},
         completedTracks: new Set(),
         activeTrapIndex: 0,
+        trapStatusFilter: 'all', // 'all' | 'unsolved' | 'solved'
         solvedTraps: new Set(),
         trapMarkedLines: new Set(),
         trapSelectedOption: null,
@@ -58,7 +60,7 @@
     const progressBadge = document.getElementById('progressBadge');
     const bookmarkBadge = document.getElementById('bookmarkBadge');
     const progressBarFill = document.getElementById('progressBarFill');
-    const catBtns = document.querySelectorAll('.cat-btn');
+    const categoryTabsContainer = document.getElementById('categoryTabsContainer');
     const levelBtns = document.querySelectorAll('.level-btn');
     const statusBtns = document.querySelectorAll('.status-btn');
     const sortPriorityBtn = document.getElementById('sortPriorityBtn');
@@ -340,7 +342,32 @@
         return result;
     }
 
+    function renderCategoryTabs() {
+        if (!categoryTabsContainer) return;
+        const countsByCat = items.reduce((acc, it) => {
+            acc[it.category] = (acc[it.category] || 0) + 1;
+            return acc;
+        }, {});
+        const registry = (typeof CATEGORY_REGISTRY !== 'undefined' && Array.isArray(CATEGORY_REGISTRY))
+            ? CATEGORY_REGISTRY
+            : [...new Map(items.map(i => [i.category, { id: i.category, name: i.catName, shortName: i.catName, icon: 'fa-solid fa-tag', iconCls: 'text-slate-400' }])).values()];
+
+        const tabsHtml = [
+            `<button type="button" data-category="all" class="cat-btn px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl text-xs sm:text-sm font-semibold whitespace-nowrap transition bg-blue-600 text-white shadow-lg shadow-blue-600/20 cursor-pointer shrink-0">
+                <i class="fa-solid fa-border-all mr-1 sm:mr-1.5" aria-hidden="true"></i> 전체 (${items.length})
+            </button>`,
+            ...registry.map(cat => {
+                const count = countsByCat[cat.id] || 0;
+                return `<button type="button" data-category="${escapeHtml(cat.id)}" class="cat-btn px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl text-xs sm:text-sm font-medium whitespace-nowrap transition bg-slate-900 border border-slate-800 text-slate-400 hover:text-slate-200 hover:bg-slate-800 cursor-pointer shrink-0">
+                    <i class="${escapeHtml(cat.icon)} mr-1 ${escapeHtml(cat.iconCls)}" aria-hidden="true"></i> ${escapeHtml(cat.shortName || cat.name)} ${count}
+                </button>`;
+            })
+        ].join('');
+        categoryTabsContainer.innerHTML = tabsHtml;
+    }
+
     function updateFilterUI() {
+        const catBtns = categoryTabsContainer ? categoryTabsContainer.querySelectorAll('.cat-btn') : [];
         catBtns.forEach(btn => {
             const active = btn.getAttribute('data-category') === state.currentCategory;
             btn.setAttribute('aria-pressed', active ? 'true' : 'false');
@@ -728,15 +755,17 @@
         render();
     });
 
-    // Category, Level, Sort & Status Filters
-    catBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
+    // Category, Level, Sort & Status Filters (event delegation on dynamic category tabs)
+    if (categoryTabsContainer) {
+        categoryTabsContainer.addEventListener('click', (e) => {
+            const btn = e.target.closest('.cat-btn');
+            if (!btn) return;
             state.currentCategory = btn.getAttribute('data-category');
             saveState();
             updateFilterUI();
             render();
         });
-    });
+    }
 
     levelBtns.forEach(btn => {
         btn.addEventListener('click', () => {
@@ -918,8 +947,15 @@
         }
     });
 
-    // Register Service Worker over HTTP/HTTPS
+    // Register Service Worker over HTTP/HTTPS with update notification
     if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
+        let hadController = Boolean(navigator.serviceWorker.controller);
+        navigator.serviceWorker.addEventListener('controllerchange', () => {
+            if (hadController) {
+                showToast('새 버전이 적용되었습니다', '최신 학습 콘텐츠와 개선사항이 캐시에 반영되었습니다.');
+            }
+            hadController = true;
+        });
         window.addEventListener('load', () => {
             navigator.serviceWorker.register('./sw.js').catch(() => {});
         });
@@ -1098,31 +1134,66 @@
 
         document.getElementById('trackOverallBadge').textContent = `${state.completedTracks.size} / ${curriculumTracks.length} 완료`;
 
-        // Left track selector
+        // Left track selector (Stage-grouped & searchable for 10+ courses)
+        const mobileTrackLabel = document.getElementById('mobileTrackCurrentLabel');
+        if (mobileTrackLabel) {
+            mobileTrackLabel.textContent = `코스 선택 · ${track.title}`;
+        }
+        const STAGE_LABELS = {
+            1: 'Stage 1 · 입문 기초',
+            2: 'Stage 2 · 실무 핵심',
+            3: 'Stage 3 · 심화·AI'
+        };
+        const qTrack = state.trackSearchQuery.trim().toLowerCase();
+        const filteredTracks = curriculumTracks.filter(t => !qTrack || (
+            t.title.toLowerCase().includes(qTrack) ||
+            t.subtitle.toLowerCase().includes(qTrack) ||
+            t.badge.toLowerCase().includes(qTrack)
+        ));
+
+        const groupedTracks = [1, 2, 3].map(st => ({
+            stage: st,
+            label: STAGE_LABELS[st],
+            list: filteredTracks.filter(t => (t.stage || 2) === st)
+        })).filter(g => g.list.length > 0);
+
         const trackListEl = document.getElementById('trackList');
-        trackListEl.innerHTML = curriculumTracks.map(t => {
-            const active = t.id === track.id;
-            const done = state.completedTracks.has(t.id);
-            const cur = (state.trackStepByTrack[t.id] || 0) + 1;
-            return `
-                <button type="button" data-track-id="${escapeHtml(t.id)}"
-                    class="track-select-btn w-full text-left p-3 rounded-xl border transition cursor-pointer ${active ? 'bg-blue-600/20 border-blue-500/50 text-white' : 'bg-slate-900/70 border-slate-800 text-slate-300 hover:bg-slate-800'}">
-                    <div class="flex items-center justify-between gap-2">
-                        <span class="text-[10px] px-2 py-0.5 rounded-full border font-semibold ${t.badgeCls}">${escapeHtml(t.badge)}</span>
-                        <span class="text-[10px] font-mono ${done ? 'text-emerald-400' : 'text-slate-400'}">
-                            ${done ? '<i class="fa-solid fa-circle-check mr-0.5"></i>완료' : `${cur}/${t.steps.length}`}
-                        </span>
-                    </div>
-                    <div class="text-xs font-bold mt-1.5 leading-snug">${escapeHtml(t.title)}</div>
-                </button>
-            `;
-        }).join('');
+        trackListEl.innerHTML = groupedTracks.length ? groupedTracks.map(group => `
+            <div class="flex flex-col gap-1.5">
+                <div class="text-[10px] font-bold text-slate-500 uppercase tracking-wider px-1">${group.label}</div>
+                ${group.list.map(t => {
+                    const active = t.id === track.id;
+                    const done = state.completedTracks.has(t.id);
+                    const cur = (state.trackStepByTrack[t.id] || 0) + 1;
+                    return `
+                        <button type="button" data-track-id="${escapeHtml(t.id)}"
+                            class="track-select-btn w-full text-left p-2.5 rounded-xl border transition cursor-pointer ${active ? 'bg-blue-600/20 border-blue-500/50 text-white' : 'bg-slate-900/70 border-slate-800 text-slate-300 hover:bg-slate-800'}">
+                            <div class="flex items-center justify-between gap-2">
+                                <span class="text-[10px] px-2 py-0.5 rounded-full border font-semibold ${t.badgeCls}">${escapeHtml(t.badge)}</span>
+                                <span class="text-[10px] font-mono ${done ? 'text-emerald-400' : 'text-slate-400'}">
+                                    ${done ? '<i class="fa-solid fa-circle-check mr-0.5"></i>완료' : `${cur}/${t.steps.length}`}
+                                </span>
+                            </div>
+                            <div class="text-xs font-bold mt-1 leading-snug">${escapeHtml(t.title)}</div>
+                        </button>
+                    `;
+                }).join('')}
+            </div>
+        `).join('') : '<div class="text-xs text-slate-500 px-2 py-4 text-center">검색된 코스가 없습니다.</div>';
 
         trackListEl.querySelectorAll('.track-select-btn').forEach(btn => {
             btn.addEventListener('click', () => {
                 state.activeTrackId = btn.getAttribute('data-track-id');
                 state.simVariantIndex = 0;
                 saveState();
+                const sidebarBody = document.getElementById('trackSidebarBody');
+                const mobileToggle = document.getElementById('mobileTrackToggleBtn');
+                const mobileIcon = document.getElementById('mobileTrackToggleIcon');
+                if (sidebarBody && window.innerWidth < 1024) {
+                    sidebarBody.classList.add('hidden');
+                    if (mobileToggle) mobileToggle.setAttribute('aria-expanded', 'false');
+                    if (mobileIcon) mobileIcon.className = 'fa-solid fa-chevron-down text-slate-400 text-[11px] shrink-0';
+                }
                 renderTracksView();
             });
         });
@@ -1135,8 +1206,17 @@
         document.getElementById('trackTitle').textContent = track.title;
         document.getElementById('trackSubtitle').textContent = track.subtitle;
 
+        const badMetricKeys = new Set(Array.isArray(step.badMetrics) ? step.badMetrics : []);
         document.getElementById('trackMetricsBar').innerHTML = Object.entries(activeMetrics).map(([k, v]) => {
-            const isBad = (LOWER_IS_BETTER_METRICS.has(k) && ((String(v).includes('%') && parseFloat(v) >= 10) || String(v).includes('2,400') || String(v).includes('98%')));
+            const valStr = String(v);
+            const numVal = parseMetricNumber(valStr);
+            const isBad = badMetricKeys.has(k)
+                || (LOWER_IS_BETTER_METRICS.has(k) && (
+                    (valStr.includes('%') && numVal !== null && numVal >= 10) ||
+                    (k === 'p95' && valStr.includes('ms') && numVal !== null && numVal >= 1000) ||
+                    (k === 'dbCpu' && numVal !== null && numVal >= 85)
+                ))
+                || valStr.includes('초과 판매') || valStr.includes('장애') || valStr.includes('고갈');
             const delta = computeMetricDelta(k, v, prevStep?.metrics?.[k]);
             return `
                 <div class="bg-slate-950/80 border border-slate-800 rounded-xl p-2.5 flex flex-col justify-between">
@@ -1380,9 +1460,25 @@
 
         document.getElementById('trapProgressBadge').textContent = `해결 ${state.solvedTraps.size} / ${trapChallenges.length}`;
 
-        // Selector pills
+        // Selector pills (respects trapStatusFilter for scaling to 30+ traps)
+        const trapFilterBtns = document.querySelectorAll('.trap-filter-btn');
+        trapFilterBtns.forEach(btn => {
+            const active = btn.getAttribute('data-trap-filter') === state.trapStatusFilter;
+            btn.className = active
+                ? 'trap-filter-btn px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-slate-800 text-white border border-slate-500 cursor-pointer'
+                : 'trap-filter-btn px-2.5 py-1 rounded-lg text-[11px] font-medium bg-slate-900 text-slate-400 border border-slate-800 hover:text-slate-200 cursor-pointer';
+        });
+
+        const visibleTrapEntries = trapChallenges
+            .map((t, idx) => ({ t, idx }))
+            .filter(({ t }) => {
+                if (state.trapStatusFilter === 'solved') return state.solvedTraps.has(t.id);
+                if (state.trapStatusFilter === 'unsolved') return !state.solvedTraps.has(t.id);
+                return true;
+            });
+
         const selectorEl = document.getElementById('trapSelectorList');
-        selectorEl.innerHTML = trapChallenges.map((t, idx) => {
+        selectorEl.innerHTML = visibleTrapEntries.length ? visibleTrapEntries.map(({ t, idx }) => {
             const active = idx === state.activeTrapIndex;
             const solved = state.solvedTraps.has(t.id);
             return `
@@ -1392,7 +1488,7 @@
                     <span>#${idx + 1} ${escapeHtml(t.category)}</span>
                 </button>
             `;
-        }).join('');
+        }).join('') : '<span class="text-xs text-slate-500 py-1">해당 상태의 함정 문제가 없습니다.</span>';
 
         selectorEl.querySelectorAll('.trap-pick-btn').forEach(btn => {
             btn.addEventListener('click', () => selectTrap(Number(btn.getAttribute('data-trap-idx'))));
@@ -1588,21 +1684,7 @@
             footerSummary.textContent = `3초 개발지식 · ${uniqueCatNames} 개발자 기본소양 ${total}선 웹앱`;
         }
 
-        const countsByCat = items.reduce((acc, it) => {
-            acc[it.category] = (acc[it.category] || 0) + 1;
-            return acc;
-        }, {});
-        catBtns.forEach(btn => {
-            const cat = btn.getAttribute('data-category');
-            const iconEl = btn.querySelector('i');
-            const iconHtml = iconEl ? iconEl.outerHTML + ' ' : '';
-            if (cat === 'all') {
-                btn.innerHTML = `${iconHtml}전체 (${total})`;
-            } else if (countsByCat[cat] !== undefined) {
-                const labelText = btn.textContent.trim().replace(/\s*\d+\s*$/, '');
-                btn.innerHTML = `${iconHtml}${escapeHtml(labelText)} ${countsByCat[cat]}`;
-            }
-        });
+        renderCategoryTabs();
     }
 
     // --- Onboarding Stage Shortcuts & JSON Progress Backup / Report ---
@@ -1782,6 +1864,38 @@
         });
     }
     if (copyReportBtn) copyReportBtn.addEventListener('click', copyOnboardingReport);
+
+    // Course sidebar mobile toggle & search + Trap status filter listeners
+    const mobileTrackToggleBtn = document.getElementById('mobileTrackToggleBtn');
+    const trackSidebarBody = document.getElementById('trackSidebarBody');
+    const mobileTrackToggleIcon = document.getElementById('mobileTrackToggleIcon');
+    if (mobileTrackToggleBtn && trackSidebarBody) {
+        mobileTrackToggleBtn.addEventListener('click', () => {
+            const isHidden = trackSidebarBody.classList.toggle('hidden');
+            mobileTrackToggleBtn.setAttribute('aria-expanded', isHidden ? 'false' : 'true');
+            if (mobileTrackToggleIcon) {
+                mobileTrackToggleIcon.className = isHidden
+                    ? 'fa-solid fa-chevron-down text-slate-400 text-[11px] shrink-0'
+                    : 'fa-solid fa-chevron-up text-slate-400 text-[11px] shrink-0';
+            }
+        });
+    }
+    const trackSearchInput = document.getElementById('trackSearchInput');
+    if (trackSearchInput) {
+        trackSearchInput.addEventListener('input', (e) => {
+            state.trackSearchQuery = e.target.value;
+            renderTracksView();
+        });
+    }
+    const trapFilterBar = document.getElementById('trapFilterBar');
+    if (trapFilterBar) {
+        trapFilterBar.addEventListener('click', (e) => {
+            const btn = e.target.closest('.trap-filter-btn');
+            if (!btn) return;
+            state.trapStatusFilter = btn.getAttribute('data-trap-filter') || 'all';
+            renderTrapsView();
+        });
+    }
 
     // Initialize
     initTheme();
