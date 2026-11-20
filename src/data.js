@@ -1388,6 +1388,143 @@ const items = [
         diagram: '역할 분담(탐색·구현·검증 에이전트) + 파괴적 작업 전 사용자 승인(HITL)',
         concept: '단일 에이전트에 모든 맥락을 몰아넣지 않고 전문 역할별로 분리 협업시키며, 고위험 작업 전 사람의 최종 승인을 거치는 안전 설계.',
         defense: 'DB 삭제·결제·운영 배포 등 되돌릴 수 없는 액션에는 반드시 Human-in-the-Loop 승인 게이트와 감사 로그를 적용'
+    },
+
+    // --- Java & Spring (15) ---
+    {
+        id: 153, category: 'java-spring', catName: 'Java·Spring',
+        badgeColor: 'bg-lime-500/10 text-lime-400 border-lime-500/20',
+        level: 1,
+        title: '01. JVM 메모리 구조와 GC', subtitle: 'Heap · Stack · Metaspace & Stop-The-World',
+        diagram: 'Stack(스레드별 프레임) | Heap(Young·Old 객체·GC 대상) | Metaspace(클래스 메타)',
+        concept: 'JVM은 스레드별 Stack과 공유 Heap·Metaspace로 메모리를 관리하며, GC가 참조되지 않은 Heap 객체를 회수할 때 일시 정지(Stop-The-World)가 발생.',
+        defense: '대용량 객체 무분별 적재나 메모리 누수는 Full GC·STW 급증으로 이어지므로 힙 크기와 GC 로그(G1GC/ZGC)를 모니터링'
+    },
+    {
+        id: 154, category: 'java-spring', catName: 'Java·Spring',
+        badgeColor: 'bg-lime-500/10 text-lime-400 border-lime-500/20',
+        level: 1,
+        title: '02. equals() · hashCode() 계약', subtitle: 'Equality & Hash Contract',
+        diagram: 'a.equals(b) == true ➔ a.hashCode() == b.hashCode() (반드시 일치)',
+        concept: 'HashMap·HashSet은 먼저 hashCode()로 버킷을 찾고 equals()로 동등성을 비교하므로, 두 메서드는 반드시 함께 재정의해야 함.',
+        defense: 'equals()만 재정의하면 논리적으로 같은 객체를 HashMap에서 찾지 못하며, 가변 필드를 hashCode에 쓰면 저장 후 키가 유실됨'
+    },
+    {
+        id: 155, category: 'java-spring', catName: 'Java·Spring',
+        badgeColor: 'bg-lime-500/10 text-lime-400 border-lime-500/20',
+        level: 1,
+        title: '03. String 불변성과 StringBuilder', subtitle: 'Immutability & String Concatenation',
+        diagram: '루프 내 str += x (매번 새 객체 O(N²)) vs StringBuilder.append() (가변 버퍼 O(N))',
+        concept: 'Java의 String은 불변(Immutable) 객체이므로 반복문에서 + 연산을 누적하면 매번 새 배열을 복사해 메모리와 GC 부담이 급증.',
+        defense: '반복적인 문자열 조합에는 StringBuilder(단일 스레드) 또는 String.join을 사용하고, 불변성 덕분에 String Pool 공유·스레드 안전성을 얻음'
+    },
+    {
+        id: 156, category: 'java-spring', catName: 'Java·Spring',
+        badgeColor: 'bg-lime-500/10 text-lime-400 border-lime-500/20',
+        level: 1,
+        title: '04. Spring Bean 스코프와 싱글톤', subtitle: 'Singleton Bean & Stateless Design',
+        diagram: '@Service 싱글톤 인스턴스 1개 ← 다수 스레드 동시 접근 (공유 가변 필드 금지)',
+        concept: 'Spring Bean의 기본 스코프는 컨테이너당 1개만 생성되는 Singleton이므로, 모든 HTTP 요청 스레드가 동일한 인스턴스를 공유.',
+        defense: 'Controller·Service·Repository Bean에는 사용자별 상태(가변 필드)를 절대 저장하지 않고 무상태(Stateless)로 설계해야 동시성 오염 방지'
+    },
+    {
+        id: 157, category: 'java-spring', catName: 'Java·Spring',
+        badgeColor: 'bg-lime-500/10 text-lime-400 border-lime-500/20',
+        level: 1,
+        title: '05. 생성자 주입 vs 필드 주입', subtitle: 'Constructor Injection vs @Autowired Field',
+        diagram: 'private final Repo repo; + 생성자 주입 (불변·순환참조 탐지·테스트 용이)',
+        concept: '생성자 주입은 의존성을 final로 고정하고 객체 생성 시점에 누락·순환 참조를 즉시 발견할 수 있는 Spring 공식 권장 방식.',
+        defense: '필드 주입(@Autowired)은 Spring 컨테이너 없이 순수 단위 테스트가 어렵고 순환 의존성을 숨기므로 생성자 주입을 기본으로 사용'
+    },
+    {
+        id: 158, category: 'java-spring', catName: 'Java·Spring',
+        badgeColor: 'bg-lime-500/10 text-lime-400 border-lime-500/20',
+        level: 2,
+        title: '06. Spring MVC 요청 흐름 (Filter vs Interceptor)', subtitle: 'Servlet Filter → DispatcherServlet → Interceptor',
+        diagram: 'HTTP 요청 ➔ Servlet Filter ➔ DispatcherServlet ➔ HandlerInterceptor ➔ Controller',
+        concept: 'Filter는 서블릿 컨테이너 영역에서 인코딩·보안·로깅을 처리하고, Interceptor는 Spring MVC 영역에서 컨트롤러 핸들러 전후의 인증·공통 로직을 처리.',
+        defense: 'Spring Bean 접근이나 핸들러 메서드 정보(@Annotation)가 필요하면 Interceptor, 전역 요청 래핑·보안 필터링은 Filter에 배치'
+    },
+    {
+        id: 159, category: 'java-spring', catName: 'Java·Spring',
+        badgeColor: 'bg-lime-500/10 text-lime-400 border-lime-500/20',
+        level: 2,
+        title: '07. Spring AOP 프록시와 Self-Invocation', subtitle: 'Proxy-based AOP & Internal Call Pitfall',
+        diagram: '외부 호출 → 프록시(@Transactional 적용) | 내부 this.method() → 프록시 우회(미적용)',
+        concept: 'Spring AOP는 대상 Bean을 감싼 프록시 객체를 통해 트랜잭션·캐시를 적용하므로, 같은 클래스 내부에서 this.method()를 직접 호출하면 AOP가 동작하지 않음.',
+        defense: '@Transactional·@Async·@Cacheable 메서드는 별도 Bean으로 분리해 외부에서 프록시를 거쳐 호출되도록 설계'
+    },
+    {
+        id: 160, category: 'java-spring', catName: 'Java·Spring',
+        badgeColor: 'bg-lime-500/10 text-lime-400 border-lime-500/20',
+        level: 2,
+        title: '08. @Transactional 전파와 롤백 규칙', subtitle: 'Propagation & Checked Exception Rollback',
+        diagram: 'RuntimeException/Error(기본 롤백) | Checked Exception(기본 커밋 → rollbackFor 지정)',
+        concept: 'Spring @Transactional은 기본적으로 Unchecked 예외(RuntimeException)만 롤백하며, 전파 속성(REQUIRED vs REQUIRES_NEW)에 따라 트랜잭션 경계가 달라짐.',
+        defense: 'Checked 예외도 롤백하려면 rollbackFor = Exception.class를 명시하고, REQUIRES_NEW는 추가 DB 커넥션을 점유하므로 데드락·풀 고갈에 주의'
+    },
+    {
+        id: 161, category: 'java-spring', catName: 'Java·Spring',
+        badgeColor: 'bg-lime-500/10 text-lime-400 border-lime-500/20',
+        level: 2,
+        title: '09. JPA 영속성 컨텍스트와 변경 감지', subtitle: 'Persistence Context & Dirty Checking',
+        diagram: '엔티티 조회 → 1차 캐시·스냅샷 보관 → 필드 수정 → Flush 시점 자동 UPDATE',
+        concept: '영속성 컨텍스트는 트랜잭션 내 엔티티를 1차 캐시로 관리하며, 커밋/Flush 시점에 최초 스냅샷과 비교해 바뀐 필드만 자동으로 UPDATE(Dirty Checking).',
+        defense: '읽기 전용 조회는 @Transactional(readOnly = true)를 지정해 스냅샷 복사와 변경 감지 비용을 생략하고 메모리 사용량을 절감'
+    },
+    {
+        id: 162, category: 'java-spring', catName: 'Java·Spring',
+        badgeColor: 'bg-lime-500/10 text-lime-400 border-lime-500/20',
+        level: 2,
+        title: '10. JPA 지연 로딩(LAZY)과 프록시', subtitle: 'LAZY vs EAGER & LazyInitializationException',
+        diagram: '@ManyToOne(fetch = FetchType.LAZY) 필수 — 기본 EAGER는 의도치 않은 JOIN·N+1 유발',
+        concept: '연관 엔티티를 실제 사용하는 시점에 조회하는 지연 로딩(LAZY)은 프록시 객체를 반환하며, 영속성 컨텍스트 종료 후 접근하면 LazyInitializationException이 발생.',
+        defense: '모든 연관관계는 FetchType.LAZY로 통일하고, 필요한 조회 화면에서만 Fetch Join·@EntityGraph·BatchSize로 한 번에 로딩'
+    },
+    {
+        id: 163, category: 'java-spring', catName: 'Java·Spring',
+        badgeColor: 'bg-lime-500/10 text-lime-400 border-lime-500/20',
+        level: 2,
+        title: '11. OSIV (Open Session In View) 트레이드오프', subtitle: 'DB Connection Lifetime vs Lazy Loading',
+        diagram: 'OSIV=true(응답 완료까지 커넥션 점유) vs OSIV=false(트랜잭션 종료 즉시 커넥션 반납)',
+        concept: 'Spring Boot 기본값인 spring.jpa.open-in-view=true는 뷰 렌더링·컨트롤러 종료까지 영속성 컨텍스트와 DB 커넥션을 유지해 지연 로딩을 편하게 해줌.',
+        defense: '트래픽이 높은 API 서버에서 외부 HTTP 호출 중 DB 커넥션이 묶여 풀이 고갈되므로, 운영 환경에서는 OSIV=false + 트랜잭션 내 DTO 변환 권장'
+    },
+    {
+        id: 164, category: 'java-spring', catName: 'Java·Spring',
+        badgeColor: 'bg-lime-500/10 text-lime-400 border-lime-500/20',
+        level: 3,
+        title: '12. HikariCP 커넥션 풀 사이징', subtitle: 'Connection Pool Tuning & Contention',
+        diagram: '최적 풀 크기 ≈ (CPU 코어 × 2) + 디스크 수 — 무조건 키우면 DB 컨텍스트 스위칭 폭증',
+        concept: 'DB 커넥션 풀은 미리 열어둔 연결을 재사용해 핸드셰이크 비용을 줄이지만, 풀을 과도하게 키우면 DB CPU 경합과 메모리 낭비로 처리량이 오히려 하락.',
+        defense: '풀 크기 확대보다 느린 쿼리·트랜잭션 내 외부 API 호출 제거가 우선이며, connectionTimeout과 leakDetectionThreshold로 점유 누수를 탐지'
+    },
+    {
+        id: 165, category: 'java-spring', catName: 'Java·Spring',
+        badgeColor: 'bg-lime-500/10 text-lime-400 border-lime-500/20',
+        level: 3,
+        title: '13. ThreadLocal과 스레드 풀 누수', subtitle: 'ThreadLocal Context Contamination',
+        diagram: '요청 A: set(userA) → remove() 누락 → 스레드 풀 재사용 → 요청 B가 userA 조회!',
+        concept: 'ThreadLocal은 스레드마다 독립된 변수를 저장하지만, Tomcat처럼 스레드 풀을 재사용하는 서버에서는 요청 종료 시 정리하지 않으면 다음 요청에 이전 데이터가 남음.',
+        defense: 'ThreadLocal 사용 시 반드시 try-finally 블록이나 Filter/Interceptor 종료 시점에 ThreadLocal.remove()를 호출해 컨텍스트 오염과 메모리 누수 방지'
+    },
+    {
+        id: 166, category: 'java-spring', catName: 'Java·Spring',
+        badgeColor: 'bg-lime-500/10 text-lime-400 border-lime-500/20',
+        level: 2,
+        title: '14. Spring Security 필터 체인', subtitle: 'SecurityFilterChain & SecurityContextHolder',
+        diagram: 'HTTP 요청 → DelegatingFilterProxy → SecurityFilterChain(인증·인가) → Controller',
+        concept: 'Spring Security는 DispatcherServlet 앞단의 서블릿 필터 체인에서 인증(Authentication)과 인가(Authorization)를 처리하고 결과를 SecurityContextHolder에 보관.',
+        defense: 'JWT 기반 무상태 API에서는 SessionCreationPolicy.STATELESS를 설정하고, 커스텀 인증 필터 순서와 예외 처리(401 vs 403)를 명확히 분리'
+    },
+    {
+        id: 167, category: 'java-spring', catName: 'Java·Spring',
+        badgeColor: 'bg-lime-500/10 text-lime-400 border-lime-500/20',
+        level: 3,
+        title: '15. Java Virtual Threads (Project Loom)', subtitle: 'Lightweight Concurrency for I/O-bound Apps',
+        diagram: '수만 개 Virtual Thread → 소수 Carrier OS Thread에 마운트 (I/O 대기 시 자동 언마운트)',
+        concept: 'Java 21 정식 도입된 가상 스레드는 JVM이 스케줄링하는 초경량 스레드로, DB·HTTP 등 I/O 블로킹이 많은 서버에서 동기 코드 스타일로 높은 동시성을 달성.',
+        defense: 'CPU 연산 위주 작업에는 이점이 없으며, JDK 21 환경에서는 synchronized 블록 내 블로킹 I/O 시 캐리어 스레드 피닝(Pinning)을 피하기 위해 ReentrantLock 사용 권장'
     }
 ];
 
@@ -2391,7 +2528,91 @@ function getInfographic(id) {
                 `<span class="badge-ok">안전한 실행</span>`
             ]),
             `<span class="text-[10px] text-slate-400">DB 삭제·배포 등 불가역 작업은 사람 승인 필수</span>`
-        ])
+        ]),
+        // --- Java & Spring (153~167) ---
+        153: ui.rows([
+            ['Stack (스레드별)', '지역 변수·호출 프레임 저장', 'badge-info'],
+            ['Heap (Young/Old)', '인스턴스 저장 · GC 회수(STW)', 'badge-warn'],
+            ['Metaspace', '클래스 메타데이터 저장', 'badge-ok']
+        ]),
+        154: ui.vflow([
+            ui.flow([
+                `<span class="node-pill">hashCode() 버킷 탐색</span>`,
+                `<span class="badge-info">equals() 동등 비교</span>`,
+                `<span class="badge-ok">HashMap 정상 조회</span>`
+            ]),
+            `<span class="text-[10px] text-slate-400">equals만 재정의하면 버킷 불일치로 키 조회 실패</span>`
+        ]),
+        155: ui.vs(
+            '루프 내 String + 연산', ['매 반복 새 배열 복사', 'O(N²) 시간·GC 부담'], 'text-rose-400',
+            'StringBuilder.append', ['가변 버퍼 재사용', 'O(N) 시간·메모리 절감'], 'text-emerald-400'
+        ),
+        156: ui.vflow([
+            ui.flow([
+                `<span class="node-pill">요청 A · 요청 B 스레드</span>`,
+                `<span class="badge-info">Singleton Bean ×1</span>`,
+                `<span class="badge-err">가변 필드 공유 시 오염</span>`
+            ]),
+            `<span class="text-[10px] text-slate-400">Service·Controller Bean은 반드시 무상태(Stateless) 유지</span>`
+        ]),
+        157: ui.vs(
+            '생성자 주입 (권장)', ['final 불변성 보장', '순환 참조 시작 시 탐지', '순수 단위 테스트 용이'], 'text-emerald-400',
+            '필드 주입 (@Autowired)', ['final 불가·결합도 높음', '테스트 시 리플렉션 필요'], 'text-rose-400'
+        ),
+        158: ui.flow([
+            `<span class="node-pill">Filter (서블릿)</span>`,
+            `<span class="badge-info">DispatcherServlet</span>`,
+            `<span class="badge-ok">Interceptor (MVC)</span>`,
+            `<span class="node-pill">Controller</span>`
+        ]),
+        159: ui.vs(
+            '외부 Bean 호출', ['프록시 객체 경유', '@Transactional 정상 동작'], 'text-emerald-400',
+            '내부 this.method()', ['프록시 우회 (Self-Invocation)', 'AOP 트랜잭션 미적용'], 'text-rose-400'
+        ),
+        160: ui.rows([
+            ['RuntimeException / Error', '기본 자동 롤백 (Rollback)', 'badge-ok'],
+            ['Checked Exception', '기본 커밋 → rollbackFor 명시', 'badge-warn'],
+            ['REQUIRES_NEW', '별도 트랜잭션 · 추가 커넥션 점유', 'badge-info']
+        ]),
+        161: ui.vflow([
+            ui.flow([
+                `<span class="node-pill">1차 캐시·스냅샷</span>`,
+                `<span class="badge-info">엔티티 필드 수정</span>`,
+                `<span class="badge-ok">Flush → 자동 UPDATE</span>`
+            ]),
+            `<span class="text-[10px] text-slate-400">읽기 전용은 readOnly=true로 스냅샷·변경 감지 생략</span>`
+        ]),
+        162: ui.rows([
+            ['@ManyToOne / @OneToOne', '기본 EAGER → LAZY 명시 필수', 'badge-err'],
+            ['@OneToMany', '기본 LAZY · N+1 시 Fetch Join', 'badge-ok'],
+            ['세션 종료 후 접근', 'LazyInitializationException', 'badge-warn']
+        ]),
+        163: ui.vs(
+            'OSIV = true (기본)', ['뷰까지 커넥션 점유', '외부 API 대기 시 풀 고갈'], 'text-rose-400',
+            'OSIV = false (운영 권장)', ['트랜잭션 종료 즉시 반납', '높은 트래픽 안정성 확보'], 'text-emerald-400'
+        ),
+        164: ui.vflow([
+            ui.code('권장 풀 크기 ≈ (CPU 코어 × 2) + 디스크 수', 'text-emerald-300'),
+            `<span class="text-[10px] text-slate-400">풀 과다 확대 시 DB 컨텍스트 스위칭 증가 · 쿼리 최적화 우선</span>`
+        ]),
+        165: ui.vflow([
+            ui.flow([
+                `<span class="node-pill">요청 A set(userA)</span>`,
+                `<span class="badge-err">remove() 누락</span>`,
+                `<span class="badge-warn">스레드 재사용 → 요청 B 오염</span>`
+            ]),
+            `<span class="text-[10px] text-slate-400">try-finally 또는 Filter 종료 시 ThreadLocal.remove() 필수</span>`
+        ]),
+        166: ui.flow([
+            `<span class="node-pill">HTTP 요청</span>`,
+            `<span class="badge-info">SecurityFilterChain</span>`,
+            `<span class="badge-ok">SecurityContextHolder</span>`,
+            `<span class="node-pill">Controller</span>`
+        ]),
+        167: ui.vs(
+            'Virtual Thread (Java 21+)', ['I/O 대기 시 캐리어 언마운트', '수만 동시 요청 경량 처리'], 'text-emerald-400',
+            'Platform OS Thread', ['스레드당 1MB 스택 고정', '대량 I/O 대기 시 자원 한계'], 'text-amber-300'
+        )
     };
     return map[id] || '';
 }

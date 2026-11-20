@@ -1008,6 +1008,272 @@ const curriculumTracks = [
                 }
             }
         ]
+    },
+    {
+        id: 'spring-jpa-troubleshooting',
+        title: '05. Spring Boot · JPA 실무 트러블슈팅',
+        subtitle: '로컬에선 멀쩡한 Spring API가 운영에서만 터지는 8가지 이유',
+        badge: 'Java·Spring',
+        badgeCls: 'bg-lime-500/15 text-lime-300 border-lime-500/30',
+        levelLabel: '입문 → 심화',
+        duration: '8단계 시뮬레이션',
+        summary: 'Spring MVC 요청 흐름부터 AOP 프록시 Self-Invocation, Checked 예외 미롤백, JPA N+1, OSIV 커넥션 고갈, 싱글톤/ThreadLocal 오염, GC 튜닝까지 Java·Spring 운영 장애를 단계별로 해결합니다.',
+        learningGoals: [
+            'Spring AOP 프록시 우회(Self-Invocation)와 @Transactional 롤백 규칙 이해하기',
+            'JPA 지연 로딩(LAZY)과 Fetch Join으로 N+1 쿼리 폭발 막기',
+            'OSIV와 HikariCP 커넥션 풀 점유 시간을 통제해 풀 고갈 방지하기',
+            '싱글톤 Bean 무상태 원칙과 ThreadLocal.remove()로 동시성 오염 차단하기'
+        ],
+        steps: [
+            {
+                tag: '출발점',
+                shortTitle: '초기 API',
+                title: '1. 로컬에서는 완벽히 도는 Spring Boot API',
+                cardIds: [158, 157],
+                story: [
+                    '생성자 주입으로 깔끔하게 작성한 Spring Boot + JPA 주문 API가 Filter → DispatcherServlet → Interceptor → Controller 흐름을 타고 정상 응답합니다.',
+                    '하지만 동시 요청과 예외 상황, 대용량 데이터가 겹치는 운영 환경에 올라가면 Spring과 JPA의 내부 동작 원리를 모를 때 생기는 함정들이 하나씩 터지기 시작합니다.'
+                ],
+                takeaway: 'Spring Boot의 기본 설정은 개발 생산성에 맞춰져 있으므로, 운영 트래픽 전에 트랜잭션·JPA·커넥션 풀 경계를 정확히 이해해야 합니다.',
+                metrics: { queries: '2 / req', p95: '45 ms', error: '0%', dbCpu: '15%' },
+                diagram: {
+                    usersStatus: 'normal',
+                    nodes: [
+                        { label: 'Filter · Interceptor', sub: '요청 인증·로깅', spec: 'Spring MVC', state: 'info', load: 14 },
+                        { label: 'Service Bean', sub: '생성자 주입 · 정상', spec: 'Singleton', state: 'ok', load: 16 },
+                        { label: 'HikariCP · DB', sub: '커넥션 여유', spec: 'Pool 10', state: 'ok', load: 15 }
+                    ]
+                }
+            },
+            {
+                tag: '함정 1',
+                shortTitle: 'AOP 우회',
+                title: '2. 예외가 났는데 @Transactional이 롤백되지 않는다',
+                cardIds: [159, 160],
+                story: [
+                    '같은 `OrderService` 클래스 안에서 `createOrder()`가 `this.saveAndDeduct()`를 호출했습니다. `saveAndDeduct()`에 `@Transactional`을 붙였지만 예외가 터져도 DB가 롤백되지 않습니다.',
+                    'Spring AOP는 외부에서 Bean을 호출할 때만 프록시 객체를 거치므로, 같은 클래스 내부 호출(`this.method()`)은 프록시를 우회해 트랜잭션이 아예 시작되지 않기 때문입니다.'
+                ],
+                whyLimit: '내부 호출(Self-Invocation)에서는 `@Transactional`, `@Async`, `@Cacheable` 등 프록시 기반 AOP 어노테이션이 모두 무시됩니다.',
+                takeaway: '트랜잭션 경계가 필요한 메서드는 별도 Bean으로 분리하거나 진입점 메서드에 `@Transactional`을 선언해 반드시 프록시를 거치게 합니다.',
+                metrics: { queries: '3 / req', p95: '60 ms', error: '롤백 실패!', dbCpu: '20%' },
+                variants: [
+                    {
+                        label: 'Self-Invocation (우회)',
+                        note: 'this.method() → 프록시 미경유, 부분 커밋 발생',
+                        metrics: { queries: '3 / req', p95: '60 ms', error: '롤백 실패!', dbCpu: '20%' },
+                        diagram: {
+                            usersStatus: 'spike',
+                            nodes: [
+                                { label: '외부 호출', sub: 'createOrder() 진입', state: 'warn', load: 50 },
+                                { label: '내부 this.save()', sub: 'AOP 프록시 우회!', spec: 'No Tx', state: 'err', load: 95 },
+                                { label: '운영 DB', sub: '부분 커밋 · 정합성 깨짐', state: 'err', load: 80 }
+                            ]
+                        }
+                    },
+                    {
+                        label: 'Bean 분리 (정상)',
+                        note: '외부 Bean 호출 → AOP 프록시 정상 롤백',
+                        metrics: { queries: '3 / req', p95: '58 ms', error: '0% (정상 롤백)', dbCpu: '18%' },
+                        diagram: {
+                            usersStatus: 'normal',
+                            nodes: [
+                                { label: 'OrderFacade', sub: '외부 Bean 호출', state: 'ok', load: 20 },
+                                { label: 'AOP 프록시', sub: '@Transactional 시작', spec: 'Proxy OK', state: 'info', load: 22 },
+                                { label: '운영 DB', sub: '예외 시 안전 롤백', state: 'ok', load: 18 }
+                            ]
+                        }
+                    }
+                ],
+                diagram: {
+                    usersStatus: 'spike',
+                    nodes: [
+                        { label: '외부 호출', sub: 'createOrder() 진입', state: 'warn', load: 50 },
+                        { label: '내부 this.save()', sub: 'AOP 프록시 우회!', spec: 'No Tx', state: 'err', load: 95 },
+                        { label: '운영 DB', sub: '부분 커밋 · 정합성 깨짐', state: 'err', load: 80 }
+                    ]
+                }
+            },
+            {
+                tag: '함정 2',
+                shortTitle: '롤백 규칙',
+                title: '3. Checked Exception은 기본 롤백 대상이 아니다',
+                cardIds: [160],
+                story: [
+                    '프록시 문제는 고쳤는데, 이번에는 파일/네트워크 `IOException`(Checked Exception)이 발생했을 때 앞선 INSERT가 롤백되지 않고 그대로 커밋됩니다.',
+                    'Spring `@Transactional`은 기본적으로 `RuntimeException`과 `Error`만 롤백하며, Checked Exception은 비즈니스 복구 가능 예외로 간주해 커밋합니다.'
+                ],
+                takeaway: 'Checked Exception에도 롤백이 필요하면 `@Transactional(rollbackFor = Exception.class)`를 명시하거나 Unchecked 예외로 변환해 던집니다.',
+                tradeoff: '비즈니스 검증 실패 시 일부 로그만 남기고 싶다면 `REQUIRES_NEW`를 쓸 수 있지만, 추가 DB 커넥션을 점유하므로 커넥션 풀 크기에 주의해야 합니다.',
+                metrics: { queries: '3 / req', p95: '55 ms', error: '0%', dbCpu: '18%' },
+                diagram: {
+                    usersStatus: 'normal',
+                    nodes: [
+                        { label: 'Checked 예외 발생', sub: 'IOException 등', state: 'warn', load: 45 },
+                        { label: 'rollbackFor 지정', sub: '롤백 대상에 포함', spec: 'Tx Policy', state: 'info', load: 22 },
+                        { label: '운영 DB', sub: '안전하게 롤백 완료', state: 'ok', load: 18 }
+                    ]
+                }
+            },
+            {
+                tag: '병목 1',
+                shortTitle: 'JPA N+1',
+                title: '4. 주문 100건 조회에 SQL이 101번 실행된다',
+                cardIds: [162, 21],
+                story: [
+                    '주문 목록 100건을 조회해 DTO로 변환할 때, 각 주문의 회원(`@ManyToOne`)이나 상품 목록(`@OneToMany`)에 접근하면서 1 + 100번의 추가 SQL이 쏟아집니다.',
+                    '모든 연관관계는 `FetchType.LAZY`로 통일하고, 목록 조회 시 Fetch Join이나 `default_batch_fetch_size`(IN 절 일괄 조회)로 쿼리를 1~2회로 줄입니다.'
+                ],
+                takeaway: '`@ManyToOne`의 기본값은 EAGER이므로 반드시 LAZY로 명시하고, 조회 쿼리에서는 Fetch Join 또는 BatchSize로 N+1을 제거합니다.',
+                metrics: { queries: '2 / req', p95: '72 ms', error: '0%', dbCpu: '24%' },
+                variants: [
+                    {
+                        label: 'Fetch Join / BatchSize (2회)',
+                        note: 'IN 절 일괄 조회로 101회 → 2회 단축',
+                        metrics: { queries: '2 / req', p95: '72 ms', error: '0%', dbCpu: '24%' },
+                        diagram: {
+                            usersStatus: 'normal',
+                            nodes: [
+                                { label: '주문 목록 API', sub: '100건 조회', state: 'ok', load: 22 },
+                                { label: 'Fetch Join / IN', sub: 'SQL 2회 일괄 로딩', spec: 'BatchSize 100', state: 'ok', load: 24 },
+                                { label: '운영 DB', sub: 'CPU 24% 안정', state: 'ok', load: 24 }
+                            ]
+                        }
+                    },
+                    {
+                        label: 'LAZY N+1 (101회)',
+                        note: '엔티티마다 추가 SELECT 폭주',
+                        metrics: { queries: '101 / req', p95: '1,480 ms', error: '4%', dbCpu: '86%' },
+                        diagram: {
+                            usersStatus: 'spike',
+                            nodes: [
+                                { label: '주문 목록 API', sub: '100건 DTO 변환', state: 'warn', load: 75 },
+                                { label: 'JPA 프록시 루프', sub: 'SELECT ×101 왕복', spec: 'N+1 폭발', state: 'err', load: 96 },
+                                { label: '운영 DB', sub: 'CPU 86% 포화', state: 'err', load: 86 }
+                            ]
+                        }
+                    }
+                ],
+                diagram: {
+                    usersStatus: 'normal',
+                    nodes: [
+                        { label: '주문 목록 API', sub: '100건 조회', state: 'ok', load: 22 },
+                        { label: 'Fetch Join / IN', sub: 'SQL 2회 일괄 로딩', spec: 'BatchSize 100', state: 'ok', load: 24 },
+                        { label: '운영 DB', sub: 'CPU 24% 안정', state: 'ok', load: 24 }
+                    ]
+                }
+            },
+            {
+                tag: '병목 2',
+                shortTitle: 'OSIV 고갈',
+                title: '5. 외부 API 호출 중 HikariCP 커넥션 풀이 말랐다',
+                cardIds: [163, 164],
+                story: [
+                    '쿼리는 빨라졌는데 트래픽이 몰리자 갑자기 `HikariPool-1 - Connection is not available` 타임아웃이 속출합니다.',
+                    'Spring Boot 기본값 `open-in-view=true (OSIV)` 때문에 컨트롤러에서 2초 걸리는 외부 알림 API를 호출하는 동안에도 DB 커넥션이 반납되지 않고 묶여 있었기 때문입니다.'
+                ],
+                whyLimit: 'OSIV=true 상태에서 외부 HTTP 호출이나 긴 연산이 섞이면, 실제 SQL 실행은 10ms뿐인데 DB 커넥션을 2초 이상 점유해 풀이 순식간에 고갈됩니다.',
+                takeaway: '운영 API 서버에서는 `spring.jpa.open-in-view: false`를 적용하고, 트랜잭션 밖에서 외부 I/O를 수행해 DB 커넥션 점유 시간을 최소화합니다.',
+                tradeoff: 'OSIV를 끄면 컨트롤러/뷰에서 지연 로딩이 불가능하므로 서비스 계층의 트랜잭션 안에서 필요한 데이터를 DTO로 변환해 반환해야 합니다.',
+                metrics: { queries: '2 / req', p95: '68 ms', error: '0%', dbCpu: '22%' },
+                variants: [
+                    {
+                        label: 'OSIV = false (권장)',
+                        note: '트랜잭션 종료 즉시 커넥션 반납 · 풀 여유',
+                        metrics: { queries: '2 / req', p95: '68 ms', error: '0%', dbCpu: '22%' },
+                        diagram: {
+                            usersStatus: 'normal',
+                            nodes: [
+                                { label: 'Controller', sub: '외부 API 2s (커넥션 미점유)', state: 'info', load: 30 },
+                                { label: 'Service (@Tx)', sub: '15ms 후 커넥션 즉시 반납', spec: 'OSIV=false', state: 'ok', load: 20 },
+                                { label: 'HikariCP (10)', sub: '사용 2 / 10 여유', state: 'ok', load: 20 }
+                            ]
+                        }
+                    },
+                    {
+                        label: 'OSIV = true (기본값)',
+                        note: '외부 API 대기 중 커넥션 10/10 점유 → 타임아웃',
+                        metrics: { queries: '2 / req', p95: '3,200 ms', error: '32%', dbCpu: '45%' },
+                        diagram: {
+                            usersStatus: 'spike',
+                            nodes: [
+                                { label: 'Controller', sub: '외부 API 2s 대기 중', state: 'warn', load: 85 },
+                                { label: '영속성 컨텍스트', sub: '응답 끝까지 커넥션 유지', spec: 'OSIV=true', state: 'err', load: 96 },
+                                { label: 'HikariCP (10)', sub: '사용 10 / 10 풀 고갈!', state: 'err', load: 100 }
+                            ]
+                        }
+                    }
+                ],
+                diagram: {
+                    usersStatus: 'normal',
+                    nodes: [
+                        { label: 'Controller', sub: '외부 API 2s (커넥션 미점유)', state: 'info', load: 30 },
+                        { label: 'Service (@Tx)', sub: '15ms 후 커넥션 즉시 반납', spec: 'OSIV=false', state: 'ok', load: 20 },
+                        { label: 'HikariCP (10)', sub: '사용 2 / 10 여유', state: 'ok', load: 20 }
+                    ]
+                }
+            },
+            {
+                tag: '보안·동시성',
+                shortTitle: '스레드 오염',
+                title: '6. 싱글톤 Bean 필드와 ThreadLocal 오염 사고',
+                cardIds: [156, 165],
+                story: [
+                    '어느 날 고객 A의 화면에 고객 B의 주문 정보가 잠시 보였다는 치명적 버그가 접수됩니다. 원인은 싱글톤 `@Service`의 인스턴스 필드에 임시 사용자 ID를 저장했거나, 커스텀 `ThreadLocal`을 쓰고 `remove()`를 호출하지 않았기 때문입니다.',
+                    'Tomcat은 워커 스레드 풀을 재사용하므로, 요청이 끝날 때 정리되지 않은 ThreadLocal 값이 다음 사용자의 요청에 그대로 남아 있게 됩니다.'
+                ],
+                takeaway: 'Spring Bean은 항상 무상태(Stateless)로 작성하고, `ThreadLocal`은 반드시 `try-finally`에서 `remove()`로 정리합니다.',
+                metrics: { queries: '2 / req', p95: '65 ms', error: '0% (격리)', dbCpu: '22%' },
+                diagram: {
+                    usersStatus: 'normal',
+                    nodes: [
+                        { label: 'Tomcat 스레드 풀', sub: '스레드 재사용 환경', state: 'info', load: 28 },
+                        { label: '무상태 Bean', sub: '공유 가변 필드 0개', spec: 'Stateless', state: 'ok', load: 20 },
+                        { label: 'Filter finally', sub: 'ThreadLocal.remove()', spec: 'Clean Up', state: 'ok', load: 15 }
+                    ]
+                }
+            },
+            {
+                tag: 'JVM·메모리',
+                shortTitle: 'JVM·GC 튜닝',
+                title: '7. 대량 조회 시 변경 감지 스냅샷과 GC STW 급증',
+                cardIds: [153, 161],
+                story: [
+                    '정산 리포트 API가 엔티티 5만 건을 한 번에 영속성 컨텍스트로 불러오면서, JPA가 변경 감지(Dirty Checking)용 스냅샷을 5만 개 복제해 Old 영역이 가득 차고 2초짜리 Stop-The-World GC가 발생합니다.',
+                    '조회 전용 메서드에 `@Transactional(readOnly = true)`를 붙여 스냅샷 생성을 끄고, 대량 조회는 DTO 직접 프로젝션과 스트리밍/청크 처리로 전환합니다.'
+                ],
+                takeaway: '읽기 전용 트랜잭션(`readOnly = true`)과 DTO 프로젝션은 JPA 메모리 점유와 GC Stop-The-World 지연을 동시에 줄여줍니다.',
+                metrics: { queries: '1 / req', p95: '85 ms', error: '0%', dbCpu: '25%' },
+                diagram: {
+                    usersStatus: 'normal',
+                    nodes: [
+                        { label: '@Tx(readOnly=true)', sub: '스냅샷·Flush 생략', spec: 'No Dirty Check', state: 'info', load: 22 },
+                        { label: 'DTO 청크 조회', sub: 'Heap 점유 최소화', state: 'ok', load: 26 },
+                        { label: 'JVM G1GC', sub: 'STW 15ms 이내 안정', spec: 'Heap 38%', state: 'ok', load: 38 }
+                    ]
+                }
+            },
+            {
+                tag: '운영 완성',
+                shortTitle: '운영 완성',
+                title: '8. Spring Security · Virtual Threads로 운영 완성',
+                cardIds: [166, 167],
+                story: [
+                    '앞단에 무상태 `SecurityFilterChain`으로 인증·인가 경계를 세우고, I/O 대기가 많은 Spring Boot 3.2+ / Java 21 환경에서는 Virtual Threads를 검토해 적은 스레드 자원으로 높은 처리량을 확보합니다.',
+                    '이제 로컬 데모 수준을 넘어 대규모 트래픽에서도 안정적인 Java·Spring 프로덕션 서비스가 완성되었습니다.'
+                ],
+                takeaway: 'Spring 운영 안정성은 SecurityFilterChain(보안) + 명확한 트랜잭션/OSIV 경계(DB) + 무상태/GC 관리(JVM)의 조합으로 완성됩니다.',
+                metrics: { queries: '2 / req', p95: '52 ms', error: '0%', dbCpu: '20%' },
+                diagram: {
+                    usersStatus: 'normal',
+                    nodes: [
+                        { label: 'SecurityFilterChain', sub: '무상태 인증·인가', spec: 'Stateless', state: 'info', load: 20 },
+                        { label: 'Spring Boot (VT)', sub: 'OSIV=false · Bean 분리', spec: 'Java 21+', state: 'ok', load: 24 },
+                        { label: 'HikariCP · DB', sub: '안정 커넥션 유지', state: 'ok', load: 20 }
+                    ]
+                }
+            }
+        ]
     }
 ];
 
@@ -1303,5 +1569,129 @@ const trapChallenges = [
         fixCode: '// 1) system/user 메시지 분리 + 입력 가드레일\n// 2) Structured Output(JSON Schema)으로 허용된 tool 이름·인자만 추출\n// 3) SQL 직접 생성 대신 화이트리스트 도구/읽기 전용 쿼리 + Human-in-the-Loop 승인',
         relatedCardIds: [146, 141, 152],
         aiReviewPrompt: '이 AI 에이전트 코드에서 프롬프트 인젝션, JSON 파싱 불안정, 임의 SQL 실행 위험을 분석하고 Structured Output + 허용 도구 화이트리스트 기반으로 안전하게 재설계해줘.'
+    },
+    {
+        id: 'trap-11',
+        category: 'Java·Spring',
+        catCls: 'bg-lime-500/10 text-lime-400 border-lime-500/20',
+        title: 'AI가 짜준 Spring @Transactional 주문 처리',
+        promptContext: 'AI에게 "주문 생성 후 재고 차감 중 실패하면 롤백되는 Spring Service 작성해줘"라고 요청한 코드입니다.',
+        language: 'Java',
+        codeLines: [
+            '@Service',
+            'public class OrderService {',
+            '  public void placeOrder(OrderReq req) throws IOException {',
+            '    this.saveAndDeduct(req);',
+            '  }',
+            '  @Transactional',
+            '  public void saveAndDeduct(OrderReq req) throws IOException {',
+            '    orderRepo.save(req.toEntity());',
+            '    externalReceiptFile.write(req); // IOException 발생 가능',
+            '  }',
+            '}'
+        ],
+        buggyLines: [4, 6, 9],
+        options: [
+            { id: 'a', label: '내부 호출(Self-Invocation)로 AOP 프록시 우회 + Checked Exception(IOException) 기본 미롤백' },
+            { id: 'b', label: '@Service 대신 @Component를 써야 트랜잭션이 적용됨' },
+            { id: 'c', label: 'public 메서드에서는 @Transactional을 붙일 수 없음' },
+            { id: 'd', label: 'throws IOException은 컴파일 오류를 일으킴' }
+        ],
+        answerId: 'a',
+        explanation: '4번 줄처럼 같은 클래스 내부에서 `this.saveAndDeduct()`를 호출하면 Spring AOP 프록시를 거치지 않아 `@Transactional`이 무시됩니다. 또한 6~9번 줄에서 설령 외부 호출로 고쳐도 `IOException`(Checked Exception)은 기본 롤백 대상이 아니므로 `rollbackFor = Exception.class`가 필요합니다.',
+        fixCode: '// 1) 트랜잭션 메서드를 진입점에 두거나 별도 Bean으로 분리해 프록시 경유\n@Transactional(rollbackFor = Exception.class)\npublic void placeOrder(OrderReq req) throws IOException { ... }',
+        relatedCardIds: [159, 160],
+        aiReviewPrompt: '이 Spring Service 코드에서 Self-Invocation으로 인한 AOP 프록시 우회와 Checked Exception 기본 미롤백 문제를 분석하고 안전하게 리팩터링해줘.'
+    },
+    {
+        id: 'trap-12',
+        category: 'Java·Spring',
+        catCls: 'bg-lime-500/10 text-lime-400 border-lime-500/20',
+        title: 'AI가 짜준 할인 계산 싱글톤 Service Bean',
+        promptContext: '회원 등급별 할인 금액을 계산해 반환하는 Spring Service 코드입니다.',
+        language: 'Java',
+        codeLines: [
+            '@Service',
+            'public class DiscountService {',
+            '  private int appliedPrice;',
+            '',
+            '  public int calculate(int price, int rate) {',
+            '    this.appliedPrice = price - (price * rate / 100);',
+            '    auditLog(this.appliedPrice);',
+            '    return this.appliedPrice;',
+            '  }',
+            '}'
+        ],
+        buggyLines: [3, 6],
+        options: [
+            { id: 'a', label: 'int 대신 long을 쓰지 않아 컴파일 오류 발생' },
+            { id: 'b', label: '싱글톤 Bean에 가변 인스턴스 필드를 두어 동시 요청 시 다른 사용자 금액이 덮어씌워짐' },
+            { id: 'c', label: 'calculate 메서드에 static 키워드가 빠짐' },
+            { id: 'd', label: 'auditLog 호출 후 return을 하면 값이 0이 됨' }
+        ],
+        answerId: 'b',
+        explanation: 'Spring `@Service`는 기본적으로 컨테이너에 단 1개만 존재하는 싱글톤 Bean입니다. 3번 줄의 `appliedPrice` 인스턴스 필드를 모든 요청 스레드가 공유하므로, 사용자 A가 6번 줄을 실행한 직후 사용자 B가 덮어쓰면 A에게 B의 금액이 반환되는 심각한 동시성 버그가 발생합니다.',
+        fixCode: '// 인스턴스 필드 제거 → 메서드 지역 변수(Stack)로 무상태(Stateless) 유지\nint appliedPrice = price - (price * rate / 100);\nauditLog(appliedPrice);\nreturn appliedPrice;',
+        relatedCardIds: [156],
+        aiReviewPrompt: '이 Spring 싱글톤 Bean에서 공유 가변 필드로 인한 동시성 데이터 오염이 어떻게 발생하는지 설명하고 무상태(Stateless) 코드로 수정해줘.'
+    },
+    {
+        id: 'trap-13',
+        category: 'Java·Spring',
+        catCls: 'bg-lime-500/10 text-lime-400 border-lime-500/20',
+        title: 'AI가 짜준 트랜잭션 내 외부 HTTP 알림 연동',
+        promptContext: '주문 저장 후 외부 Slack/문자 API를 호출하는 Spring Boot 코드입니다 (기본 OSIV=true).',
+        language: 'Java',
+        codeLines: [
+            '@Transactional',
+            'public OrderDto createOrder(OrderReq req) {',
+            '  Order order = orderRepo.save(req.toEntity());',
+            '  // 외부 알림 API (평균 1.5초 ~ 지연 시 10초)',
+            '  restClient.post().uri("https://notify.ext/send").body(order).retrieve().toBodilessEntity();',
+            '  return OrderDto.from(order);',
+            '}'
+        ],
+        buggyLines: [1, 5],
+        options: [
+            { id: 'a', label: '트랜잭션 내 장시간 외부 I/O로 DB 커넥션 풀(HikariCP) 고갈 및 장애 전파' },
+            { id: 'b', label: 'OrderDto.from()은 트랜잭션 안에서 호출할 수 없음' },
+            { id: 'c', label: 'restClient.post()는 JSON 직렬화를 지원하지 않음' },
+            { id: 'd', label: 'orderRepo.save()가 자동으로 커밋을 끝내버림' }
+        ],
+        answerId: 'a',
+        explanation: '1번 줄 `@Transactional` 안에서 5번 줄의 느린 외부 HTTP API를 호출하면 응답이 올 때까지 DB 커넥션과 행 락을 계속 점유합니다. 트래픽이 몰리면 HikariCP 커넥션 풀이 순식간에 고갈되어 전체 서비스가 멈춥니다.',
+        fixCode: '// 1) spring.jpa.open-in-view: false 설정\n// 2) DB 저장 트랜잭션 커밋 후(@TransactionalEventListener(AFTER_COMMIT)) 비동기·외부 알림 호출',
+        relatedCardIds: [163, 164, 87],
+        aiReviewPrompt: '이 코드에서 @Transactional 내부 외부 HTTP 호출과 OSIV가 HikariCP 커넥션 풀 고갈을 일으키는 원인을 분석하고, 커밋 이후 이벤트 기반 비동기 처리로 분리해줘.'
+    },
+    {
+        id: 'trap-14',
+        category: 'Java·Spring',
+        catCls: 'bg-lime-500/10 text-lime-400 border-lime-500/20',
+        title: 'AI가 짜준 ThreadLocal 사용자 컨텍스트 필터',
+        promptContext: '요청 헤더의 사용자 ID를 ThreadLocal에 담아 서비스 계층에서 꺼내 쓰도록 만든 Servlet Filter입니다.',
+        language: 'Java',
+        codeLines: [
+            'public class UserContextFilter implements Filter {',
+            '  public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)',
+            '      throws IOException, ServletException {',
+            '    String uid = ((HttpServletRequest) req).getHeader("X-User-Id");',
+            '    UserContext.set(uid);',
+            '    chain.doFilter(req, res);',
+            '  }',
+            '}'
+        ],
+        buggyLines: [5, 6],
+        options: [
+            { id: 'a', label: 'Filter는 HTTP 헤더를 읽을 수 없음' },
+            { id: 'b', label: 'try-finally에서 ThreadLocal.remove() 누락 — 스레드 풀 재사용 시 타 사용자 컨텍스트 오염' },
+            { id: 'c', label: 'chain.doFilter()는 필터 맨 첫 줄에 호출해야 함' },
+            { id: 'd', label: 'UserContext.set()은 synchronized 블록 안에서만 호출 가능' }
+        ],
+        answerId: 'b',
+        explanation: 'Tomcat 같은 서블릿 컨테이너는 워커 스레드 풀을 재사용합니다. 5번 줄에서 `UserContext.set(uid)`만 하고 요청 종료 시 `UserContext.remove()`를 호출하지 않으면, 다음 요청이 같은 스레드를 배정받았을 때 이전 사용자의 ID가 남아 권한/데이터가 오염됩니다.',
+        fixCode: 'try {\n  UserContext.set(uid);\n  chain.doFilter(req, res);\n} finally {\n  UserContext.remove();\n}',
+        relatedCardIds: [165, 166],
+        aiReviewPrompt: '이 Servlet Filter에서 ThreadLocal.remove() 누락 시 Tomcat 스레드 풀 환경에서 어떤 보안·메모리 누수 문제가 생기는지 설명하고 try-finally로 안전하게 보완해줘.'
     }
 ];
