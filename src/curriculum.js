@@ -4,6 +4,7 @@
 const curriculumTracks = [
     {
         id: 'scaling-traffic',
+        stage: 1,
         title: '01. 트래픽 급증과 서비스 확장',
         subtitle: '단일 서버가 녹아내릴 때, 무엇부터 어떻게 확장할까?',
         badge: '인프라·확장',
@@ -295,6 +296,7 @@ const curriculumTracks = [
     },
     {
         id: 'db-concurrency',
+        stage: 2,
         title: '02. DB 병목과 동시성 정합성',
         subtitle: '느린 쿼리와 선착순 재고 초과 차감, 어떻게 동시에 잡을까?',
         badge: 'DB·동시성',
@@ -564,6 +566,7 @@ const curriculumTracks = [
     },
     {
         id: 'web-defense',
+        stage: 1,
         title: '03. 웹 요청의 보안 방어선',
         subtitle: '브라우저에서 서버까지, 뚫리기 쉬운 8가지 관문 막기',
         badge: '웹 보안',
@@ -774,6 +777,7 @@ const curriculumTracks = [
     },
     {
         id: 'ai-agent-prod',
+        stage: 3,
         title: '04. AI 에이전트 서비스 프로덕션화',
         subtitle: '데모 챗봇을 신뢰할 수 있는 실무 AI 서비스로 만들기',
         badge: 'AI·에이전트',
@@ -1011,6 +1015,7 @@ const curriculumTracks = [
     },
     {
         id: 'spring-jpa-troubleshooting',
+        stage: 2,
         title: '05. Spring Boot · JPA 실무 트러블슈팅',
         subtitle: '로컬에선 멀쩡한 Spring API가 운영에서만 터지는 8가지 이유',
         badge: 'Java·Spring',
