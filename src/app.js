@@ -22,7 +22,16 @@
         activeDetailId: null,
         quizQueue: [],
         quizIndex: 0,
-        quizKnownCount: 0
+        quizKnownCount: 0,
+        activeView: 'cards', // 'cards' | 'tracks' | 'traps'
+        activeTrackId: typeof curriculumTracks !== 'undefined' && curriculumTracks.length ? curriculumTracks[0].id : '',
+        trackStepByTrack: {},
+        completedTracks: new Set(),
+        activeTrapIndex: 0,
+        solvedTraps: new Set(),
+        trapMarkedLines: new Set(),
+        trapSelectedOption: null,
+        trapSubmitted: false
     };
 
     // DOM Elements
@@ -131,6 +140,21 @@
             if (typeof parsed.statusFilter === 'string') {
                 state.statusFilter = parsed.statusFilter;
             }
+            if (typeof parsed.activeView === 'string' && ['cards', 'tracks', 'traps'].includes(parsed.activeView)) {
+                state.activeView = parsed.activeView;
+            }
+            if (typeof parsed.activeTrackId === 'string') {
+                state.activeTrackId = parsed.activeTrackId;
+            }
+            if (parsed.trackStepByTrack && typeof parsed.trackStepByTrack === 'object') {
+                state.trackStepByTrack = parsed.trackStepByTrack;
+            }
+            if (Array.isArray(parsed.completedTracks)) {
+                state.completedTracks = new Set(parsed.completedTracks);
+            }
+            if (Array.isArray(parsed.solvedTraps)) {
+                state.solvedTraps = new Set(parsed.solvedTraps);
+            }
         } catch {
             // Ignore storage errors
         }
@@ -144,7 +168,12 @@
                 currentCategory: state.currentCategory,
                 levelFilter: state.levelFilter,
                 sortByPriority: state.sortByPriority,
-                statusFilter: state.statusFilter
+                statusFilter: state.statusFilter,
+                activeView: state.activeView,
+                activeTrackId: state.activeTrackId,
+                trackStepByTrack: state.trackStepByTrack,
+                completedTracks: Array.from(state.completedTracks),
+                solvedTraps: Array.from(state.solvedTraps)
             }));
         } catch {
             // Ignore storage errors
@@ -770,10 +799,15 @@
         if (result === 'reset') {
             state.learnedCards.clear();
             state.bookmarkedCards.clear();
+            state.completedTracks.clear();
+            state.solvedTraps.clear();
+            state.trackStepByTrack = {};
             saveState();
             updateProgress();
             render();
-            showToast('학습 진도가 초기화되었습니다', '모든 완료 체크와 북마크가 초기화되었습니다.');
+            if (state.activeView === 'tracks') renderTracksView();
+            if (state.activeView === 'traps') renderTrapsView();
+            showToast('학습 진도가 초기화되었습니다', '모든 완료 체크와 북마크, 트랙/연습 진도가 초기화되었습니다.');
         }
     });
 
@@ -823,9 +857,376 @@
         });
     }
 
+    // --- Multi-View Switching (Cheatsheet / Curriculum Tracks / Trap Finder) ---
+    const viewTabBtns = document.querySelectorAll('.view-tab-btn');
+    const cardsFilterNav = document.getElementById('cardsFilterNav');
+    const cardsView = document.getElementById('cardsView');
+    const tracksView = document.getElementById('tracksView');
+    const trapsView = document.getElementById('trapsView');
+
+    function switchView(view) {
+        state.activeView = view;
+        saveState();
+
+        viewTabBtns.forEach(btn => {
+            const isActive = btn.getAttribute('data-view') === view;
+            btn.setAttribute('aria-selected', isActive ? 'true' : 'false');
+            if (isActive) {
+                btn.className = 'view-tab-btn px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-semibold whitespace-nowrap transition bg-blue-600 text-white shadow-md shadow-blue-600/20 cursor-pointer flex items-center gap-1.5';
+            } else {
+                btn.className = 'view-tab-btn px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-medium whitespace-nowrap transition bg-slate-900 border border-slate-800 text-slate-300 hover:bg-slate-800 cursor-pointer flex items-center gap-1.5';
+            }
+        });
+
+        cardsFilterNav.classList.toggle('hidden', view !== 'cards');
+        cardsView.classList.toggle('hidden', view !== 'cards');
+        tracksView.classList.toggle('hidden', view !== 'tracks');
+        trapsView.classList.toggle('hidden', view !== 'traps');
+
+        if (view === 'tracks') renderTracksView();
+        if (view === 'traps') renderTrapsView();
+    }
+
+    viewTabBtns.forEach(btn => {
+        btn.addEventListener('click', () => switchView(btn.getAttribute('data-view')));
+    });
+
+    // --- Curriculum Tracks (Story Simulation) ---
+    const METRIC_LABELS = {
+        users: '동시 사용자', rps: '요청 / 초', p95: 'P95 지연', error: '오류율', cost: '비용 / 월',
+        queries: '쿼리 / 요청', raceErr: '동시성 오류', dbCpu: 'DB CPU',
+        blocked: '차단 상태', risk: '노출 위험', passRate: '정상 통과', grade: '보안 등급',
+        ttft: 'TTFT 지연', hallucination: '환각 비율', cost1k: '1K당 비용', evalScore: 'Eval 점수'
+    };
+
+    const NODE_STATE_CLS = {
+        ok: 'bg-emerald-500/15 border-emerald-500/40 text-emerald-200',
+        info: 'bg-blue-500/15 border-blue-500/40 text-blue-200',
+        warn: 'bg-amber-500/15 border-amber-500/40 text-amber-200',
+        err: 'bg-rose-500/15 border-rose-500/40 text-rose-200'
+    };
+
+    function getActiveTrack() {
+        if (typeof curriculumTracks === 'undefined' || !curriculumTracks.length) return null;
+        return curriculumTracks.find(t => t.id === state.activeTrackId) || curriculumTracks[0];
+    }
+
+    function getTrackStepIndex(track) {
+        const idx = state.trackStepByTrack[track.id] || 0;
+        return Math.max(0, Math.min(idx, track.steps.length - 1));
+    }
+
+    function setTrackStep(track, idx) {
+        const clamped = Math.max(0, Math.min(idx, track.steps.length - 1));
+        state.trackStepByTrack[track.id] = clamped;
+        if (clamped === track.steps.length - 1) {
+            state.completedTracks.add(track.id);
+        }
+        saveState();
+        renderTracksView();
+    }
+
+    function renderTracksView() {
+        if (typeof curriculumTracks === 'undefined' || !curriculumTracks.length) return;
+        const track = getActiveTrack();
+        if (!track) return;
+        const stepIdx = getTrackStepIndex(track);
+        const step = track.steps[stepIdx];
+
+        document.getElementById('trackOverallBadge').textContent = `${state.completedTracks.size} / ${curriculumTracks.length} 완료`;
+
+        // Left track selector
+        const trackListEl = document.getElementById('trackList');
+        trackListEl.innerHTML = curriculumTracks.map(t => {
+            const active = t.id === track.id;
+            const done = state.completedTracks.has(t.id);
+            const cur = (state.trackStepByTrack[t.id] || 0) + 1;
+            return `
+                <button type="button" data-track-id="${escapeHtml(t.id)}"
+                    class="track-select-btn w-full text-left p-3 rounded-xl border transition cursor-pointer ${active ? 'bg-blue-600/20 border-blue-500/50 text-white' : 'bg-slate-900/70 border-slate-800 text-slate-300 hover:bg-slate-800'}">
+                    <div class="flex items-center justify-between gap-2">
+                        <span class="text-[10px] px-2 py-0.5 rounded-full border font-semibold ${t.badgeCls}">${escapeHtml(t.badge)}</span>
+                        <span class="text-[10px] font-mono ${done ? 'text-emerald-400' : 'text-slate-400'}">
+                            ${done ? '<i class="fa-solid fa-circle-check mr-0.5"></i>완료' : `${cur}/${t.steps.length}`}
+                        </span>
+                    </div>
+                    <div class="text-xs sm:text-sm font-bold mt-1.5 leading-snug">${escapeHtml(t.title)}</div>
+                </button>
+            `;
+        }).join('');
+
+        trackListEl.querySelectorAll('.track-select-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                state.activeTrackId = btn.getAttribute('data-track-id');
+                saveState();
+                renderTracksView();
+            });
+        });
+
+        // Header & Metrics
+        const badgeEl = document.getElementById('trackBadge');
+        badgeEl.className = `text-[11px] px-2 py-0.5 rounded-full border font-semibold ${track.badgeCls}`;
+        badgeEl.textContent = `${track.badge} · ${track.levelLabel}`;
+        document.getElementById('trackDuration').textContent = track.duration;
+        document.getElementById('trackTitle').textContent = track.title;
+        document.getElementById('trackSubtitle').textContent = track.subtitle;
+
+        document.getElementById('trackMetricsBar').innerHTML = Object.entries(step.metrics).map(([k, v]) => {
+            const isBad = String(v).includes('%') && parseFloat(v) >= 10 || String(v).includes('2,400') || String(v).includes('98%');
+            return `
+                <div class="bg-slate-950/80 border border-slate-800 rounded-xl p-2.5">
+                    <div class="text-[10px] text-slate-400">${escapeHtml(METRIC_LABELS[k] || k)}</div>
+                    <div class="text-sm font-bold font-mono mt-0.5 ${isBad ? 'text-rose-400' : 'text-slate-100'}">${escapeHtml(String(v))}</div>
+                </div>
+            `;
+        }).join('');
+
+        // Architecture Flow Diagram
+        const nodes = step.diagram?.nodes || [];
+        document.getElementById('trackDiagramCanvas').innerHTML = `
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-3 w-full flex-wrap">
+                ${nodes.map((n, idx) => `
+                    <div class="px-3.5 py-2.5 rounded-xl border text-center min-w-[130px] flex-1 max-w-[200px] ${NODE_STATE_CLS[n.state] || NODE_STATE_CLS.info}">
+                        <div class="text-xs font-bold">${escapeHtml(n.label)}</div>
+                        <div class="text-[11px] opacity-85 mt-0.5">${escapeHtml(n.sub)}</div>
+                    </div>
+                    ${idx < nodes.length - 1 ? '<i class="fa-solid fa-arrow-right text-slate-500 text-xs rotate-90 sm:rotate-0 shrink-0" aria-hidden="true"></i>' : ''}
+                `).join('')}
+            </div>
+        `;
+
+        // Timeline
+        document.getElementById('trackTimelineCount').textContent = `${stepIdx + 1} / ${track.steps.length}`;
+        const timelineEl = document.getElementById('trackTimeline');
+        timelineEl.innerHTML = track.steps.map((s, idx) => {
+            const active = idx === stepIdx;
+            const passed = idx < stepIdx;
+            return `
+                <button type="button" data-step-idx="${idx}"
+                    class="track-step-dot px-2.5 py-1.5 rounded-lg text-[11px] font-medium whitespace-nowrap border transition cursor-pointer shrink-0 ${active ? 'bg-emerald-600 border-emerald-400 text-white font-bold' : passed ? 'bg-emerald-500/15 border-emerald-500/30 text-emerald-300' : 'bg-slate-900 border-slate-800 text-slate-400 hover:text-slate-200'}">
+                    ${idx + 1}. ${escapeHtml(s.tag)}
+                </button>
+            `;
+        }).join('');
+
+        timelineEl.querySelectorAll('.track-step-dot').forEach(btn => {
+            btn.addEventListener('click', () => setTrackStep(track, Number(btn.getAttribute('data-step-idx'))));
+        });
+
+        // Right Narrative & Linked Card
+        document.getElementById('trackStepCounter').textContent = `${stepIdx + 1} / ${track.steps.length}단계`;
+        document.getElementById('trackStepTag').textContent = step.tag;
+        document.getElementById('trackStepTitle').textContent = step.title;
+        document.getElementById('trackStepStory').textContent = step.story;
+        document.getElementById('trackStepTakeaway').textContent = step.takeaway;
+
+        const linkedItem = items.find(i => i.id === step.cardId);
+        const linkedBtn = document.getElementById('trackLinkedCardBtn');
+        if (linkedItem) {
+            linkedBtn.classList.remove('hidden');
+            document.getElementById('trackLinkedCardTitle').textContent = `[${linkedItem.catName}] ${linkedItem.title}`;
+            linkedBtn.onclick = () => openDetailModal(linkedItem.id);
+        } else {
+            linkedBtn.classList.add('hidden');
+        }
+
+        const prevBtn = document.getElementById('trackPrevBtn');
+        const nextBtn = document.getElementById('trackNextBtn');
+        prevBtn.disabled = stepIdx === 0;
+        prevBtn.onclick = () => setTrackStep(track, stepIdx - 1);
+
+        const isLast = stepIdx === track.steps.length - 1;
+        nextBtn.innerHTML = isLast
+            ? '<span>트랙 완료!</span> <i class="fa-solid fa-check" aria-hidden="true"></i>'
+            : '<span>다음 단계</span> <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>';
+        nextBtn.onclick = () => {
+            if (isLast) {
+                state.completedTracks.add(track.id);
+                saveState();
+                renderTracksView();
+                showToast('커리큘럼 트랙 완료!', `"${track.title}" 시뮬레이션을 마쳤습니다.`);
+            } else {
+                setTrackStep(track, stepIdx + 1);
+            }
+        };
+
+        // Goals checklist
+        const progressRatio = (stepIdx + 1) / track.steps.length;
+        const checkedCount = Math.ceil(progressRatio * track.learningGoals.length);
+        document.getElementById('trackGoalsList').innerHTML = track.learningGoals.map((g, i) => {
+            const done = state.completedTracks.has(track.id) || i < checkedCount;
+            return `
+                <li class="flex items-start gap-2 ${done ? 'text-emerald-300' : 'text-slate-400'}">
+                    <i class="fa-solid ${done ? 'fa-square-check text-emerald-400' : 'fa-regular fa-square text-slate-600'} mt-0.5 shrink-0" aria-hidden="true"></i>
+                    <span>${escapeHtml(g)}</span>
+                </li>
+            `;
+        }).join('');
+    }
+
+    // --- Practice Mode: AI Code/Design Trap Finder ---
+    function selectTrap(index) {
+        if (typeof trapChallenges === 'undefined' || !trapChallenges.length) return;
+        state.activeTrapIndex = Math.max(0, Math.min(index, trapChallenges.length - 1));
+        state.trapMarkedLines = new Set();
+        state.trapSelectedOption = null;
+        state.trapSubmitted = false;
+        renderTrapsView();
+    }
+
+    function renderTrapsView() {
+        if (typeof trapChallenges === 'undefined' || !trapChallenges.length) return;
+        const trap = trapChallenges[state.activeTrapIndex] || trapChallenges[0];
+
+        document.getElementById('trapProgressBadge').textContent = `해결 ${state.solvedTraps.size} / ${trapChallenges.length}`;
+
+        // Selector pills
+        const selectorEl = document.getElementById('trapSelectorList');
+        selectorEl.innerHTML = trapChallenges.map((t, idx) => {
+            const active = idx === state.activeTrapIndex;
+            const solved = state.solvedTraps.has(t.id);
+            return `
+                <button type="button" data-trap-idx="${idx}"
+                    class="trap-pick-btn px-3 py-1.5 rounded-xl text-xs font-medium whitespace-nowrap border transition cursor-pointer shrink-0 flex items-center gap-1.5 ${active ? 'bg-rose-600/20 border-rose-500/50 text-white font-semibold' : solved ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300' : 'bg-slate-900 border-slate-800 text-slate-400 hover:text-slate-200'}">
+                    ${solved ? '<i class="fa-solid fa-check text-emerald-400 text-[10px]"></i>' : ''}
+                    <span>#${idx + 1} ${escapeHtml(t.category)}</span>
+                </button>
+            `;
+        }).join('');
+
+        selectorEl.querySelectorAll('.trap-pick-btn').forEach(btn => {
+            btn.addEventListener('click', () => selectTrap(Number(btn.getAttribute('data-trap-idx'))));
+        });
+
+        // Code snippet panel
+        const catBadge = document.getElementById('trapCatBadge');
+        catBadge.className = `text-[11px] px-2.5 py-0.5 rounded-full border font-semibold ${trap.catCls}`;
+        catBadge.textContent = trap.category;
+        document.getElementById('trapLangBadge').textContent = trap.language;
+        document.getElementById('trapTitle').textContent = trap.title;
+        document.getElementById('trapPromptContext').textContent = trap.promptContext;
+
+        const codeContainer = document.getElementById('trapCodeContainer');
+        codeContainer.innerHTML = trap.codeLines.map((line, i) => {
+            const lineNo = i + 1;
+            const isMarked = state.trapMarkedLines.has(lineNo);
+            const isBuggy = state.trapSubmitted && trap.buggyLines.includes(lineNo);
+            let rowCls = 'hover:bg-slate-900 text-slate-300';
+            if (isBuggy) {
+                rowCls = 'bg-rose-500/20 border-l-2 border-rose-400 text-rose-200';
+            } else if (isMarked) {
+                rowCls = 'bg-amber-500/15 border-l-2 border-amber-400 text-amber-200';
+            }
+            return `
+                <button type="button" data-line="${lineNo}"
+                    class="trap-code-line w-full text-left px-2 py-0.5 rounded flex items-start gap-3 transition cursor-pointer ${rowCls}">
+                    <span class="text-slate-600 select-none w-5 text-right shrink-0">${lineNo}</span>
+                    <span class="whitespace-pre">${escapeHtml(line || ' ')}</span>
+                </button>
+            `;
+        }).join('');
+
+        codeContainer.querySelectorAll('.trap-code-line').forEach(btn => {
+            btn.addEventListener('click', () => {
+                if (state.trapSubmitted) return;
+                const ln = Number(btn.getAttribute('data-line'));
+                if (state.trapMarkedLines.has(ln)) state.trapMarkedLines.delete(ln);
+                else state.trapMarkedLines.add(ln);
+                renderTrapsView();
+            });
+        });
+
+        // Options list
+        const optionsEl = document.getElementById('trapOptionsList');
+        optionsEl.innerHTML = trap.options.map(opt => {
+            const selected = state.trapSelectedOption === opt.id;
+            let cls = 'bg-slate-900/80 border-slate-800 text-slate-300 hover:bg-slate-800';
+            if (state.trapSubmitted) {
+                if (opt.id === trap.answerId) cls = 'bg-emerald-500/15 border-emerald-500/50 text-emerald-200 font-semibold';
+                else if (selected) cls = 'bg-rose-500/15 border-rose-500/50 text-rose-200';
+            } else if (selected) {
+                cls = 'bg-blue-600/20 border-blue-500/60 text-white font-semibold';
+            }
+            return `
+                <button type="button" data-opt-id="${opt.id}" ${state.trapSubmitted ? 'disabled' : ''}
+                    class="trap-opt-btn w-full text-left p-3 rounded-xl border text-xs leading-relaxed transition cursor-pointer ${cls}">
+                    <span class="font-mono uppercase mr-1.5 opacity-70">${opt.id}.</span>${escapeHtml(opt.label)}
+                </button>
+            `;
+        }).join('');
+
+        optionsEl.querySelectorAll('.trap-opt-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                state.trapSelectedOption = btn.getAttribute('data-opt-id');
+                renderTrapsView();
+            });
+        });
+
+        const submitBtn = document.getElementById('trapSubmitBtn');
+        submitBtn.disabled = !state.trapSelectedOption || state.trapSubmitted;
+        submitBtn.onclick = () => {
+            if (!state.trapSelectedOption) return;
+            state.trapSubmitted = true;
+            if (state.trapSelectedOption === trap.answerId) {
+                state.solvedTraps.add(trap.id);
+                saveState();
+            }
+            renderTrapsView();
+        };
+
+        document.getElementById('trapNextBtn').onclick = () => {
+            selectTrap((state.activeTrapIndex + 1) % trapChallenges.length);
+        };
+
+        // Result Area
+        const resultArea = document.getElementById('trapResultArea');
+        if (state.trapSubmitted) {
+            resultArea.classList.remove('hidden');
+            resultArea.classList.add('flex');
+            const isCorrect = state.trapSelectedOption === trap.answerId;
+            const banner = document.getElementById('trapResultBanner');
+            banner.className = `rounded-xl p-3 text-xs font-semibold flex items-center gap-2 ${isCorrect ? 'bg-emerald-500/15 border border-emerald-500/40 text-emerald-300' : 'bg-rose-500/15 border border-rose-500/40 text-rose-300'}`;
+            banner.innerHTML = isCorrect
+                ? '<i class="fa-solid fa-circle-check"></i> 정확히 짚어냈습니다! 붉게 표시된 코드 줄이 핵심 원인입니다.'
+                : '<i class="fa-solid fa-circle-xmark"></i> 아쉽습니다. 붉게 표시된 코드 줄과 아래 해설을 확인해 보세요.';
+
+            document.getElementById('trapExplanation').textContent = trap.explanation;
+            document.getElementById('trapFixCode').textContent = trap.fixCode;
+
+            const relatedEl = document.getElementById('trapRelatedCards');
+            relatedEl.innerHTML = trap.relatedCardIds.map(cid => {
+                const item = items.find(i => i.id === cid);
+                if (!item) return '';
+                return `
+                    <button type="button" data-card-id="${item.id}"
+                        class="trap-card-link px-2.5 py-1 rounded-lg bg-slate-900 hover:bg-blue-600/20 border border-slate-700 hover:border-blue-500/50 text-[11px] text-blue-300 transition cursor-pointer">
+                        <i class="fa-solid fa-book-open mr-1"></i>${escapeHtml(item.title)}
+                    </button>
+                `;
+            }).join('');
+
+            relatedEl.querySelectorAll('.trap-card-link').forEach(btn => {
+                btn.addEventListener('click', () => openDetailModal(Number(btn.getAttribute('data-card-id'))));
+            });
+
+            document.getElementById('trapCopyPromptBtn').onclick = () => {
+                const fullPrompt = `${trap.codeLines.join('\n')}\n\n[리뷰 요청]\n${trap.aiReviewPrompt}`;
+                copyToClipboard(fullPrompt).then(() => {
+                    showToast('AI 리뷰 프롬프트 복사됨', '코드와 검증 요청이 클립보드에 복사되었습니다.');
+                });
+            };
+        } else {
+            resultArea.classList.add('hidden');
+            resultArea.classList.remove('flex');
+        }
+    }
+
     // Initialize
     loadState();
     updateFilterUI();
     updateProgress();
     render();
+    if (state.activeView !== 'cards') {
+        switchView(state.activeView);
+    }
 })();

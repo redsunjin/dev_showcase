@@ -45,5 +45,26 @@ assert.ok(html.includes('data-category="devops"'), 'index.html missing devops ca
 assert.ok(html.includes('data-category="ai-agent"'), 'index.html missing ai-agent category tab');
 assert.ok(html.includes('data-level="1"'), 'index.html missing difficulty filter');
 assert.ok(html.includes('id="sortPriorityBtn"'), 'index.html missing priority sort button');
+assert.ok(html.includes('id="tracksView"'), 'index.html missing tracksView');
+assert.ok(html.includes('id="trapsView"'), 'index.html missing trapsView');
 
-console.log('✅ All functional & structural assertions passed (152 items, 10 categories, 3 difficulty levels, mobile CSS rules).');
+// 6. Verify curriculumTracks & trapChallenges integrity
+const curriculumCode = fs.readFileSync('src/curriculum.js', 'utf8');
+const { curriculumTracks, trapChallenges } = new Function(curriculumCode + '; return { curriculumTracks, trapChallenges };')();
+const validIds = new Set(items.map(i => i.id));
+assert.equal(curriculumTracks.length, 4, 'Expected 4 curriculum tracks');
+for (const tr of curriculumTracks) {
+    assert.ok(tr.steps.length >= 5, `Track ${tr.id} must have >= 5 steps`);
+    for (const st of tr.steps) {
+        assert.ok(validIds.has(st.cardId), `Track ${tr.id} references invalid cardId ${st.cardId}`);
+    }
+}
+assert.equal(trapChallenges.length, 10, 'Expected 10 trap challenges');
+for (const ch of trapChallenges) {
+    assert.ok(ch.options.some(o => o.id === ch.answerId), `Trap ${ch.id} answerId missing in options`);
+    for (const cid of ch.relatedCardIds) {
+        assert.ok(validIds.has(cid), `Trap ${ch.id} references invalid cardId ${cid}`);
+    }
+}
+
+console.log('✅ All functional & structural assertions passed (152 items, 10 categories, 3 difficulty levels, 4 tracks, 10 traps).');
