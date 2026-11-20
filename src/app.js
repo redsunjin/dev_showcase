@@ -865,8 +865,11 @@
                     e.preventDefault();
                     replayTrackSimulation();
                 } else if (e.key === ' ') {
-                    e.preventDefault();
-                    toggleTrackPause();
+                    const isInteractive = tag === 'BUTTON' || tag === 'A' || tag === 'SELECT';
+                    if (!isInteractive) {
+                        e.preventDefault();
+                        toggleTrackPause();
+                    }
                 }
             }
         }
@@ -928,6 +931,7 @@
     };
 
     const LOWER_IS_BETTER_METRICS = new Set(['p95', 'error', 'cost', 'queries', 'dbCpu', 'ttft', 'hallucination', 'cost1k']);
+    const NEUTRAL_METRICS = new Set(['users', 'rps']);
 
     const NODE_STATE_CLS = {
         ok: 'bg-emerald-500/15 border-emerald-500/45 text-emerald-200',
@@ -970,11 +974,17 @@
         const p = parseMetricNumber(prevVal);
         if (c === null || p === null || c === p) return null;
         const increased = c > p;
+        const arrow = increased ? '↑' : '↓';
+        if (NEUTRAL_METRICS.has(key)) {
+            return {
+                text: `${arrow} ${increased ? '증가' : '감소'}`,
+                cls: 'text-sky-400'
+            };
+        }
         const lowerBetter = LOWER_IS_BETTER_METRICS.has(key);
         const isGood = lowerBetter ? !increased : increased;
-        const arrow = increased ? '↑' : '↓';
         return {
-            text: `${arrow} ${isGood ? '개선' : '증가'}`,
+            text: `${arrow} ${isGood ? '개선' : '악화'}`,
             cls: isGood ? 'text-emerald-400' : 'text-rose-400'
         };
     }
@@ -1129,7 +1139,7 @@
         const nodes = activeDiagram?.nodes || [];
         const stageEl = document.getElementById('trackDiagramCanvas');
         stageEl.innerHTML = `
-            <div class="flex flex-col md:flex-row items-center justify-center gap-2 md:gap-0 w-full py-2">
+            <div class="flex flex-col md:flex-row items-center justify-center gap-2 md:gap-0 w-full md:w-max md:min-w-full mx-auto py-2">
                 ${nodes.map((n, idx) => {
                     const load = getNodeLoad(n);
                     const barCls = n.state === 'err' ? 'bg-rose-500' : n.state === 'warn' ? 'bg-amber-400' : n.state === 'ok' ? 'bg-emerald-400' : 'bg-blue-400';
@@ -1141,9 +1151,9 @@
                     const isFast = activeDiagram?.usersStatus === 'spike' || edgeBad;
                     const dur = isFast ? '1.1s' : '1.9s';
                     return `
-                        <div class="relative px-3.5 py-3 rounded-2xl border min-w-[148px] max-w-[190px] w-full md:w-auto flex-1 flex flex-col items-center text-center shadow-lg ${NODE_STATE_CLS[n.state] || NODE_STATE_CLS.info}">
+                        <div class="relative px-2.5 py-3 rounded-2xl border min-w-[112px] max-w-[178px] w-full md:w-auto flex-1 flex flex-col items-center text-center shadow-lg ${NODE_STATE_CLS[n.state] || NODE_STATE_CLS.info}">
                             ${n.spec ? `<div class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-slate-950/60 border border-slate-700/60 mb-1.5">${escapeHtml(n.spec)}</div>` : ''}
-                            <div class="w-9 h-9 rounded-xl bg-slate-950/50 border border-current/20 flex items-center justify-center mb-1.5 text-sm">
+                            <div class="w-8 h-8 rounded-xl bg-slate-950/50 border border-current/20 flex items-center justify-center mb-1.5 text-xs">
                                 <i class="fa-solid ${getNodeIcon(n)}" aria-hidden="true"></i>
                             </div>
                             <div class="text-xs font-bold leading-snug">${escapeHtml(n.label)}</div>
@@ -1155,10 +1165,10 @@
                             </div>
                         </div>
                         ${idx < nodes.length - 1 ? `
-                            <div class="hidden md:flex items-center justify-center relative w-12 lg:w-16 h-8 shrink-0" aria-hidden="true">
-                                <svg class="w-full h-6 overflow-visible" viewBox="0 0 64 24" preserveAspectRatio="none">
-                                    <line x1="2" y1="12" x2="58" y2="12" stroke="${edgeStroke}" stroke-width="2" class="${isFast ? 'sim-edge-fast' : 'sim-edge-flow'}" opacity="0.65"></line>
-                                    <polygon points="56,7 64,12 56,17" fill="${edgeStroke}" opacity="0.85"></polygon>
+                            <div class="hidden md:flex items-center justify-center relative w-7 lg:w-9 h-8 shrink-0" aria-hidden="true">
+                                <svg class="w-full h-6 overflow-visible" viewBox="0 0 48 24" preserveAspectRatio="none">
+                                    <line x1="2" y1="12" x2="42" y2="12" stroke="${edgeStroke}" stroke-width="2" class="${isFast ? 'sim-edge-fast' : 'sim-edge-flow'}" opacity="0.65"></line>
+                                    <polygon points="40,7 48,12 40,17" fill="${edgeStroke}" opacity="0.85"></polygon>
                                 </svg>
                                 <span class="sim-packet ${pktColor}" style="--pkt-dur:${dur};--pkt-delay:0s;"></span>
                                 <span class="sim-packet ${pktColor}" style="--pkt-dur:${dur};--pkt-delay:${isFast ? '0.55s' : '0.95s'};"></span>
@@ -1177,7 +1187,7 @@
         timelineEl.innerHTML = track.steps.map((s, idx) => {
             const active = idx === stepIdx;
             const passed = idx < stepIdx;
-            const shortTitle = (s.shortTitle || s.title.replace(/^\d+\.\s*/, '')).slice(0, 14);
+            const shortTitle = s.shortTitle || s.tag;
             return `
                 <button type="button" data-step-idx="${idx}"
                     class="track-step-dot stepper-item ${passed ? 'stepper-passed' : ''} flex flex-col items-center gap-1.5 min-w-[78px] px-1 pt-0.5 text-center cursor-pointer group shrink-0">
