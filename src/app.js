@@ -31,7 +31,9 @@
         solvedTraps: new Set(),
         trapMarkedLines: new Set(),
         trapSelectedOption: null,
-        trapSubmitted: false
+        trapSubmitted: false,
+        simPaused: false,
+        simVariantIndex: 0
     };
 
     // DOM Elements
@@ -841,11 +843,31 @@
             return;
         }
 
-        if (e.key === '/' && !quizDialog.open && !confirmResetDialog.open) {
+        if (!quizDialog.open && !confirmResetDialog.open) {
             const tag = document.activeElement?.tagName;
-            if (tag !== 'INPUT' && tag !== 'TEXTAREA') {
+            const isTyping = tag === 'INPUT' || tag === 'TEXTAREA';
+            if (e.key === '/' && !isTyping) {
                 e.preventDefault();
                 searchInput.focus();
+                return;
+            }
+            if (state.activeView === 'tracks' && !isTyping) {
+                const track = getActiveTrack();
+                if (!track) return;
+                const curIdx = getTrackStepIndex(track);
+                if (e.key === 'ArrowLeft') {
+                    e.preventDefault();
+                    setTrackStep(track, curIdx - 1);
+                } else if (e.key === 'ArrowRight') {
+                    e.preventDefault();
+                    setTrackStep(track, curIdx + 1);
+                } else if (e.key === 'r' || e.key === 'R') {
+                    e.preventDefault();
+                    replayTrackSimulation();
+                } else if (e.key === ' ') {
+                    e.preventDefault();
+                    toggleTrackPause();
+                }
             }
         }
     });
@@ -857,7 +879,8 @@
         });
     }
 
-    // --- Multi-View Switching (Cheatsheet / Curriculum Tracks / Trap Finder) ---
+    // --- Multi-View Switching (Cards / Curriculum Tracks / Trap Finder) ---
+    const mainContainer = document.getElementById('mainContainer');
     const viewTabBtns = document.querySelectorAll('.view-tab-btn');
     const cardsFilterNav = document.getElementById('cardsFilterNav');
     const cardsView = document.getElementById('cardsView');
@@ -878,6 +901,11 @@
             }
         });
 
+        if (mainContainer) {
+            mainContainer.classList.toggle('max-w-[1440px]', view === 'tracks');
+            mainContainer.classList.toggle('max-w-7xl', view !== 'tracks');
+        }
+
         cardsFilterNav.classList.toggle('hidden', view !== 'cards');
         cardsView.classList.toggle('hidden', view !== 'cards');
         tracksView.classList.toggle('hidden', view !== 'tracks');
@@ -891,7 +919,7 @@
         btn.addEventListener('click', () => switchView(btn.getAttribute('data-view')));
     });
 
-    // --- Curriculum Tracks (Story Simulation) ---
+    // --- Curriculum Tracks (Interactive Story Simulation Engine) ---
     const METRIC_LABELS = {
         users: '동시 사용자', rps: '요청 / 초', p95: 'P95 지연', error: '오류율', cost: '비용 / 월',
         queries: '쿼리 / 요청', raceErr: '동시성 오류', dbCpu: 'DB CPU',
@@ -899,12 +927,90 @@
         ttft: 'TTFT 지연', hallucination: '환각 비율', cost1k: '1K당 비용', evalScore: 'Eval 점수'
     };
 
+    const LOWER_IS_BETTER_METRICS = new Set(['p95', 'error', 'cost', 'queries', 'dbCpu', 'ttft', 'hallucination', 'cost1k']);
+
     const NODE_STATE_CLS = {
-        ok: 'bg-emerald-500/15 border-emerald-500/40 text-emerald-200',
-        info: 'bg-blue-500/15 border-blue-500/40 text-blue-200',
-        warn: 'bg-amber-500/15 border-amber-500/40 text-amber-200',
-        err: 'bg-rose-500/15 border-rose-500/40 text-rose-200'
+        ok: 'bg-emerald-500/15 border-emerald-500/45 text-emerald-200',
+        info: 'bg-blue-500/15 border-blue-500/45 text-blue-200',
+        warn: 'bg-amber-500/15 border-amber-500/45 text-amber-200',
+        err: 'bg-rose-500/15 border-rose-500/55 text-rose-200 sim-node-alert'
     };
+
+    function getNodeIcon(node) {
+        if (node.icon) return node.icon;
+        const text = `${node.label} ${node.sub}`.toLowerCase();
+        if (text.includes('사용자') || text.includes('요청') || text.includes('브라우저')) return 'fa-users';
+        if (text.includes('로드 밸런서') || text.includes('lb') || text.includes('라우터')) return 'fa-shuffle';
+        if (text.includes('redis') || text.includes('캐시')) return 'fa-bolt';
+        if (text.includes('db') || text.includes('인덱스') || text.includes('테이블') || text.includes('커서')) return 'fa-database';
+        if (text.includes('tls') || text.includes('sop') || text.includes('cors') || text.includes('가드레일') || text.includes('서킷') || text.includes('쿠키') || text.includes('csrf') || text.includes('httponly')) return 'fa-shield-halved';
+        if (text.includes('llm') || text.includes('rag') || text.includes('eval') || text.includes('golden') || text.includes('프롬프트')) return 'fa-robot';
+        return 'fa-server';
+    }
+
+    function getNodeLoad(node) {
+        if (typeof node.load === 'number') return Math.max(0, Math.min(100, node.load));
+        const pctMatch = String(node.sub || '').match(/(\d+)\s*%/);
+        if (pctMatch) return Math.min(100, Number(pctMatch[1]));
+        if (node.state === 'err') return 96;
+        if (node.state === 'warn') return 72;
+        if (node.state === 'ok') return 26;
+        return 42;
+    }
+
+    function parseMetricNumber(val) {
+        const cleaned = String(val || '').replace(/,/g, '');
+        const match = cleaned.match(/-?\d+(\.\d+)?/);
+        return match ? parseFloat(match[0]) : null;
+    }
+
+    function computeMetricDelta(key, curVal, prevVal) {
+        if (prevVal === undefined || prevVal === null || curVal === prevVal) return null;
+        const c = parseMetricNumber(curVal);
+        const p = parseMetricNumber(prevVal);
+        if (c === null || p === null || c === p) return null;
+        const increased = c > p;
+        const lowerBetter = LOWER_IS_BETTER_METRICS.has(key);
+        const isGood = lowerBetter ? !increased : increased;
+        const arrow = increased ? '↑' : '↓';
+        return {
+            text: `${arrow} ${isGood ? '개선' : '증가'}`,
+            cls: isGood ? 'text-emerald-400' : 'text-rose-400'
+        };
+    }
+
+    function updateSimPauseUI() {
+        const stage = document.getElementById('trackDiagramCanvas');
+        const btn = document.getElementById('simPauseBtn');
+        const icon = document.getElementById('simPauseIcon');
+        const text = document.getElementById('simPauseText');
+        if (stage) stage.classList.toggle('sim-paused', state.simPaused);
+        if (btn) btn.setAttribute('aria-pressed', state.simPaused ? 'true' : 'false');
+        if (icon) icon.className = state.simPaused ? 'fa-solid fa-play text-[11px]' : 'fa-solid fa-pause text-[11px]';
+        if (text) text.textContent = state.simPaused ? '재생' : '일시정지';
+    }
+
+    function toggleTrackPause() {
+        state.simPaused = !state.simPaused;
+        updateSimPauseUI();
+    }
+
+    function replayTrackSimulation() {
+        state.simPaused = false;
+        const stage = document.getElementById('trackDiagramCanvas');
+        if (stage) {
+            const cloneHtml = stage.innerHTML;
+            stage.innerHTML = '';
+            void stage.offsetWidth;
+            stage.innerHTML = cloneHtml;
+        }
+        updateSimPauseUI();
+    }
+
+    const simPauseBtn = document.getElementById('simPauseBtn');
+    const simReplayBtn = document.getElementById('simReplayBtn');
+    if (simPauseBtn) simPauseBtn.addEventListener('click', toggleTrackPause);
+    if (simReplayBtn) simReplayBtn.addEventListener('click', replayTrackSimulation);
 
     function getActiveTrack() {
         if (typeof curriculumTracks === 'undefined' || !curriculumTracks.length) return null;
@@ -919,6 +1025,7 @@
     function setTrackStep(track, idx) {
         const clamped = Math.max(0, Math.min(idx, track.steps.length - 1));
         state.trackStepByTrack[track.id] = clamped;
+        state.simVariantIndex = 0;
         if (clamped === track.steps.length - 1) {
             state.completedTracks.add(track.id);
         }
@@ -932,6 +1039,12 @@
         if (!track) return;
         const stepIdx = getTrackStepIndex(track);
         const step = track.steps[stepIdx];
+        const prevStep = stepIdx > 0 ? track.steps[stepIdx - 1] : null;
+
+        const variants = Array.isArray(step.variants) && step.variants.length ? step.variants : null;
+        const activeVariant = variants ? variants[Math.min(state.simVariantIndex, variants.length - 1)] : null;
+        const activeMetrics = activeVariant?.metrics || step.metrics;
+        const activeDiagram = activeVariant?.diagram || step.diagram;
 
         document.getElementById('trackOverallBadge').textContent = `${state.completedTracks.size} / ${curriculumTracks.length} 완료`;
 
@@ -950,7 +1063,7 @@
                             ${done ? '<i class="fa-solid fa-circle-check mr-0.5"></i>완료' : `${cur}/${t.steps.length}`}
                         </span>
                     </div>
-                    <div class="text-xs sm:text-sm font-bold mt-1.5 leading-snug">${escapeHtml(t.title)}</div>
+                    <div class="text-xs font-bold mt-1.5 leading-snug">${escapeHtml(t.title)}</div>
                 </button>
             `;
         }).join('');
@@ -958,53 +1071,120 @@
         trackListEl.querySelectorAll('.track-select-btn').forEach(btn => {
             btn.addEventListener('click', () => {
                 state.activeTrackId = btn.getAttribute('data-track-id');
+                state.simVariantIndex = 0;
                 saveState();
                 renderTracksView();
             });
         });
 
-        // Header & Metrics
+        // Header & Metrics with Delta
         const badgeEl = document.getElementById('trackBadge');
         badgeEl.className = `text-[11px] px-2 py-0.5 rounded-full border font-semibold ${track.badgeCls}`;
         badgeEl.textContent = `${track.badge} · ${track.levelLabel}`;
-        document.getElementById('trackDuration').textContent = track.duration;
+        document.getElementById('trackDuration').textContent = `${track.steps.length}단계 시뮬레이션`;
         document.getElementById('trackTitle').textContent = track.title;
         document.getElementById('trackSubtitle').textContent = track.subtitle;
 
-        document.getElementById('trackMetricsBar').innerHTML = Object.entries(step.metrics).map(([k, v]) => {
-            const isBad = String(v).includes('%') && parseFloat(v) >= 10 || String(v).includes('2,400') || String(v).includes('98%');
+        document.getElementById('trackMetricsBar').innerHTML = Object.entries(activeMetrics).map(([k, v]) => {
+            const isBad = (LOWER_IS_BETTER_METRICS.has(k) && ((String(v).includes('%') && parseFloat(v) >= 10) || String(v).includes('2,400') || String(v).includes('98%')));
+            const delta = computeMetricDelta(k, v, prevStep?.metrics?.[k]);
             return `
-                <div class="bg-slate-950/80 border border-slate-800 rounded-xl p-2.5">
-                    <div class="text-[10px] text-slate-400">${escapeHtml(METRIC_LABELS[k] || k)}</div>
-                    <div class="text-sm font-bold font-mono mt-0.5 ${isBad ? 'text-rose-400' : 'text-slate-100'}">${escapeHtml(String(v))}</div>
+                <div class="bg-slate-950/80 border border-slate-800 rounded-xl p-2.5 flex flex-col justify-between">
+                    <div class="flex items-center justify-between gap-1">
+                        <span class="text-[10px] text-slate-400 truncate">${escapeHtml(METRIC_LABELS[k] || k)}</span>
+                        ${delta ? `<span class="text-[10px] font-mono font-semibold shrink-0 ${delta.cls}">${delta.text}</span>` : ''}
+                    </div>
+                    <div class="text-sm font-bold font-mono mt-1 ${isBad ? 'text-rose-400' : 'text-slate-100'}">${escapeHtml(String(v))}</div>
                 </div>
             `;
         }).join('');
 
-        // Architecture Flow Diagram
-        const nodes = step.diagram?.nodes || [];
-        document.getElementById('trackDiagramCanvas').innerHTML = `
-            <div class="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-3 w-full flex-wrap">
-                ${nodes.map((n, idx) => `
-                    <div class="px-3.5 py-2.5 rounded-xl border text-center min-w-[130px] flex-1 max-w-[200px] ${NODE_STATE_CLS[n.state] || NODE_STATE_CLS.info}">
-                        <div class="text-xs font-bold">${escapeHtml(n.label)}</div>
-                        <div class="text-[11px] opacity-85 mt-0.5">${escapeHtml(n.sub)}</div>
-                    </div>
-                    ${idx < nodes.length - 1 ? '<i class="fa-solid fa-arrow-right text-slate-500 text-xs rotate-90 sm:rotate-0 shrink-0" aria-hidden="true"></i>' : ''}
+        // Interactive Variant Switcher
+        const variantsEl = document.getElementById('trackSimVariants');
+        if (variants && variantsEl) {
+            variantsEl.classList.remove('hidden');
+            variantsEl.classList.add('flex');
+            variantsEl.innerHTML = `
+                <span class="text-[11px] font-semibold text-slate-400 mr-1"><i class="fa-solid fa-sliders mr-1 text-blue-400"></i>직접 비교:</span>
+                ${variants.map((v, i) => `
+                    <button type="button" data-var-idx="${i}"
+                        class="sim-var-btn px-2.5 py-1 rounded-lg text-[11px] font-semibold border transition cursor-pointer ${i === state.simVariantIndex ? 'bg-blue-600 border-blue-400 text-white' : 'bg-slate-900 border-slate-700 text-slate-300 hover:bg-slate-800'}">
+                        ${escapeHtml(v.label)}
+                    </button>
                 `).join('')}
+                ${activeVariant?.note ? `<span class="text-[11px] text-slate-400 ml-auto">${escapeHtml(activeVariant.note)}</span>` : ''}
+            `;
+            variantsEl.querySelectorAll('.sim-var-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    state.simVariantIndex = Number(btn.getAttribute('data-var-idx'));
+                    renderTracksView();
+                });
+            });
+        } else if (variantsEl) {
+            variantsEl.classList.add('hidden');
+            variantsEl.classList.remove('flex');
+        }
+
+        // Animated SVG/Node Architecture Stage
+        const nodes = activeDiagram?.nodes || [];
+        const stageEl = document.getElementById('trackDiagramCanvas');
+        stageEl.innerHTML = `
+            <div class="flex flex-col md:flex-row items-center justify-center gap-2 md:gap-0 w-full py-2">
+                ${nodes.map((n, idx) => {
+                    const load = getNodeLoad(n);
+                    const barCls = n.state === 'err' ? 'bg-rose-500' : n.state === 'warn' ? 'bg-amber-400' : n.state === 'ok' ? 'bg-emerald-400' : 'bg-blue-400';
+                    const nextNode = nodes[idx + 1];
+                    const edgeBad = nextNode && (nextNode.state === 'err' || n.state === 'err');
+                    const edgeWarn = !edgeBad && nextNode && (nextNode.state === 'warn' || n.state === 'warn');
+                    const edgeStroke = edgeBad ? '#f43f5e' : edgeWarn ? '#f59e0b' : '#34d399';
+                    const pktColor = edgeBad ? 'bg-rose-500 shadow-[0_0_8px_#f43f5e]' : edgeWarn ? 'bg-amber-400 shadow-[0_0_8px_#f59e0b]' : 'bg-emerald-400 shadow-[0_0_8px_#34d399]';
+                    const isFast = activeDiagram?.usersStatus === 'spike' || edgeBad;
+                    const dur = isFast ? '1.1s' : '1.9s';
+                    return `
+                        <div class="relative px-3.5 py-3 rounded-2xl border min-w-[148px] max-w-[190px] w-full md:w-auto flex-1 flex flex-col items-center text-center shadow-lg ${NODE_STATE_CLS[n.state] || NODE_STATE_CLS.info}">
+                            ${n.spec ? `<div class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-slate-950/60 border border-slate-700/60 mb-1.5">${escapeHtml(n.spec)}</div>` : ''}
+                            <div class="w-9 h-9 rounded-xl bg-slate-950/50 border border-current/20 flex items-center justify-center mb-1.5 text-sm">
+                                <i class="fa-solid ${getNodeIcon(n)}" aria-hidden="true"></i>
+                            </div>
+                            <div class="text-xs font-bold leading-snug">${escapeHtml(n.label)}</div>
+                            <div class="text-[11px] opacity-90 mt-0.5 leading-snug">${escapeHtml(n.sub)}</div>
+                            <div class="w-full mt-2.5">
+                                <div class="h-1.5 w-full rounded-full bg-slate-950/60 overflow-hidden">
+                                    <div class="h-full rounded-full transition-all duration-500 ${barCls}" style="width: ${load}%"></div>
+                                </div>
+                            </div>
+                        </div>
+                        ${idx < nodes.length - 1 ? `
+                            <div class="hidden md:flex items-center justify-center relative w-12 lg:w-16 h-8 shrink-0" aria-hidden="true">
+                                <svg class="w-full h-6 overflow-visible" viewBox="0 0 64 24" preserveAspectRatio="none">
+                                    <line x1="2" y1="12" x2="58" y2="12" stroke="${edgeStroke}" stroke-width="2" class="${isFast ? 'sim-edge-fast' : 'sim-edge-flow'}" opacity="0.65"></line>
+                                    <polygon points="56,7 64,12 56,17" fill="${edgeStroke}" opacity="0.85"></polygon>
+                                </svg>
+                                <span class="sim-packet ${pktColor}" style="--pkt-dur:${dur};--pkt-delay:0s;"></span>
+                                <span class="sim-packet ${pktColor}" style="--pkt-dur:${dur};--pkt-delay:${isFast ? '0.55s' : '0.95s'};"></span>
+                            </div>
+                            <i class="fa-solid fa-arrow-down text-slate-500 text-xs md:hidden shrink-0 my-0.5" aria-hidden="true"></i>
+                        ` : ''}
+                    `;
+                }).join('')}
             </div>
         `;
+        updateSimPauseUI();
 
-        // Timeline
+        // Connected Horizontal Stepper
         document.getElementById('trackTimelineCount').textContent = `${stepIdx + 1} / ${track.steps.length}`;
         const timelineEl = document.getElementById('trackTimeline');
         timelineEl.innerHTML = track.steps.map((s, idx) => {
             const active = idx === stepIdx;
             const passed = idx < stepIdx;
+            const shortTitle = (s.shortTitle || s.title.replace(/^\d+\.\s*/, '')).slice(0, 14);
             return `
                 <button type="button" data-step-idx="${idx}"
-                    class="track-step-dot px-2.5 py-1.5 rounded-lg text-[11px] font-medium whitespace-nowrap border transition cursor-pointer shrink-0 ${active ? 'bg-emerald-600 border-emerald-400 text-white font-bold' : passed ? 'bg-emerald-500/15 border-emerald-500/30 text-emerald-300' : 'bg-slate-900 border-slate-800 text-slate-400 hover:text-slate-200'}">
-                    ${idx + 1}. ${escapeHtml(s.tag)}
+                    class="track-step-dot stepper-item ${passed ? 'stepper-passed' : ''} flex flex-col items-center gap-1.5 min-w-[78px] px-1 pt-0.5 text-center cursor-pointer group shrink-0">
+                    <span class="w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-bold border transition relative z-10 ${active ? 'bg-emerald-600 border-emerald-400 text-white shadow-md shadow-emerald-600/30' : passed ? 'bg-emerald-500/20 border-emerald-500/50 text-emerald-300' : 'bg-slate-900 border-slate-700 text-slate-400 group-hover:border-slate-500'}">
+                        ${passed ? '<i class="fa-solid fa-check text-[10px]"></i>' : idx + 1}
+                    </span>
+                    <span class="text-[10px] leading-tight line-clamp-2 ${active ? 'text-white font-semibold' : passed ? 'text-emerald-300/90' : 'text-slate-400'}">${escapeHtml(shortTitle)}</span>
                 </button>
             `;
         }).join('');
@@ -1013,21 +1193,56 @@
             btn.addEventListener('click', () => setTrackStep(track, Number(btn.getAttribute('data-step-idx'))));
         });
 
-        // Right Narrative & Linked Card
+        // Right Narrative, Why, Takeaway, Tradeoff & Linked Learning Cards
         document.getElementById('trackStepCounter').textContent = `${stepIdx + 1} / ${track.steps.length}단계`;
         document.getElementById('trackStepTag').textContent = step.tag;
         document.getElementById('trackStepTitle').textContent = step.title;
-        document.getElementById('trackStepStory').textContent = step.story;
+
+        const storyParagraphs = Array.isArray(step.story) ? step.story : [step.story];
+        document.getElementById('trackStepStory').innerHTML = storyParagraphs
+            .map(p => `<p>${escapeHtml(p)}</p>`)
+            .join('');
+
+        const whyBox = document.getElementById('trackStepWhyBox');
+        if (step.whyLimit) {
+            whyBox.classList.remove('hidden');
+            document.getElementById('trackStepWhyText').textContent = step.whyLimit;
+        } else {
+            whyBox.classList.add('hidden');
+        }
+
         document.getElementById('trackStepTakeaway').textContent = step.takeaway;
 
-        const linkedItem = items.find(i => i.id === step.cardId);
-        const linkedBtn = document.getElementById('trackLinkedCardBtn');
-        if (linkedItem) {
-            linkedBtn.classList.remove('hidden');
-            document.getElementById('trackLinkedCardTitle').textContent = `[${linkedItem.catName}] ${linkedItem.title}`;
-            linkedBtn.onclick = () => openDetailModal(linkedItem.id);
+        const tradeoffBox = document.getElementById('trackStepTradeoffBox');
+        if (step.tradeoff) {
+            tradeoffBox.classList.remove('hidden');
+            document.getElementById('trackStepTradeoffText').textContent = step.tradeoff;
         } else {
-            linkedBtn.classList.add('hidden');
+            tradeoffBox.classList.add('hidden');
+        }
+
+        const linkedIds = Array.isArray(step.cardIds) && step.cardIds.length
+            ? step.cardIds
+            : (step.cardId ? [step.cardId] : []);
+        const linkedItems = linkedIds.map(id => items.find(i => i.id === id)).filter(Boolean);
+        const linkedWrap = document.getElementById('trackLinkedCardsWrap');
+        const linkedList = document.getElementById('trackLinkedCardsList');
+        if (linkedItems.length) {
+            linkedWrap.classList.remove('hidden');
+            linkedList.innerHTML = linkedItems.map(item => `
+                <button type="button" data-card-id="${item.id}"
+                    class="track-card-link w-full text-left bg-slate-900/90 hover:bg-slate-800 border border-slate-700 hover:border-blue-500/50 rounded-xl p-2.5 transition flex items-center justify-between gap-2 cursor-pointer group">
+                    <div class="min-w-0">
+                        <div class="text-xs font-semibold text-white truncate">[${escapeHtml(item.catName)}] ${escapeHtml(item.title)}</div>
+                    </div>
+                    <span class="text-[11px] text-slate-400 group-hover:text-blue-300 shrink-0">카드 열기 <i class="fa-solid fa-arrow-up-right-from-square ml-0.5" aria-hidden="true"></i></span>
+                </button>
+            `).join('');
+            linkedList.querySelectorAll('.track-card-link').forEach(btn => {
+                btn.addEventListener('click', () => openDetailModal(Number(btn.getAttribute('data-card-id'))));
+            });
+        } else {
+            linkedWrap.classList.add('hidden');
         }
 
         const prevBtn = document.getElementById('trackPrevBtn');
@@ -1037,14 +1252,14 @@
 
         const isLast = stepIdx === track.steps.length - 1;
         nextBtn.innerHTML = isLast
-            ? '<span>트랙 완료!</span> <i class="fa-solid fa-check" aria-hidden="true"></i>'
+            ? '<span>코스 완료!</span> <i class="fa-solid fa-check" aria-hidden="true"></i>'
             : '<span>다음 단계</span> <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>';
         nextBtn.onclick = () => {
             if (isLast) {
                 state.completedTracks.add(track.id);
                 saveState();
                 renderTracksView();
-                showToast('커리큘럼 트랙 완료!', `"${track.title}" 시뮬레이션을 마쳤습니다.`);
+                showToast('커리큘럼 코스 완료!', `"${track.title}" 시뮬레이션을 마쳤습니다.`);
             } else {
                 setTrackStep(track, stepIdx + 1);
             }
