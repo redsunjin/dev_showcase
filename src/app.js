@@ -1491,8 +1491,40 @@
         });
     }
 
+    function syncDynamicCounts() {
+        const total = items.length;
+        const cardsTabLabel = document.getElementById('cardsTabLabel');
+        if (cardsTabLabel) cardsTabLabel.textContent = `카드 ${total}선`;
+
+        const coursesTabCount = document.getElementById('coursesTabCount');
+        if (coursesTabCount && typeof curriculumTracks !== 'undefined') {
+            coursesTabCount.textContent = `${curriculumTracks.length}코스`;
+        }
+
+        const heading = document.querySelector('header h1');
+        if (heading) heading.textContent = `개발자 핵심 기본소양 ${total}선`;
+        document.title = `개발자 핵심 기본소양 ${total}선`;
+
+        const countsByCat = items.reduce((acc, it) => {
+            acc[it.category] = (acc[it.category] || 0) + 1;
+            return acc;
+        }, {});
+        catBtns.forEach(btn => {
+            const cat = btn.getAttribute('data-category');
+            const iconEl = btn.querySelector('i');
+            const iconHtml = iconEl ? iconEl.outerHTML + ' ' : '';
+            if (cat === 'all') {
+                btn.innerHTML = `${iconHtml}전체 (${total})`;
+            } else if (countsByCat[cat] !== undefined) {
+                const labelText = btn.textContent.trim().replace(/\s*\d+\s*$/, '');
+                btn.innerHTML = `${iconHtml}${escapeHtml(labelText)} ${countsByCat[cat]}`;
+            }
+        });
+    }
+
     // Initialize
     initTheme();
+    syncDynamicCounts();
     loadState();
     updateFilterUI();
     updateProgress();

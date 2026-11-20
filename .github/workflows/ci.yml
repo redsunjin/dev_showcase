@@ -1,0 +1,31 @@
+name: Harness & Content Validation
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Syntax check JavaScript files
+        run: |
+          node --check src/app.js
+          node --check src/curriculum.js
+          node --check sw.js
+
+      - name: Run content & harness validation
+        run: node harness/validate.mjs
+
+      - name: Run functional & structural tests
+        run: node harness/functional-test.mjs
