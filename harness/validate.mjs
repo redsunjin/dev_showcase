@@ -1,24 +1,16 @@
 import fs from 'node:fs';
 
-const ALLOWED_CATEGORIES = new Map([
-    ['web-security', '웹 보안'],
-    ['database', '데이터베이스'],
-    ['data-structure', '자료구조'],
-    ['sql-traps', 'SQL 함정'],
-    ['os-network', 'OS·네트워크'],
-    ['architecture', '설계·클린코드'],
-    ['frontend', '브라우저·FE'],
-    ['testing', '테스트'],
-    ['devops', 'CI/CD·DevOps'],
-    ['ai-agent', 'AI·LLM·에이전트'],
-    ['java-spring', 'Java·Spring']
-]);
-
 const errors = [];
 
-// 1. Load & validate src/data.js (Cards)
+// 1. Load & validate src/data.js (CATEGORY_REGISTRY + Cards)
 const dataCode = fs.readFileSync('src/data.js', 'utf8');
-const { items, getInfographic } = new Function(dataCode + '; return { items, getInfographic };')();
+const { CATEGORY_REGISTRY, items, getInfographic } = new Function(dataCode + '; return { CATEGORY_REGISTRY, items, getInfographic };')();
+
+if (!Array.isArray(CATEGORY_REGISTRY) || CATEGORY_REGISTRY.length === 0) {
+    errors.push('src/data.js: CATEGORY_REGISTRY array is empty or missing.');
+}
+
+const ALLOWED_CATEGORIES = new Map((CATEGORY_REGISTRY || []).map(c => [c.id, c.name]));
 
 if (!Array.isArray(items) || items.length === 0) {
     errors.push('src/data.js: items array is empty or missing.');

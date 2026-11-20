@@ -463,3 +463,12 @@ html.light .sim-stage {
 .stepper-item.stepper-passed:not(:last-child)::after {
     background: rgba(16, 185, 129, 0.55);
 }
+
+@media (prefers-reduced-motion: reduce) {
+    .sim-edge-flow,
+    .sim-edge-fast,
+    .sim-packet,
+    .sim-node-alert {
+        animation: none !important;
+    }
+}
